@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Set
@@ -147,7 +148,8 @@ class StatArbBot:
 
         for feed in feeds:
             post = str(getattr(feed, "post", "") or "")
-            mentioned = [inst for inst in self.instruments if inst in post.upper()]
+            post_upper = post.upper()
+            mentioned = [inst for inst in self.instruments if re.search(rf"\b{re.escape(inst)}\b", post_upper)]
             targets = mentioned if mentioned else list(self.instruments.keys())
             for inst in targets:
                 self.news_cooldown_until[inst] = self.tick_count + self.cfg.news_cooldown_ticks
@@ -172,12 +174,14 @@ class StatArbBot:
             book = self.exchange.get_last_price_book(inst_id)
             books[inst_id] = book
             mp = mid_price(book)
+            hist = self.history.setdefault(inst_id, [])
             if mp is not None:
                 mids[inst_id] = mp
-                hist = self.history.setdefault(inst_id, [])
                 hist.append(mp)
-                if len(hist) > 500:
-                    del hist[: len(hist) - 500]
+            else:
+                hist.append(float("nan"))
+            if len(hist) > 500:
+                del hist[: len(hist) - 500]
 
         if not self.active_pairs or self.tick_count % self.cfg.rebalance_pairs_every_ticks == 0:
             self._refresh_pairs()

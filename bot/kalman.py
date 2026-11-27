@@ -228,6 +228,12 @@ class OnlineKalmanPair:
                 alpha0, beta0, _ = _ols_spread(a_arr, b_arr)
                 if np.isfinite(alpha0) and np.isfinite(beta0) and 0.1 <= beta0 <= 10.0:
                     self.theta = np.array([alpha0, beta0], dtype=np.float64)
+                else:
+                    # Safe fallback: anchor to mean price ratio so fair_value never explodes
+                    mean_a = float(np.mean(a_arr))
+                    mean_b = float(np.mean(b_arr))
+                    safe_beta = mean_a / mean_b if mean_b > 1e-6 else 1.0
+                    self.theta = np.array([0.0, safe_beta], dtype=np.float64)
                 self.initialized = True
                 for pa, pb in zip(self.warmup_a, self.warmup_b):
                     self._kalman_step(pa, pb)

@@ -236,6 +236,11 @@ class RiskAndExecution:
                 continue
 
             tick = float(getattr(inst, "tick_size", 0.10))
+            mid = 0.5 * (bid_p + ask_p)
+            # Sanity guard: ignore wildly diverged model fair values (>5% away from live mid)
+            if mid <= 0 or not math.isfinite(fv) or abs(fv - mid) > 0.05 * mid:
+                continue
+
             spread = max(ask_p - bid_p, tick)
             min_edge = max(min_edge_ticks * tick, 1.5 * spread)
             cur_pos = int(positions.get(inst_id, 0))
@@ -261,7 +266,10 @@ class RiskAndExecution:
                 if not self._can_send_request():
                     continue
                 self._record_request()
-                self.exchange.delete_orders(inst_id)
+                try:
+                    self.exchange.delete_orders(inst_id)
+                except Exception as exc:
+                    logger.warning("Edge delete_orders exception on %s: %s", inst_id, exc)
                 # Mark as traded and wait until next tick to avoid racing our own cancel
                 traded.add(inst_id)
                 continue

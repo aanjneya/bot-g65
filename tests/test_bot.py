@@ -42,6 +42,15 @@ class TestKalmanAndPairs(unittest.TestCase):
         w_stop = pair.target_weight(float(a_series[-1] + 5.0), float(b_series[-1]))
         self.assertEqual(w_stop, 0.0)
 
+    def test_kalman_flat_warmup_never_explodes_fair_value(self) -> None:
+        # Stock at $35 vs basket index at 100 with zero slope during warmup
+        pair = OnlineKalmanPair("NBIS", "BASKET_NBIS", min_warmup=20)
+        for i in range(25):
+            pair.update(35.0, 100.0 + 0.01 * (i % 2))
+        self.assertTrue(pair.initialized)
+        fv = pair.alpha + pair.beta * 100.0
+        self.assertAlmostEqual(fv, 35.0, delta=1.0)
+
     def test_select_top_pairs_discovers_cointegrated_pair(self) -> None:
         rng = np.random.default_rng(12)
         x = 100.0 + np.cumsum(rng.normal(0.0, 0.5, 260))
@@ -181,10 +190,11 @@ class TestMockRunner(unittest.TestCase):
         bot.instruments = ex.get_tradable_instruments()
         for _ in range(35):
             bot.step()
-        ex.push_mock_news("CRWV announces unexpected guidance change")
+        ex.push_mock_news("CRWV announces much higher guidance")
         bot.step()
         self.assertEqual(ex.get_outstanding_orders("CRWV"), {})
         self.assertIn("CRWV", bot.news_cooldown_until)
+        self.assertNotIn("MU", bot.news_cooldown_until)
 
 
 if __name__ == "__main__":
