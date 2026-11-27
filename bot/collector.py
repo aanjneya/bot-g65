@@ -39,8 +39,8 @@ def save_report(analyzer, folder):
 
 
 def main():
-    folder = "data_" + datetime.now().strftime("%d_%H%M%S")
-    os.makedirs(folder)
+    folder = os.path.join("data", "collector_" + datetime.now().strftime("%d_%H%M%S"))
+    os.makedirs(folder, exist_ok=True)
     files = [open(os.path.join(folder, n), "w", newline="", encoding="utf-8")
              for n in ("books.csv", "trades.csv", "news.csv")]
     books, trades, news = (csv.writer(f) for f in files)

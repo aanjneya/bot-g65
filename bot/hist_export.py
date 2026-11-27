@@ -70,7 +70,7 @@ def main():
         print("Bei 502/Timeout: spaeter nochmal oder kleineren Zeitraum waehlen.")
         return
 
-    folder = "data_hist_" + start.strftime("%d_%H%M") + "_" + end.strftime("%H%M")
+    folder = os.path.join("data", "hist_" + start.strftime("%d_%H%M") + "_" + end.strftime("%H%M"))
     os.makedirs(folder, exist_ok=True)
 
     n_books = 0

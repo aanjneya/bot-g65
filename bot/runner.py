@@ -6,12 +6,19 @@ import argparse
 import csv
 import logging
 import os
+import subprocess
+import sys
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+# Ensure project root is on sys.path when invoked as `python bot/runner.py` or via `bot/backtest.py`
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from bot.config import BotConfig
-from bot.execution import RiskAndExecution
+from bot.execution import RiskAndExecution, strip_own_orders
 from bot.mock_exchange import MockExchange
 from bot.signals import ABMMSAlphaEngine
 
@@ -130,7 +137,12 @@ class MarketLogger:
 class ABMMSBot:
     """Live/Mock ABMM-S trading bot: multi-signal FV, 8x8 GLFT skew, news sniper, endgame glide."""
 
-    def __init__(self, exchange: Any, cfg: BotConfig) -> None:
+    def __init__(
+        self,
+        exchange: Any,
+        cfg: BotConfig,
+        on_chunk_complete: Optional[Callable[[str], None]] = None,
+    ) -> None:
         self.exchange = exchange
         self.cfg = cfg
         self.executor = RiskAndExecution(
@@ -143,16 +155,80 @@ class ABMMSBot:
         self.alpha: Optional[ABMMSAlphaEngine] = None
         self.market_logger: Optional[MarketLogger] = None
         self.tick_count = 0
+        self._chunk_started_at: Optional[float] = None
+        self._nacht_dir: Optional[str] = None
+        self._nacht_procs: List[subprocess.Popen[Any]] = []
+        self._on_chunk_complete = on_chunk_complete
+
+    def _new_log_dir(self) -> str:
+        return os.path.join("data", "live_" + datetime.now().strftime("%d_%H%M%S_%f")[:16])
+
+    def _trigger_nacht_analysis(self, finished_folder: str) -> None:
+        if self._on_chunk_complete is not None:
+            self._on_chunk_complete(finished_folder)
+            return
+        nacht_dir = self._nacht_dir or self.cfg.nacht_dir or os.path.join(
+            "data", "nacht_" + datetime.now().strftime("%d_%H%M")
+        )
+        self._nacht_dir = nacht_dir
+        os.makedirs(nacht_dir, exist_ok=True)
+        nacht_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nacht.py")
+        cmd = [
+            sys.executable,
+            nacht_script,
+            "--nur-auswerten",
+            os.path.abspath(finished_folder),
+            "--ordner",
+            os.path.abspath(nacht_dir),
+            "--strategien",
+            self.cfg.nacht_strategies,
+        ]
+        log_path = os.path.join(nacht_dir, "nacht_bg.log")
+        try:
+            with open(log_path, "a", encoding="utf-8") as bg_log:
+                proc = subprocess.Popen(cmd, stdout=bg_log, stderr=subprocess.STDOUT)
+            self._nacht_procs = [p for p in self._nacht_procs if p.poll() is None] + [proc]
+            logger.info("Background nacht analysis started for %s -> %s/nacht_bericht.md", finished_folder, nacht_dir)
+        except Exception as exc:
+            logger.warning("Failed to start background nacht analysis: %s", exc)
+
+    def _maybe_rotate_chunk(self, now_ts: float) -> None:
+        if self.market_logger is None or not self.cfg.nacht_mode or self.cfg.nacht_chunk_min <= 0:
+            return
+        if self._chunk_started_at is None:
+            self._chunk_started_at = now_ts
+            return
+        if now_ts - self._chunk_started_at < self.cfg.nacht_chunk_min * 60.0:
+            return
+        finished = self.market_logger.folder
+        self.market_logger.close()
+        new_dir = self._new_log_dir()
+        if new_dir == finished:
+            new_dir = f"{new_dir}_{self.tick_count}"
+        self.market_logger = MarketLogger(new_dir)
+        self._chunk_started_at = now_ts
+        logger.info("Rotated CSV chunk %s -> %s", finished, new_dir)
+        self._trigger_nacht_analysis(finished)
 
     def _ensure_alpha(self) -> ABMMSAlphaEngine:
         if self.alpha is None:
             universe = sorted(self.instruments.keys()) if self.instruments else list(self.cfg.universe)
+            # In MockExchange (no 400-lot house walls), allow quoting without walls unless explicitly overridden
+            req_wall = (
+                self.cfg.require_wall_for_entry
+                if (not isinstance(self.exchange, MockExchange) or "REQUIRE_WALL_FOR_ENTRY" in os.environ)
+                else False
+            )
             self.alpha = ABMMSAlphaEngine(
                 universe,
                 w_micro=self.cfg.w_micro,
                 w_ofi=self.cfg.w_ofi,
                 w_wall=self.cfg.w_wall,
                 wall_min_volume=self.cfg.wall_min_volume,
+                wall_max_dist_ticks=self.cfg.wall_max_dist_ticks,
+                require_wall_for_entry=req_wall,
+                max_hold_sec=self.cfg.max_hold_sec,
+                stop_loss_ticks=self.cfg.stop_loss_ticks,
                 w_leadlag=self.cfg.w_leadlag,
                 glft_gamma=self.cfg.glft_gamma,
                 base_edge_ticks=float(self.cfg.quote_edge_ticks),
@@ -189,11 +265,18 @@ class ABMMSBot:
         self.tick_count += 1
         now_ts = time.monotonic() if now is None else float(now)
 
-        # 1. Single-connection market data ingest (books, public TradeTicks, social feeds)
+        # 1. Single-connection market data ingest — strip our own resting orders from books FIRST!
+        open_orders_by_inst: Dict[str, Dict[int, Any]] = {}
         books: Dict[str, Any] = {}
         trade_ticks: Dict[str, List[Any]] = {}
-        for inst_id in self.instruments:
-            books[inst_id] = self.exchange.get_last_price_book(inst_id)
+        own_trades: Dict[str, List[Any]] = {}
+        for inst_id, inst in self.instruments.items():
+            oo = self.exchange.get_outstanding_orders(inst_id)
+            open_orders_by_inst[inst_id] = oo
+            raw_book = self.exchange.get_last_price_book(inst_id)
+            tick = float(getattr(inst, "tick_size", 0.10) or 0.10)
+            books[inst_id] = strip_own_orders(raw_book, oo, tick_size=tick)
+
             if hasattr(self.exchange, "poll_new_trade_ticks"):
                 try:
                     trade_ticks[inst_id] = self.exchange.poll_new_trade_ticks(inst_id) or []
@@ -201,6 +284,14 @@ class ABMMSBot:
                     trade_ticks[inst_id] = []
             else:
                 trade_ticks[inst_id] = []
+
+            if hasattr(self.exchange, "poll_new_trades"):
+                try:
+                    own_trades[inst_id] = self.exchange.poll_new_trades(inst_id) or []
+                except Exception:
+                    own_trades[inst_id] = []
+            else:
+                own_trades[inst_id] = []
 
         try:
             social_feeds = self.exchange.poll_new_social_media_feeds() or []
@@ -210,12 +301,13 @@ class ABMMSBot:
         if self.market_logger is not None:
             try:
                 self.market_logger.record(books, trade_ticks, social_feeds)
+                self._maybe_rotate_chunk(now_ts)
             except Exception as exc:
                 logger.warning("CSV logger error: %s", exc)
 
         positions = self.exchange.get_positions()
 
-        # 2. Compute ABMM-S snapshot (Microprice+OFI, V>250 wall, counterparty markout, lead-lag, GLFT, news, endgame)
+        # 2. Compute ABMM-S snapshot (wall-protected entry, profit exit, scratches, markout breaker, GLFT)
         alpha = self._ensure_alpha()
         snap = alpha.update(
             now=now_ts,
@@ -225,6 +317,7 @@ class ABMMSBot:
             positions=positions,
             trade_ticks=trade_ticks,
             social_feeds=social_feeds,
+            own_trades=own_trades,
         )
 
         orders_sent = 0
@@ -233,42 +326,55 @@ class ABMMSBot:
         if snap.endgame.should_flatten:
             orders_sent += self.executor.flatten_positions(books, self.instruments)
         else:
-            # 4. Priority 2 — <1ms News sentiment sniper (bounded IOC, cancels resting quotes first)
-            news_sniped = self.executor.execute_news_snipes(snap.news_snipes, books, self.instruments)
-            orders_sent += len(news_sniped)
+            # 4. Priority 2 — Mandatory wall-break / hold-timeout / stop-loss IOC scratches
+            scratched = self.executor.execute_scratches(snap.scratches, books, self.instruments)
+            orders_sent += len(scratched)
 
-            # 5. Priority 3 — Edge-only aggressive IOC (only when book is mispriced >= 3 ticks & 1.5*spread beyond FV)
-            edge_sniped = self.executor.execute_fair_value_edge(
-                snap.fair_values,
+            # 5. Priority 3 — <1ms News sentiment sniper (bounded IOC, cancels resting quotes first)
+            news_sniped = self.executor.execute_news_snipes(
+                {k: v for k, v in snap.news_snipes.items() if k not in scratched},
                 books,
                 self.instruments,
-                paused_instruments=snap.paused | news_sniped,
-                max_edge_lots=self.cfg.edge_ioc_lots,
-                min_edge_ticks=self.cfg.edge_ioc_min_ticks,
             )
-            orders_sent += len(edge_sniped)
+            orders_sent += len(news_sniped)
 
-            # 6. Priority 4 — Queue-preserving passive GLFT quoting around reservation price
+            # 6. Priority 4 — Edge-only aggressive IOC (disabled by default until muster.py validates edge)
+            edge_sniped: set[str] = set()
+            if self.cfg.enable_edge_ioc:
+                edge_sniped = self.executor.execute_fair_value_edge(
+                    snap.fair_values,
+                    books,
+                    self.instruments,
+                    paused_instruments=snap.paused | scratched | news_sniped,
+                    max_edge_lots=self.cfg.edge_ioc_lots,
+                    min_edge_ticks=self.cfg.edge_ioc_min_ticks,
+                )
+                orders_sent += len(edge_sniped)
+
+            # 7. Priority 5 — Queue-preserving passive quoting (wall-protected entry + immediate profit exit)
             if self.cfg.enable_passive_quoting and snap.quote_plans and self.exchange.is_connected():
                 orders_sent += self.executor.quote_from_plans(
                     snap.quote_plans,
                     books,
                     self.instruments,
-                    paused_instruments=snap.paused | news_sniped | edge_sniped,
+                    paused_instruments=snap.paused | scratched | news_sniped | edge_sniped,
+                    open_orders_by_inst=open_orders_by_inst,
                 )
 
         if self.tick_count % self.cfg.log_every_ticks == 0 and self.exchange.is_connected():
             pnl = self.exchange.get_pnl()
             pos = {k: v for k, v in self.exchange.get_positions().items() if v != 0}
+            mk = {k: f"{v[1]:+.2f}t({v[0]})" for k, v in alpha.own_markout_stats.items() if v[0] > 0}
             rem_str = f" rem={snap.endgame.remaining_sec:.0f}s" if snap.endgame.remaining_sec is not None else ""
             logger.info(
-                "tick=%d paused=%d gamma_x=%.1f%s pnl=%.2f positions=%s",
+                "tick=%d paused=%d gamma_x=%.1f%s pnl=%.2f pos=%s mk5s=%s",
                 self.tick_count,
                 len(snap.paused),
                 snap.endgame.gamma_mult,
                 rem_str,
                 pnl if pnl is not None else 0.0,
                 pos,
+                mk,
             )
 
         return orders_sent
@@ -282,9 +388,16 @@ class ABMMSBot:
                 self.instruments = all_insts
 
             self._ensure_alpha()
-            if self.cfg.enable_csv_logging:
-                log_dir = self.cfg.csv_log_dir or ("data_live_" + datetime.now().strftime("%d_%H%M%S"))
+            if self.cfg.nacht_mode:
+                self.cfg.enable_csv_logging = True
+                if not self._nacht_dir:
+                    self._nacht_dir = self.cfg.nacht_dir or os.path.join(
+                        "data", "nacht_" + datetime.now().strftime("%d_%H%M")
+                    )
+            if self.cfg.enable_csv_logging and self.market_logger is None:
+                log_dir = self.cfg.csv_log_dir or self._new_log_dir()
                 self.market_logger = MarketLogger(log_dir)
+                self._chunk_started_at = time.monotonic()
                 logger.info("Embedded CSV logger active -> %s", log_dir)
 
             logger.info(
@@ -302,7 +415,10 @@ class ABMMSBot:
             logger.info("Interrupted — cancelling open orders and disconnecting")
         finally:
             if self.market_logger is not None:
+                final_folder = self.market_logger.folder
                 self.market_logger.close()
+                if self.cfg.nacht_mode:
+                    self._trigger_nacht_analysis(final_folder)
             for inst_id in self.instruments:
                 try:
                     self.exchange.delete_orders(inst_id)
@@ -318,6 +434,34 @@ class ABMMSBot:
 StatArbBot = ABMMSBot
 
 
+class BacktestBot:
+    """
+    Adapter for bot/backtest.py:
+        python bot/backtest.py <data_folder> --strategy runner:BacktestBot
+    Uses SimClock automatically when backtest.py patches runner.time = clock.
+    """
+
+    def __init__(self, ex: Any, folder: str) -> None:
+        cfg = BotConfig(
+            mock_mode=False,
+            require_wall_for_entry=True,
+            wall_min_volume=400,
+            quote_lots=10,
+            max_position_lots=40,
+            max_requests_per_sec=18,
+            log_every_ticks=10_000,
+        )
+        # Share backtest.py's SimClock with execution.py's rate-limiter
+        import bot.execution as _exec_mod
+
+        _exec_mod.time = time  # type: ignore[assignment]
+        self._bot = ABMMSBot(ex, cfg)
+        self._bot.instruments = ex.get_tradable_instruments()
+
+    def step(self) -> None:
+        self._bot.step(now=time.time())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Optibook ABMM-S Trading Bot")
     parser.add_argument("--mock", action="store_true", help="Run against local MockExchange")
@@ -330,6 +474,13 @@ def main() -> None:
     )
     parser.add_argument("--log-csv", action="store_true", help="Enable embedded CSV market logger")
     parser.add_argument("--log-dir", type=str, default=None, help="Directory for embedded CSV logs")
+    parser.add_argument(
+        "--nacht",
+        action="store_true",
+        help="Trade + record hourly CSV chunks + run background nacht.py backtest/muster analysis",
+    )
+    parser.add_argument("--chunk-min", type=float, default=None, help="Minutes per CSV chunk in --nacht mode (default 60)")
+    parser.add_argument("--nacht-strategies", type=str, default=None, help="Comma-separated strategies for --nacht analysis")
     args = parser.parse_args()
 
     cfg = BotConfig()
@@ -337,10 +488,16 @@ def main() -> None:
         cfg.mock_mode = True
     if args.session_sec is not None:
         cfg.session_duration_sec = args.session_sec
-    if args.log_csv or args.log_dir:
+    if args.log_csv or args.log_dir or args.nacht:
         cfg.enable_csv_logging = True
     if args.log_dir:
         cfg.csv_log_dir = args.log_dir
+    if args.nacht:
+        cfg.nacht_mode = True
+    if args.chunk_min is not None:
+        cfg.nacht_chunk_min = args.chunk_min
+    if args.nacht_strategies:
+        cfg.nacht_strategies = args.nacht_strategies
 
     exchange = build_exchange(cfg)
     bot = ABMMSBot(exchange, cfg)

@@ -11,10 +11,10 @@ from types import SimpleNamespace
 import numpy as np
 
 from bot.config import BotConfig
-from bot.execution import RiskAndExecution, clamp_delta_for_limit, round_to_tick
+from bot.execution import RiskAndExecution, clamp_delta_for_limit, round_to_tick, strip_own_orders
 from bot.kalman import BasketFairValueModel, OnlineKalmanPair, estimate_half_life, select_top_pairs
 from bot.mock_exchange import MockExchange
-from bot.runner import ABMMSBot, StatArbBot
+from bot.runner import ABMMSBot, BacktestBot, StatArbBot
 from bot.signals import (
     ABMMSAlphaEngine,
     CounterpartyTracker,
@@ -23,6 +23,7 @@ from bot.signals import (
     ReturnLeadLagCovariance,
     compute_endgame_state,
     extract_wall_anchor,
+    find_protecting_wall,
 )
 
 
@@ -327,10 +328,13 @@ class TestMockRunner(unittest.TestCase):
         self.assertEqual(ex.get_outstanding_orders("CRWV"), {})
         self.assertIn("CRWV", bot.news_cooldown_until)
 
-        # Test bullish news fires bounded buy IOC, pulls resting quotes, and stays connected
+        # Test bullish news fires bounded buy IOC when sniper is enabled, pulls resting quotes, and stays connected
+        cfg_sniper = BotConfig(mock_mode=True, news_cooldown_ticks=10, max_requests_per_sec=1000, enable_news_sniper=True)
+        bot_sniper = ABMMSBot(ex, cfg_sniper)
+        bot_sniper.instruments = bot.instruments
         pos_before = ex.get_positions()["NVDA"]
         ex.push_mock_news("NVIDIA beats revenue expectations and raises guidance")
-        bot.step()
+        bot_sniper.step()
         self.assertGreater(ex.get_positions()["NVDA"], pos_before)
         self.assertEqual(ex.get_outstanding_orders("NVDA"), {})
         self.assertTrue(ex.is_connected())
@@ -345,6 +349,7 @@ class TestMockRunner(unittest.TestCase):
                 endgame_start_sec=180.0,
                 flatten_start_sec=45.0,
                 max_requests_per_sec=1000,
+                enable_news_sniper=True,
                 enable_csv_logging=True,
                 csv_log_dir=tmpdir,
             )
@@ -377,6 +382,153 @@ class TestMockRunner(unittest.TestCase):
                 with open(fpath, "r", encoding="utf-8") as f:
                     rows = list(csv.reader(f))
                 self.assertGreaterEqual(len(rows), 2, f"{fname} should have header + data rows")
+
+    def test_strip_own_orders_and_wall_protection_and_scratch_and_breaker(self) -> None:
+        # 1. strip_own_orders removes our own penny-jumped quotes so spread/mid never self-feedback
+        raw_book = SimpleNamespace(
+            instrument_id="CRWV",
+            timestamp=1.0,
+            bids=[SimpleNamespace(price=100.1, volume=5), SimpleNamespace(price=100.0, volume=500)],
+            asks=[SimpleNamespace(price=100.3, volume=5), SimpleNamespace(price=100.6, volume=500)],
+        )
+        own = {
+            1: SimpleNamespace(side="bid", price=100.1, volume=5),
+            2: SimpleNamespace(side="ask", price=100.3, volume=5),
+        }
+        clean = strip_own_orders(raw_book, own, tick_size=0.10)
+        self.assertEqual([b.price for b in clean.bids], [100.0])
+        self.assertEqual([a.price for a in clean.asks], [100.6])
+        self.assertEqual(find_protecting_wall(clean, "bid", 0.10, wall_min_volume=400), 100.0)
+
+        # 2. Strict wall-backed mode: blocks entry when leader MU crashes, quotes 1 tick ahead when healthy,
+        #    quotes immediate +1 tick exit on fill, and scratches via IOC when wall breaks!
+        universe = ["CRWV", "MU"]
+        insts = {u: SimpleNamespace(tick_size=0.10, price_limit=None) for u in universe}
+        eng = ABMMSAlphaEngine(
+            universe,
+            require_wall_for_entry=True,
+            wall_min_volume=400,
+            quote_lots=5,
+            max_hold_sec=15.0,
+        )
+        books_ok = {
+            "CRWV": SimpleNamespace(
+                bids=[SimpleNamespace(price=100.0, volume=500)],
+                asks=[SimpleNamespace(price=100.5, volume=50), SimpleNamespace(price=100.6, volume=500)],
+            ),
+            "MU": SimpleNamespace(
+                bids=[SimpleNamespace(price=80.0, volume=100)],
+                asks=[SimpleNamespace(price=80.2, volume=100)],
+            ),
+        }
+        snap1 = eng.update(
+            now=10.0, tick_count=1, books=books_ok, instruments=insts,
+            positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
+        )
+        # CRWV has 500-lot bid wall at 100.0 -> bids at 100.1; MU has NO 400-lot wall -> 0 entry lots!
+        self.assertEqual(snap1.quote_plans["CRWV"].bid_lots, 5)
+        self.assertAlmostEqual(snap1.quote_plans["CRWV"].bid_price, 100.1)
+        self.assertEqual(snap1.quote_plans["MU"].bid_lots, 0)
+        self.assertEqual(snap1.quote_plans["MU"].ask_lots, 0)
+
+        # Leader MU crashes -0.50 -> blocks CRWV buy entry even though CRWV wall is still there!
+        books_mu_crash = {
+            "CRWV": books_ok["CRWV"],
+            "MU": SimpleNamespace(
+                bids=[SimpleNamespace(price=79.5, volume=100)],
+                asks=[SimpleNamespace(price=79.7, volume=100)],
+            ),
+        }
+        snap2 = eng.update(
+            now=11.0, tick_count=2, books=books_mu_crash, instruments=insts,
+            positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
+        )
+        self.assertEqual(snap2.quote_plans["CRWV"].bid_lots, 0)
+
+        # Suppose we are filled +5 CRWV @ 100.1 -> immediate passive exit ask at 100.2, then wall breaks -> scratch!
+        own_tr = {"CRWV": [SimpleNamespace(price=100.1, side="bid", volume=5)]}
+        snap3 = eng.update(
+            now=12.0, tick_count=3, books=books_ok, instruments=insts,
+            positions={"CRWV": 5, "MU": 0}, trade_ticks={}, social_feeds=[], own_trades=own_tr,
+        )
+        self.assertEqual(snap3.quote_plans["CRWV"].ask_lots, 5)
+        self.assertAlmostEqual(snap3.quote_plans["CRWV"].ask_price, 100.2)
+
+        # Wall breaks (best bid drops to 99.8 < 100.0 wall) -> mandatory IOC scratch triggered!
+        books_wall_broken = {
+            "CRWV": SimpleNamespace(
+                bids=[SimpleNamespace(price=99.8, volume=50)],
+                asks=[SimpleNamespace(price=100.1, volume=50)],
+            ),
+            "MU": books_ok["MU"],
+        }
+        snap4 = eng.update(
+            now=13.0, tick_count=4, books=books_wall_broken, instruments=insts,
+            positions={"CRWV": 5, "MU": 0}, trade_ticks={}, social_feeds=[],
+        )
+        self.assertEqual(snap4.scratches.get("CRWV"), "wall_broken")
+
+        # 3. 5 consecutive toxic own-fills trip the 45s per-stock entry breaker
+        for k in range(5):
+            eng.update(
+                now=20.0 + k, tick_count=10 + k, books=books_ok, instruments=insts,
+                positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
+                own_trades={"CRWV": [SimpleNamespace(price=100.5, side="bid", volume=5)]},
+            )
+        snap_br = eng.update(
+            now=31.0, tick_count=20, books=books_ok, instruments=insts,
+            positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
+        )
+        self.assertGreater(eng.entry_breaker_until.get("CRWV", 0.0), 31.0)
+        self.assertEqual(snap_br.quote_plans["CRWV"].bid_lots, 0)
+
+    def test_backtest_adapter_runs_cleanly_in_sim_exchange(self) -> None:
+        import bot.backtest as bt
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with open(os.path.join(tmpdir, "books.csv"), "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                w.writerow(["time", "instrument", "bids", "asks"])
+                for s in range(30):
+                    iso = f"2026-11-27T23:00:{s:02d}"
+                    w.writerow([iso, "CRWV", "100.0:600|99.9:200", "100.4:50|100.5:600"])
+                    w.writerow([iso, "MU", "80.0:500", "80.3:500"])
+            with open(os.path.join(tmpdir, "trades.csv"), "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                w.writerow(["time", "instrument", "price", "volume", "aggressor_side", "buyer", "seller"])
+                w.writerow(["2026-11-27T23:00:05", "CRWV", "100.1", "15", "ask", "Us", "Noise"])
+                w.writerow(["2026-11-27T23:00:09", "CRWV", "100.2", "15", "bid", "Noise", "Us"])
+
+            ex, curve, stopped, _, _ = bt.run(tmpdir, "runner:BacktestBot")
+            self.assertIsNone(stopped)
+            self.assertLessEqual(ex.max_req_sec, 20)
+
+    def test_runner_nacht_chunk_rotation_triggers_analysis(self) -> None:
+        from bot.runner import MarketLogger
+
+        completed: List[str] = []
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ex = MockExchange(seed=11)
+            cfg = BotConfig(mock_mode=True, nacht_mode=True, nacht_chunk_min=1.0, enable_csv_logging=True)
+            bot = ABMMSBot(ex, cfg, on_chunk_complete=completed.append)
+            first_dir = os.path.join(tmpdir, "chunk1")
+            bot.market_logger = MarketLogger(first_dir)
+            bot._chunk_started_at = 100.0
+            bot.step(now=110.0)
+            self.assertEqual(completed, [])
+            # Advance >= 60s -> rotates logger and triggers background analysis on first_dir
+            orig_new_log_dir = bot._new_log_dir
+            second_dir = os.path.join(tmpdir, "chunk2")
+            bot._new_log_dir = lambda: second_dir  # type: ignore[method-assign]
+            try:
+                bot.step(now=165.0)
+            finally:
+                bot._new_log_dir = orig_new_log_dir  # type: ignore[method-assign]
+                if bot.market_logger is not None:
+                    bot.market_logger.close()
+            self.assertEqual(completed, [first_dir])
+            self.assertEqual(bot.market_logger.folder, second_dir)
+            self.assertTrue(os.path.exists(os.path.join(first_dir, "books.csv")))
 
 
 if __name__ == "__main__":

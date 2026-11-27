@@ -120,9 +120,12 @@ def main():
     if len(sys.argv) > 1:
         folder = sys.argv[1]
     else:
-        found = sorted(glob.glob("data_*"), key=os.path.getmtime)
+        found = sorted(
+            [p for p in glob.glob(os.path.join("data", "*")) + glob.glob("data_*") if os.path.isdir(p)],
+            key=os.path.getmtime,
+        )
         if not found:
-            sys.exit("Kein data_ Ordner gefunden.")
+            sys.exit("Kein data/ Unterordner gefunden.")
         folder = found[-1]
     data = load(folder)
     if not data:
