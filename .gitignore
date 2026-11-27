@@ -1,0 +1,18 @@
+# Secrets - exchange credentials, never commit
+.optibook
+
+# Tooling/cache dirs not part of the project
+.cache/
+.config/
+.local/
+.npm/
+.openvscode-server/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Collector output
+data_*/
