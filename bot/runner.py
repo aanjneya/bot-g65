@@ -6,11 +6,11 @@ import argparse
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from bot.config import BotConfig
 from bot.execution import RiskAndExecution, mid_price
-from bot.kalman import OnlineKalmanPair, select_top_pairs
+from bot.kalman import BasketFairValueModel, OnlineKalmanPair, select_top_pairs
 from bot.mock_exchange import MockExchange
 
 logging.basicConfig(
@@ -75,10 +75,17 @@ class StatArbBot:
     def __init__(self, exchange: Any, cfg: BotConfig) -> None:
         self.exchange = exchange
         self.cfg = cfg
-        self.executor = RiskAndExecution(exchange, max_position_lots=cfg.max_position_lots)
+        self.executor = RiskAndExecution(
+            exchange,
+            max_position_lots=cfg.max_position_lots,
+            max_open_order_volume=cfg.max_open_order_volume,
+            max_requests_per_sec=cfg.max_requests_per_sec,
+        )
         self.instruments: Dict[str, Any] = {}
         self.history: Dict[str, List[float]] = {}
         self.active_pairs: List[OnlineKalmanPair] = []
+        self.basket_model: Optional[BasketFairValueModel] = None
+        self.news_cooldown_until: Dict[str, int] = {}
         self.tick_count = 0
 
     def _build_pair_model(self, stock_a: str, stock_b: str) -> OnlineKalmanPair:
@@ -131,6 +138,23 @@ class StatArbBot:
                 new_pairs.append(self._build_pair_model(cand.stock_a, cand.stock_b))
         self.active_pairs = new_pairs
 
+    def _check_news_guard(self) -> Set[str]:
+        """Poll social media feed and pause affected tickers (or all) for cooldown ticks."""
+        try:
+            feeds = self.exchange.poll_new_social_media_feeds()
+        except Exception:
+            feeds = []
+
+        for feed in feeds:
+            post = str(getattr(feed, "post", "") or "")
+            mentioned = [inst for inst in self.instruments if inst in post.upper()]
+            targets = mentioned if mentioned else list(self.instruments.keys())
+            for inst in targets:
+                self.news_cooldown_until[inst] = self.tick_count + self.cfg.news_cooldown_ticks
+            logger.info("News jump guard triggered (%s): pausing %s for %d ticks", post[:60], targets, self.cfg.news_cooldown_ticks)
+
+        return {inst for inst, until in self.news_cooldown_until.items() if self.tick_count < until}
+
     def step(self) -> int:
         """Run one market-data + signal + execution cycle. Returns orders sent."""
         if not self.exchange.is_connected():
@@ -140,6 +164,7 @@ class StatArbBot:
             self.exchange.step_market()
 
         self.tick_count += 1
+        paused = self._check_news_guard()
         books: Dict[str, Any] = {}
         mids: Dict[str, float] = {}
 
@@ -164,20 +189,55 @@ class StatArbBot:
             if pa is None or pb is None:
                 continue
             w = pair.target_weight(pa, pb)
+            if pair.stock_a in paused or pair.stock_b in paused:
+                continue
             lots_a = int(round(w * self.cfg.max_lots_per_pair))
             lots_b = int(round(-w * pair.beta * self.cfg.max_lots_per_pair))
             targets[pair.stock_a] = targets.get(pair.stock_a, 0) + lots_a
             targets[pair.stock_b] = targets.get(pair.stock_b, 0) + lots_b
 
+        fair_values: Dict[str, float] = {}
+        if self.cfg.enable_basket_model:
+            if self.basket_model is None:
+                self.basket_model = BasketFairValueModel(
+                    list(self.instruments.keys()),
+                    delta=self.cfg.kalman_delta,
+                    r_var=self.cfg.kalman_r,
+                    z_window=self.cfg.z_window,
+                    min_warmup=min(self.cfg.min_warmup, 25),
+                    z_entry=self.cfg.basket_z_entry,
+                    z_exit=self.cfg.exit_z,
+                    z_stop=self.cfg.stop_z,
+                )
+            fair_values, basket_weights = self.basket_model.update(mids)
+            for inst_id, bw in basket_weights.items():
+                if inst_id not in paused:
+                    targets[inst_id] = targets.get(inst_id, 0) + int(round(bw * self.cfg.basket_max_lots))
+
+        # Keep existing positions untouched on paused instruments instead of forcing new entries
+        current_positions = self.exchange.get_positions()
+        for inst_id in paused:
+            targets[inst_id] = int(current_positions.get(inst_id, 0))
+
         orders_sent = self.executor.execute_target_positions(targets, books, self.instruments)
+        if self.cfg.enable_passive_quoting and fair_values:
+            orders_sent += self.executor.quote_around_fair_value(
+                fair_values,
+                books,
+                self.instruments,
+                paused_instruments=paused,
+                quote_lots=self.cfg.quote_lots,
+                edge_ticks=self.cfg.quote_edge_ticks,
+            )
 
         if self.tick_count % self.cfg.log_every_ticks == 0:
             pnl = self.exchange.get_pnl()
             pos = {k: v for k, v in self.exchange.get_positions().items() if v != 0}
             logger.info(
-                "tick=%d pairs=%d pnl=%.2f positions=%s",
+                "tick=%d pairs=%d paused=%d pnl=%.2f positions=%s",
                 self.tick_count,
                 len(self.active_pairs),
+                len(paused),
                 pnl if pnl is not None else 0.0,
                 pos,
             )

@@ -51,7 +51,22 @@ class BotConfig:
 
     # Sizing & pair selection
     max_pairs: int = field(default_factory=lambda: int(os.getenv("MAX_PAIRS", "4")))
-    max_lots_per_pair: int = field(default_factory=lambda: int(os.getenv("MAX_LOTS_PER_PAIR", "25")))
+    max_lots_per_pair: int = field(default_factory=lambda: int(os.getenv("MAX_LOTS_PER_PAIR", "20")))
     rebalance_pairs_every_ticks: int = field(default_factory=lambda: int(os.getenv("REBALANCE_PAIRS_TICKS", "120")))
     use_historical_seed: bool = field(default_factory=lambda: _env_bool("USE_HISTORICAL_SEED", True))
     log_every_ticks: int = field(default_factory=lambda: int(os.getenv("LOG_EVERY_TICKS", "20")))
+
+    # 7-vs-1 Basket Fair Value model
+    enable_basket_model: bool = field(default_factory=lambda: _env_bool("ENABLE_BASKET_MODEL", True))
+    basket_z_entry: float = field(default_factory=lambda: float(os.getenv("BASKET_Z_ENTRY", "1.6")))
+    basket_max_lots: int = field(default_factory=lambda: int(os.getenv("BASKET_MAX_LOTS", "15")))
+
+    # Passive market-making around Kalman fair value
+    enable_passive_quoting: bool = field(default_factory=lambda: _env_bool("ENABLE_PASSIVE_QUOTING", True))
+    quote_lots: int = field(default_factory=lambda: int(os.getenv("QUOTE_LOTS", "5")))
+    quote_edge_ticks: int = field(default_factory=lambda: int(os.getenv("QUOTE_EDGE_TICKS", "1")))
+    max_open_order_volume: int = field(default_factory=lambda: int(os.getenv("MAX_OPEN_ORDER_VOLUME", "180")))
+
+    # News-feed jump guard & Optibook rate limit (<25 req/s)
+    news_cooldown_ticks: int = field(default_factory=lambda: int(os.getenv("NEWS_COOLDOWN_TICKS", "20")))
+    max_requests_per_sec: int = field(default_factory=lambda: int(os.getenv("MAX_REQUESTS_PER_SEC", "20")))

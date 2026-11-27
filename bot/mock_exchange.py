@@ -44,6 +44,12 @@ class MockOrderStatus:
     side: str
 
 
+@dataclass
+class MockSocialMediaFeed:
+    post: str
+    meta_data: Optional[dict] = None
+
+
 class MockExchange:
     """In-memory cointegrated order-book simulator for local testing and MOCK_MODE=true."""
 
@@ -55,6 +61,7 @@ class MockExchange:
         self._positions: Dict[str, int] = {inst: 0 for inst in self.universe}
         self._cash: float = 0.0
         self._outstanding: Dict[str, Dict[int, MockOrderStatus]] = {inst: {} for inst in self.universe}
+        self._social_feeds: List[MockSocialMediaFeed] = []
         self._next_order_id = 1
         self._step = 0
 
@@ -125,6 +132,15 @@ class MockExchange:
     def delete_orders(self, instrument_id: str) -> None:
         self._outstanding[instrument_id] = {}
 
+    def push_mock_news(self, post: str) -> None:
+        """Inject a mock social media post for testing news-feed jump guards."""
+        self._social_feeds.append(MockSocialMediaFeed(post=post))
+
+    def poll_new_social_media_feeds(self) -> List[MockSocialMediaFeed]:
+        feeds = list(self._social_feeds)
+        self._social_feeds.clear()
+        return feeds
+
     def insert_order(
         self,
         instrument_id: str,
@@ -145,19 +161,28 @@ class MockExchange:
             return MockOrderResponse(success=False, error_reason="Position limit exceeded")
 
         book = self.get_last_price_book(instrument_id)
+        oid = self._next_order_id
+        self._next_order_id += 1
+
         if side == "bid" and book.asks and price >= book.asks[0].price:
             fill_vol = min(volume, book.asks[0].volume)
             fill_px = book.asks[0].price
             self._positions[instrument_id] = cur + fill_vol
             self._cash -= fill_vol * fill_px
-        elif side == "ask" and book.bids and price <= book.bids[0].price:
+            return MockOrderResponse(success=True, order_id=oid)
+        if side == "ask" and book.bids and price <= book.bids[0].price:
             fill_vol = min(volume, book.bids[0].volume)
             fill_px = book.bids[0].price
             self._positions[instrument_id] = cur - fill_vol
             self._cash += fill_vol * fill_px
-        elif order_type == "ioc":
-            return MockOrderResponse(success=True, order_id=self._next_order_id)
+            return MockOrderResponse(success=True, order_id=oid)
 
-        oid = self._next_order_id
-        self._next_order_id += 1
+        if order_type == "limit":
+            self._outstanding.setdefault(instrument_id, {})[oid] = MockOrderStatus(
+                order_id=oid,
+                instrument_id=instrument_id,
+                price=price,
+                volume=volume,
+                side=side,
+            )
         return MockOrderResponse(success=True, order_id=oid)

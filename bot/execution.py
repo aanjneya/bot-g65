@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional, Tuple
+import time
+from collections import deque
+from typing import Any, Deque, Dict, Optional, Set, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +69,29 @@ def clamp_delta_for_limit(
 
 
 class RiskAndExecution:
-    """Executes target leg positions via IOC orders while enforcing Optibook position limits."""
+    """Executes IOC rebalances and passive limit quotes while enforcing Optibook limits."""
 
-    def __init__(self, exchange: Any, max_position_lots: int = 100) -> None:
+    def __init__(
+        self,
+        exchange: Any,
+        max_position_lots: int = 100,
+        max_open_order_volume: int = 180,
+        max_requests_per_sec: int = 20,
+    ) -> None:
         self.exchange = exchange
         self.max_position_lots = max_position_lots
+        self.max_open_order_volume = max_open_order_volume
+        self.max_requests_per_sec = max_requests_per_sec
+        self._req_times: Deque[float] = deque()
+
+    def _can_send_request(self) -> bool:
+        now = time.monotonic()
+        while self._req_times and now - self._req_times[0] >= 1.0:
+            self._req_times.popleft()
+        return len(self._req_times) < self.max_requests_per_sec
+
+    def _record_request(self) -> None:
+        self._req_times.append(time.monotonic())
 
     def execute_target_positions(
         self,
@@ -125,9 +145,10 @@ class RiskAndExecution:
                 price = clamp_price(round_to_tick(bid_p, tick, "ask"), inst)
                 side = "ask"
 
-            if vol <= 0:
+            if vol <= 0 or not self._can_send_request():
                 continue
 
+            self._record_request()
             resp = self.exchange.insert_order(
                 inst_id,
                 price=price,
@@ -139,5 +160,92 @@ class RiskAndExecution:
                 orders_sent += 1
             else:
                 logger.warning("Order rejected on %s (%s %s@%s): %s", inst_id, side, vol, price, resp.error_reason)
+
+        return orders_sent
+
+    def quote_around_fair_value(
+        self,
+        fair_values: Dict[str, float],
+        books: Dict[str, Any],
+        instruments: Dict[str, Any],
+        paused_instruments: Set[str],
+        quote_lots: int = 5,
+        edge_ticks: int = 1,
+    ) -> int:
+        """
+        Maintain inventory-skewed passive limit quotes around each stock's Kalman fair value.
+        Cancels quotes on paused instruments and avoids crossing the spread.
+        """
+        positions = self.exchange.get_positions()
+        orders_sent = 0
+
+        for inst_id, inst in instruments.items():
+            open_orders = self.exchange.get_outstanding_orders(inst_id)
+
+            if inst_id in paused_instruments:
+                if open_orders:
+                    self._record_request()
+                    self.exchange.delete_orders(inst_id)
+                continue
+
+            fv = fair_values.get(inst_id)
+            book = books.get(inst_id)
+            if fv is None or book is None:
+                continue
+
+            bid_p, _, ask_p, _ = best_bid_ask(book)
+            if bid_p is None or ask_p is None:
+                continue
+
+            tick = float(getattr(inst, "tick_size", 0.10))
+            cur_pos = int(positions.get(inst_id, 0))
+
+            # Inventory skew: shift fair value down when long, up when short
+            skew = -(cur_pos / max(self.max_position_lots, 1)) * tick * 2.0
+            edge = max(1, edge_ticks) * tick
+
+            target_bid = round_to_tick(min(fv + skew - edge, ask_p - tick), tick, "bid")
+            target_ask = round_to_tick(max(fv + skew + edge, bid_p + tick), tick, "ask")
+            target_bid = clamp_price(target_bid, inst)
+            target_ask = clamp_price(target_ask, inst)
+
+            if target_bid >= target_ask:
+                continue
+
+            open_bids = [o for o in open_orders.values() if o.side == "bid"]
+            open_asks = [o for o in open_orders.values() if o.side == "ask"]
+            open_bid_vol = sum(o.volume for o in open_bids)
+            open_ask_vol = sum(o.volume for o in open_asks)
+
+            bid_stale = (not open_bids) or any(abs(o.price - target_bid) >= tick * 0.5 for o in open_bids)
+            ask_stale = (not open_asks) or any(abs(o.price - target_ask) >= tick * 0.5 for o in open_asks)
+
+            if not (bid_stale or ask_stale):
+                continue
+
+            # Check open volume & position headroom before replacing quotes
+            bid_vol = clamp_delta_for_limit(quote_lots, cur_pos, 0, 0, self.max_position_lots)
+            ask_vol = -clamp_delta_for_limit(-quote_lots, cur_pos, 0, 0, self.max_position_lots)
+            if open_bid_vol + open_ask_vol > self.max_open_order_volume:
+                bid_vol = 0
+                ask_vol = 0
+
+            if open_orders:
+                if not self._can_send_request():
+                    continue
+                self._record_request()
+                self.exchange.delete_orders(inst_id)
+
+            if bid_vol > 0 and self._can_send_request():
+                self._record_request()
+                r_bid = self.exchange.insert_order(inst_id, price=target_bid, volume=bid_vol, side="bid", order_type="limit")
+                if r_bid.success:
+                    orders_sent += 1
+
+            if ask_vol > 0 and self._can_send_request():
+                self._record_request()
+                r_ask = self.exchange.insert_order(inst_id, price=target_ask, volume=ask_vol, side="ask", order_type="limit")
+                if r_ask.success:
+                    orders_sent += 1
 
         return orders_sent

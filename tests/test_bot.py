@@ -8,7 +8,7 @@ import numpy as np
 
 from bot.config import BotConfig
 from bot.execution import clamp_delta_for_limit, round_to_tick
-from bot.kalman import OnlineKalmanPair, estimate_half_life, select_top_pairs
+from bot.kalman import BasketFairValueModel, OnlineKalmanPair, estimate_half_life, select_top_pairs
 from bot.mock_exchange import MockExchange
 from bot.runner import StatArbBot
 
@@ -81,6 +81,30 @@ class TestMockRunner(unittest.TestCase):
         self.assertFalse(ex.is_connected())  # Cleanly disconnected on exit
         for inst, pos in ex.get_positions().items():
             self.assertLessEqual(abs(pos), 100, f"Position limit breached on {inst}: {pos}")
+
+    def test_basket_model_and_news_guard(self) -> None:
+        universe = ["AMD", "AVGO", "CRWV", "MU", "NBIS", "NVDA", "SNDK", "VRT"]
+        basket = BasketFairValueModel(universe, min_warmup=15, z_window=25)
+        rng = np.random.default_rng(5)
+        base = {u: 100.0 + i * 5.0 for i, u in enumerate(universe)}
+        for _ in range(30):
+            mids = {u: base[u] + float(rng.normal(0.0, 0.2)) for u in universe}
+            fvs, weights = basket.update(mids)
+        self.assertEqual(len(fvs), len(universe))
+        self.assertEqual(len(weights), len(universe))
+
+        # Test news guard pulls open orders on mentioned ticker
+        cfg = BotConfig(mock_mode=True, min_warmup=20, z_window=30, news_cooldown_ticks=10, max_requests_per_sec=1000)
+        ex = MockExchange(universe=universe, seed=11, max_pos=100)
+        ex.connect()
+        bot = StatArbBot(ex, cfg)
+        bot.instruments = ex.get_tradable_instruments()
+        for _ in range(35):
+            bot.step()
+        ex.push_mock_news("CRWV announces unexpected guidance change")
+        bot.step()
+        self.assertEqual(ex.get_outstanding_orders("CRWV"), {})
+        self.assertIn("CRWV", bot.news_cooldown_until)
 
 
 if __name__ == "__main__":
