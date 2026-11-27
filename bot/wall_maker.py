@@ -31,6 +31,8 @@ MAX_REQ = 15        # Anfragen pro Sekunde (Boerse trennt ab 25)
 LOOP = 0.2          # Sekunden pro Durchlauf
 MARKOUTS = [1, 5, 15]
 EPS = 1e-9
+MICRO_FILTER = True  # nur einsteigen, wenn der Microprice nicht gegen uns zeigt
+CAP = 100           # Mengen fuer den Microprice kappen (sonst dominiert die Wand selbst)
 
 
 def r1(x):
@@ -93,6 +95,13 @@ def must_flatten(pos, st, bids, asks, now):
     return None
 
 
+def micro_tilt(bids, asks):
+    """Microprice minus Mitte. >0: Druck nach oben, <0: Druck nach unten."""
+    qb, qa = min(bids[0][1], CAP), min(asks[0][1], CAP)
+    micro = (bids[0][0] * qa + asks[0][0] * qb) / (qb + qa)
+    return micro - (bids[0][0] + asks[0][0]) / 2
+
+
 def plan_quotes(pos, st, bids, asks):
     """Gewuenschte Orders {'bid': (preis, menge) | None, 'ask': ...}."""
     want = {"bid": None, "ask": None}
@@ -100,6 +109,12 @@ def plan_quotes(pos, st, bids, asks):
         return want
     best_bid, best_ask = bids[0][0], asks[0][0]
     bw, aw = find_wall(bids, "bid"), find_wall(asks, "ask")
+    if MICRO_FILTER:
+        tilt = micro_tilt(bids, asks)
+        if tilt < -EPS:
+            bw = None       # Druck nach unten: nicht vor der Kauf-Wand kaufen
+        if tilt > EPS:
+            aw = None       # Druck nach oben: nicht vor der Verkaufs-Wand verkaufen
 
     # Einstieg vor der Wand
     if bw is not None and pos < MAX_POS:

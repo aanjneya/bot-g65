@@ -4,7 +4,8 @@ derselbe Code wie live (z. B. der Wand-Bot) ohne Aenderung.
 
 Start:
     python bot/backtest.py data_27_213800                    # Strategie: simple (Vergleich)
-    python bot/backtest.py data_27_213800 --strategy wall    # Wand-Bot
+    python bot/backtest.py data_27_213800 --strategy wall    # Wand-Bot mit Microprice-Filter
+    python bot/backtest.py data_27_213800 --strategy wall_raw  # Wand-Bot ohne Filter
     python bot/backtest.py data_hist_xyz --strategy wall      # historische Daten (hist_export.py)
 Schreibt <datenordner>/backtest_<strategie>.md und backtest_<strategie>_pnl.csv.
 
@@ -315,9 +316,10 @@ class SimpleMaker:
 def make_strategy(name, ex, clock, folder):
     if name == "simple":
         return SimpleMaker(ex, folder)
-    if name == "wall":
+    if name in ("wall", "wall_raw"):
         import wall_maker
         wall_maker.time = clock               # Strategie sieht die Simulationszeit
+        wall_maker.MICRO_FILTER = name == "wall"   # wall_raw = ohne Microprice-Filter
         wall_maker.INSTRUMENTS[:] = list(ex.instruments)
         return wall_maker.WallMaker(ex, folder)
     if ":" in name:                           # eigene Strategie: modul:Klasse(ex, folder)
@@ -459,7 +461,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("folder", help="Datenordner mit books.csv und trades.csv")
     ap.add_argument("--strategy", default="simple",
-                    help="simple | wall | modul:Klasse (Klasse(ex, ordner) mit .step())")
+                    help="simple | wall | wall_raw | modul:Klasse (Klasse(ex, ordner) mit .step())")
     ap.add_argument("--start", type=float, default=0.0, help="Anteil 0..1, ab wann handeln")
     ap.add_argument("--end", type=float, default=1.0, help="Anteil 0..1, bis wann")
     args = ap.parse_args()
