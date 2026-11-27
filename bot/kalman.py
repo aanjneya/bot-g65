@@ -83,8 +83,10 @@ def select_top_pairs(
     price_history: Dict[str, List[float]],
     max_pairs: int = 4,
     min_points: int = 30,
-    min_corr: float = 0.50,
-    max_pvalue: float = 0.10,
+    min_corr: float = 0.70,
+    max_pvalue: float = 0.08,
+    min_half_life: float = 2.5,
+    max_half_life: float = 60.0,
 ) -> List[PairCandidate]:
     """Discover disjoint mean-reverting pairs from recent mid-price histories."""
     tickers = [t for t, vals in price_history.items() if len(vals) >= min_points]
@@ -123,7 +125,7 @@ def select_top_pairs(
                 continue
 
             hl, slope = estimate_half_life(spread)
-            if not np.isfinite(hl) or slope >= 0:
+            if not np.isfinite(hl) or slope >= 0 or hl < min_half_life or hl > max_half_life:
                 continue
 
             candidates.append(

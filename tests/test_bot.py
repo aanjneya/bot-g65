@@ -44,9 +44,13 @@ class TestKalmanAndPairs(unittest.TestCase):
 
     def test_select_top_pairs_discovers_cointegrated_pair(self) -> None:
         rng = np.random.default_rng(12)
-        x = 100.0 + np.cumsum(rng.normal(0.0, 0.5, 120))
-        y = 5.0 + 1.5 * x + rng.normal(0.0, 0.2, 120)
-        z = 50.0 + np.cumsum(rng.normal(0.0, 0.8, 120))
+        x = 100.0 + np.cumsum(rng.normal(0.0, 0.5, 260))
+        # Generate a realistic OU mean-reverting spread (phi=0.82 -> half-life ~ 3.5 ticks)
+        ou = np.zeros(260)
+        for t in range(1, 260):
+            ou[t] = 0.82 * ou[t - 1] + rng.normal(0.0, 0.2)
+        y = 5.0 + 1.5 * x + ou
+        z = 50.0 + np.cumsum(rng.normal(0.0, 0.8, 260))
         history = {"NVDA": y.tolist(), "AMD": x.tolist(), "VRT": z.tolist()}
 
         pairs = select_top_pairs(history, max_pairs=2, min_points=40)
