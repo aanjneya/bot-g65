@@ -129,6 +129,21 @@ class MockExchange:
     def get_outstanding_orders(self, instrument_id: str) -> Dict[int, MockOrderStatus]:
         return dict(self._outstanding.get(instrument_id, {}))
 
+    def delete_order(self, instrument_id: str, *, order_id: int) -> MockOrderResponse:
+        if order_id in self._outstanding.get(instrument_id, {}):
+            del self._outstanding[instrument_id][order_id]
+            return MockOrderResponse(success=True, order_id=order_id)
+        return MockOrderResponse(success=False, error_reason="Order not found")
+
+    def amend_order(self, instrument_id: str, *, order_id: int, volume: int) -> MockOrderResponse:
+        order = self._outstanding.get(instrument_id, {}).get(order_id)
+        if order is None:
+            return MockOrderResponse(success=False, error_reason="Order not found")
+        if volume <= 0:
+            return MockOrderResponse(success=False, error_reason="Volume must be positive")
+        order.volume = volume
+        return MockOrderResponse(success=True, order_id=order_id)
+
     def delete_orders(self, instrument_id: str) -> None:
         self._outstanding[instrument_id] = {}
 

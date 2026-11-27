@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import time
 from collections import deque
 from typing import Any, Deque, Dict, Optional, Set, Tuple
@@ -11,10 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 def round_to_tick(price: float, tick_size: float, side: str) -> float:
-    """Round price to the nearest valid exchange tick (aggressive or passive)."""
+    """Round price conservatively to the exchange tick grid (floor bids, ceil asks)."""
     if tick_size <= 0:
         return round(price, 2)
-    steps = round(price / tick_size)
+    ratio = price / tick_size
+    if side == "bid":
+        steps = math.floor(ratio + 1e-9)
+    elif side == "ask":
+        steps = math.ceil(ratio - 1e-9)
+    else:
+        steps = round(ratio)
     rounded = steps * tick_size
     # Avoid floating point representation artifacts like 44.60000000000001
     decimals = max(0, len(f"{tick_size:.10f}".rstrip("0").split(".")[-1]))
@@ -84,11 +91,12 @@ class RiskAndExecution:
         self.max_requests_per_sec = max_requests_per_sec
         self._req_times: Deque[float] = deque()
 
-    def _can_send_request(self) -> bool:
+    def _can_send_request(self, reserve: int = 0) -> bool:
         now = time.monotonic()
         while self._req_times and now - self._req_times[0] >= 1.0:
             self._req_times.popleft()
-        return len(self._req_times) < self.max_requests_per_sec
+        cap = max(1, self.max_requests_per_sec - reserve)
+        return len(self._req_times) < cap
 
     def _record_request(self) -> None:
         self._req_times.append(time.monotonic())
@@ -329,9 +337,10 @@ class RiskAndExecution:
             skew = -(cur_pos / max(self.max_position_lots, 1)) * tick * 4.0
             edge = max(1, edge_ticks) * tick
 
-            # Strictly passive: never bid above best_bid or ask below best_ask (prevents self-trade & spread bleed)
-            target_bid = round_to_tick(min(anchored_fv + skew - edge, bid_p, ask_p - tick), tick, "bid")
-            target_ask = round_to_tick(max(anchored_fv + skew + edge, ask_p, bid_p + tick), tick, "ask")
+            # Strictly passive (never crosses opposite BBO), but CAN step inside wide spreads
+            # so we sit in front of house-bot walls rather than behind them.
+            target_bid = round_to_tick(min(anchored_fv + skew - edge, ask_p - tick), tick, "bid")
+            target_ask = round_to_tick(max(anchored_fv + skew + edge, bid_p + tick), tick, "ask")
             target_bid = clamp_price(target_bid, inst)
             target_ask = clamp_price(target_ask, inst)
 
@@ -343,28 +352,52 @@ class RiskAndExecution:
             open_bid_vol = sum(o.volume for o in open_bids)
             open_ask_vol = sum(o.volume for o in open_asks)
 
-            bid_stale = (not open_bids) or any(abs(o.price - target_bid) >= tick * 0.5 for o in open_bids)
-            ask_stale = (not open_asks) or any(abs(o.price - target_ask) >= tick * 0.5 for o in open_asks)
-
-            if not (bid_stale or ask_stale):
-                continue
-
             # Reduce size on the inventory-increasing side when holding a position
             raw_bid_lots = max(1, quote_lots // 2) if cur_pos > 15 else quote_lots
             raw_ask_lots = max(1, quote_lots // 2) if cur_pos < -15 else quote_lots
             bid_vol = clamp_delta_for_limit(raw_bid_lots, cur_pos, 0, 0, self.max_position_lots)
             ask_vol = -clamp_delta_for_limit(-raw_ask_lots, cur_pos, 0, 0, self.max_position_lots)
-            if open_bid_vol + open_ask_vol > self.max_open_order_volume:
-                bid_vol = 0
-                ask_vol = 0
 
-            if open_orders:
-                if not self._can_send_request():
-                    continue
+            bid_price_ok = len(open_bids) == 1 and abs(open_bids[0].price - target_bid) < tick * 0.5
+            ask_price_ok = len(open_asks) == 1 and abs(open_asks[0].price - target_ask) < tick * 0.5
+            bid_vol_ok = bid_price_ok and open_bids[0].volume == bid_vol
+            ask_vol_ok = ask_price_ok and open_asks[0].volume == ask_vol
+
+            if (bid_vol == 0 and not open_bids or bid_vol_ok) and (ask_vol == 0 and not open_asks or ask_vol_ok):
+                continue
+
+            # Reserve 4 req/s for high-priority news/edge IOCs when budget allows
+            passive_reserve = 4 if self.max_requests_per_sec > 8 else 0
+            bid_done = bid_vol == 0 and not open_bids or bid_vol_ok
+            ask_done = ask_vol == 0 and not open_asks or ask_vol_ok
+            need_bid_amend = not bid_done and bid_price_ok and bid_vol > 0 and open_bids[0].volume > bid_vol and hasattr(self.exchange, "amend_order")
+            need_ask_amend = not ask_done and ask_price_ok and ask_vol > 0 and open_asks[0].volume > ask_vol and hasattr(self.exchange, "amend_order")
+
+            # Phase 1: Cancel/amend stale orders BEFORE inserting new ones (prevents self-trade if BBO shifted)
+            if not bid_done and not need_bid_amend:
+                for ob in open_bids:
+                    if not self._can_send_request(passive_reserve):
+                        break
+                    self._record_request()
+                    self.exchange.delete_order(inst_id, order_id=ob.order_id)
+
+            if not ask_done and not need_ask_amend:
+                for oa in open_asks:
+                    if not self._can_send_request(passive_reserve):
+                        break
+                    self._record_request()
+                    self.exchange.delete_order(inst_id, order_id=oa.order_id)
+
+            # Phase 2: Amend or insert updated sides
+            if need_bid_amend and self._can_send_request(passive_reserve):
                 self._record_request()
-                self.exchange.delete_orders(inst_id)
-
-            if bid_vol > 0 and self._can_send_request():
+                try:
+                    r_am = self.exchange.amend_order(inst_id, order_id=open_bids[0].order_id, volume=bid_vol)
+                    if r_am.success:
+                        orders_sent += 1
+                except Exception as exc:
+                    logger.warning("Amend bid exception on %s: %s", inst_id, exc)
+            elif not bid_done and bid_vol > 0 and open_bid_vol + open_ask_vol <= self.max_open_order_volume and self._can_send_request(passive_reserve):
                 self._record_request()
                 try:
                     r_bid = self.exchange.insert_order(inst_id, price=target_bid, volume=bid_vol, side="bid", order_type="limit")
@@ -373,7 +406,15 @@ class RiskAndExecution:
                 except Exception as exc:
                     logger.warning("Quote bid exception on %s: %s", inst_id, exc)
 
-            if ask_vol > 0 and self._can_send_request():
+            if need_ask_amend and self._can_send_request(passive_reserve):
+                self._record_request()
+                try:
+                    r_am = self.exchange.amend_order(inst_id, order_id=open_asks[0].order_id, volume=ask_vol)
+                    if r_am.success:
+                        orders_sent += 1
+                except Exception as exc:
+                    logger.warning("Amend ask exception on %s: %s", inst_id, exc)
+            elif not ask_done and ask_vol > 0 and open_bid_vol + open_ask_vol <= self.max_open_order_volume and self._can_send_request(passive_reserve):
                 self._record_request()
                 try:
                     r_ask = self.exchange.insert_order(inst_id, price=target_ask, volume=ask_vol, side="ask", order_type="limit")

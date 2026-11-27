@@ -1,39 +1,39 @@
 # Architecture
 
-> Shared system architecture for **start-hack-titans** (Aanjneya, Daksh, Jivi, Tim).
-> Write once at Hour 1–2 and update only on major structural changes.
+> Shared system architecture for **Optiver HackaTUM 2026** (`aanjneya`, `slava`).
 
 ## System Overview
 
-<!-- Brief summary of what we are building and the end-to-end demo flow. -->
+**ABMM-S (Adaptive Bayesian Multi-Asset Market Maker & Sniper)** trading the 8-stock Optibook universe (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`) in a 30-minute live final (Sunday 10:00).
 
 ## Tech Stack
 
-- **Frontend**: _TBD_
-- **Backend / API**: _TBD_
-- **Database / Storage**: _TBD_
-- **External APIs / AI**: _TBD_ (must support `MOCK_MODE=true` env var + runtime `?mock=1`/hotkey toggle)
-- **Deploy Target**: _TBD (auto-deploy from `main` by Hour 1.5)_
+- **Language / Runtime**: Python 3.10+ (`numpy`, `optibook`)
+- **Live Bot (`bot/`)**: Single-connection event loop (200–250ms tick) with `MOCK_MODE=true` (`bot/mock_exchange.py`)
+- **Research & Discovery**: `bot/collector.py`, `bot/insights.py`, `bot/muster.py` (live recording; `HistoricalDataLoader` is disabled by organizers)
+- **Tests (`tests/`)**: `tests/test_bot.py`
 
 ## Directory Layout
 
 ```text
 .
-├── .agent/skills/second-brain/   # Shared hackathon coordination skill
-├── .brain/                       # Auto-synced shared brain (3-file core + optional logs)
-├── .claude/settings.json         # Zero-prompt allowlist for brain-push.sh & verify.sh
-├── .githooks/pre-push            # Mechanical safety: blocks secrets/force-push, verifies main
-├── challenge/                    # START Hack Munich briefs, rubrics, sponsor docs (<25MB)
-├── scripts/
-│   ├── brain-push.sh             # 3-way merge worktree sync (.brain/ -> origin/main)
-│   ├── verify.sh                 # Stack-agnostic verification (env/secrets/Node/Python)
-│   └── setup.sh                  # 60-second teammate onboarding & OS symlink check
-├── AGENTS.md                     # Universal agent rules (imported by CLAUDE.md via @AGENTS.md)
-├── API_CONTRACT.ts               # Shared TypeScript API contract
-├── .env.example                  # Required environment variables (MOCK_MODE=true)
-└── README.md                     # 60-second onboarding & workflow quickstart
+├── bot/
+│   ├── config.py          # Env-driven BotConfig (USE_HISTORICAL_SEED=false)
+│   ├── signals.py         # (Planned) Microprice+OFI, V>250 wall anchor, counterparty markouts, return lead-lag, news lexicon
+│   ├── kalman.py          # Online Kalman & Basket models (migrating cross-stock to return-space)
+│   ├── execution.py       # Risk limits, floor/ceil tick rounding, queue-preserving quoting, priority token bucket
+│   ├── runner.py          # Live/Mock loop + endgame inventory glidepath + embedded CSV logger
+│   ├── mock_exchange.py   # Synthetic cointegrated market for MOCK_MODE=true
+│   ├── collector.py       # Standalone live recorder (books, trades, news)
+│   ├── insights.py        # 1h rolling diagnostics (spread, bot markout, wallgap, lead-lag, jumps)
+│   └── muster.py          # Out-of-sample (split-half) pattern validator net of spread
+├── challenge/             # Optiver HackaTUM 2026 briefs, slides PDF, API reference, notes
+└── tests/                 # Unit & integration tests
 ```
 
 ## Service Boundaries & Data Flow
 
-<!-- Document key modules, endpoints, and how data moves between them. -->
+1. **Market Data Ingest (1 connection max)**: Poll `get_last_price_book`, `poll_new_trade_ticks` (with `buyer`/`seller`/`aggressor_side`), and `poll_new_social_media_feeds`.
+2. **Short-Horizon Fair Value ($\hat{F}_{i,t}$)**: Blend Stoikov Microprice + OFI, house-bot wall anchor (`V > 250`), Glosten-Milgrom counterparty markout impulse, and return-space cross-stock lead-lag.
+3. **Portfolio Reservation Price**: Multi-asset GLFT covariance skew $\mathbf{r}_t = \hat{\mathbf{F}}_t - \gamma(t)\Sigma\mathbf{q}_t$ (ramps $\gamma(t)$ in min 27–30).
+4. **3-Tier Execution (<25 req/s)**: News/edge IOC snipers (cancel opposite quotes first) → queue-preserving passive limit quoting (`floor` bid / `ceil` ask, step inside wide spreads) → hard `±100` pos & `≤180` open vol rails.

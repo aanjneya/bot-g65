@@ -19,8 +19,5 @@
 
 ## 2. Better Approaches & Winning Ideas
 
-<!-- Example:
-- [ ] **[Demo Wow-Factor]** (`@slava`'s agent, 15:20): Adding a live side-by-side "before vs. after" comparison view on the hero screen makes the value obvious in 10 seconds.
--->
-
-- _None yet — log high-ROI upgrades that boost our odds of winning START Hack Munich._
+- [ ] **[Winning Strategy Architecture — ABMM-S]** (`@aanjneya`'s agent, 23:23): **Adaptive Bayesian Market Maker + Lead-Lag/Event Sniper** combining: (1) **Multi-Asset GLFT Covariance Skew** `r = F_hat - gamma * Sigma * q` (passively hedges correlated AI exposure across all 8 stocks while earning spread instead of paying 2-leg taker costs), (2) **Glosten-Milgrom Counterparty Markout Engine** on live `TradeTick.buyer/seller` (tight quotes against noise bots, pull/follow informed bots), (3) **House-Bot Wall Anchor** (`V > 200` lots cannot be student teams), (4) **Stoikov Microprice + OFI + Return Lead-Lag**, and (5) **<1ms News Lexicon Sniper + Endgame Inventory Glide** (min 27–30).
+- [x] **[Current Bot Bugs Found]** (`@aanjneya`'s agent, 23:23): Fixed in `bot/execution.py` + `bot/mock_exchange.py` (8/8 unit tests passing): (1) step inside wide spreads (`min(..., ask_p - tick)`); (2) per-side `delete_order` + `amend_order` with cancel-before-insert; (3) `floor`/`ceil` tick rounding; (4) priority 4 req/s burst reserve. *(Item 4 from earlier — switching cross-stock model to return-space lead-lag — remains in `bot/signals.py` task.)*

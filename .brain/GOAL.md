@@ -15,23 +15,24 @@
 
 ## 1. Core Goal (What We Are Building)
 
-- **Problem**: _TBD — fill in once we pick our START Hack Munich challenge_
-- **Solution (1–2 sentences)**: _TBD_
-- **Target User**: _TBD_
-- **Why It Wins (Judge Hook)**: _TBD_
+- **Problem**: Maximize risk-adjusted Expected Value (EV) across 8 correlated AI stocks (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`) in Optiver HackaTUM's 30-minute live Optibook final (Sunday 10:00) under strict `±100` pos, `≤200` open vol, `25 req/s`, and 1-connection limits.
+- **Solution (1–2 sentences)**: **ABMM-S (Adaptive Bayesian Multi-Asset Market Maker & Sniper)** — combines Microprice+OFI, house-bot wall anchors (`V>250`), live `TradeTick` counterparty markouts, return-space lead-lag, and `<1ms` news sniping into a single fair value $\hat{F}_{i,t}$, quoted via multi-asset GLFT covariance skew $\mathbf{r}_t = \hat{\mathbf{F}}_t - \gamma(t)\Sigma\mathbf{q}_t$.
+- **Target User**: Optiver HackaTUM 2026 Live Exchange & Trader Judges.
+- **Why It Wins (Judge Hook)**: Genuine prop-desk quant engineering (8×8 GLFT passive cross-hedging + Glosten-Milgrom counterparty profiling + rule-implied wall extraction + empirical out-of-sample `muster.py` validation), high EV with tight variance and endgame flattening.
 
 ## 2. Must-Have Scope (For the Demo)
 
-1. _TBD_
-2. _TBD_
-3. _TBD_
+1. Live empirical validation via `bot/collector.py` + `bot/muster.py` (signal gating at $t > 2.0$ net of spread; no `HistoricalDataLoader`).
+2. Queue-preserving execution in `bot/execution.py` (`floor`/`ceil` ticks, step inside wide spreads, per-order `delete_order`/`amend_order`, priority `<20 req/s` token bucket, zero self-trade).
+3. Multi-signal `bot/signals.py` + 8×8 GLFT skew + endgame inventory glidepath (min 27–30) + embedded logger in `bot/runner.py`.
 
 ## 3. Explicit Non-Goals (Do NOT Build)
 
-- _e.g., No auth/login flow, no admin settings page, no complex billing unless required by the challenge._
+- No `HistoricalDataLoader` calls (disabled by organizers), no heavy ML/LLM inference in the hot loop, no raw-price cointegration taker pairs, no second live exchange connection.
 
 ## 4. Direction & Alignment Log
 
 | Time | By | Direction Update / Alignment Note |
 | :--- | :--- | :--- |
 | Init | `aanjneya` | Initialized living goal & alignment file for START Hack Munich. |
+| 23:28 | `aanjneya` | Approved Optiver HackaTUM 2026 ABMM-S strategy (multi-asset GLFT + counterparty/wall/news alpha) & non-goals. |

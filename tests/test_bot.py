@@ -73,6 +73,37 @@ class TestRiskAndExecution(unittest.TestCase):
     def test_round_to_tick(self) -> None:
         self.assertEqual(round_to_tick(44.613, 0.01, "bid"), 44.61)
         self.assertEqual(round_to_tick(44.628, 0.05, "ask"), 44.65)
+        # Half-tick conservatism: floor bids, ceil asks
+        self.assertEqual(round_to_tick(44.65, 0.10, "bid"), 44.6)
+        self.assertEqual(round_to_tick(44.65, 0.10, "ask"), 44.7)
+
+    def test_quote_steps_inside_wide_spread_and_preserves_unchanged_side(self) -> None:
+        from types import SimpleNamespace
+        from bot.execution import RiskAndExecution
+
+        ex = MockExchange(universe=["CRWV"], seed=1, max_pos=100)
+        ex.connect()
+        ex._prices["CRWV"] = 100.3
+        insts = ex.get_tradable_instruments()
+        insts["CRWV"] = SimpleNamespace(tick_size=0.10, price_limit=None)
+        wide_book = SimpleNamespace(
+            bids=[SimpleNamespace(price=100.0, volume=800)],
+            asks=[SimpleNamespace(price=100.6, volume=800)],
+        )
+        executor = RiskAndExecution(ex, max_position_lots=100, max_requests_per_sec=100)
+        executor.quote_around_fair_value({"CRWV": 100.3}, {"CRWV": wide_book}, insts, set(), quote_lots=5, edge_ticks=1)
+        orders = list(ex.get_outstanding_orders("CRWV").values())
+        bid_o = next(o for o in orders if o.side == "bid")
+        ask_o = next(o for o in orders if o.side == "ask")
+        # Stepped inside the 100.0 / 100.6 walls
+        self.assertGreater(bid_o.price, 100.0)
+        self.assertLess(ask_o.price, 100.6)
+
+        # Nudge FV from 100.30 to 100.36 -> anchored_fv moves 100.30 -> 100.33: bid stays 100.2, ask moves 100.4 -> 100.5
+        bid_id_before = bid_o.order_id
+        executor.quote_around_fair_value({"CRWV": 100.36}, {"CRWV": wide_book}, insts, set(), quote_lots=5, edge_ticks=1)
+        orders_after = ex.get_outstanding_orders("CRWV")
+        self.assertIn(bid_id_before, orders_after)
 
     def test_no_self_trade_when_ioc_crosses_own_limit_order(self) -> None:
         from bot.execution import RiskAndExecution

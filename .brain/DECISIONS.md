@@ -28,3 +28,8 @@
   2. Added `.githooks/pre-push` (fast-passes `.brain/` & `challenge/`, verifies code on `main`, blocks `.env` & >25MB, has `ALLOW_MAIN_PUSH=1` escape hatch), stack-agnostic `scripts/verify.sh`, and `scripts/setup.sh`.
   3. Replaced `CLAUDE.md` symlink with `@AGENTS.md`, added `.claude/settings.json` allowlist for zero-intervention brain sync, collapsed live docs to 3-file core + 3h staleness guard, and added 2–3h rolling merge cadence.
 - **Trade-offs**: `.githooks/pre-push` requires each teammate to run `./scripts/setup.sh <id>` once; Antigravity/Codex users click "Always allow `./scripts/brain-push.sh`" once for zero-prompt auto-sync.
+
+### [23:26] Pivot to ABMM-S (Multi-Asset GLFT + Counterparty/Wall Alpha) (by aanjneya)
+- **Context**: `HistoricalDataLoader` is disabled, final is a 30-min sprint with tighter spreads, and Optiver judges EV/risk/novelty alongside PnL. Price-level Kalman pairs pay 2-leg taker spreads and short into permanent news jumps.
+- **Decision**: Adopt **ABMM-S**: (1) unified $\hat{F}_{i,t}$ from Microprice+OFI, `V>250` house walls, online `TradeTick` counterparty markouts, return-space lead-lag, and `<1ms` news sniper; (2) 8×8 matrix GLFT reservation price $\mathbf{r} = \hat{\mathbf{F}} - \gamma(t)\Sigma\mathbf{q}$ for passive cross-hedging + endgame flatten; (3) queue-preserving per-side quoting.
+- **Trade-offs**: Signal weights must be validated empirically via `collector.py` + `muster.py` on live practice data before locking Sunday 10:00 params.
