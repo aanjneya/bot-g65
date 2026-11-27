@@ -182,20 +182,6 @@ class StatArbBot:
         if not self.active_pairs or self.tick_count % self.cfg.rebalance_pairs_every_ticks == 0:
             self._refresh_pairs()
 
-        targets: Dict[str, int] = {inst_id: 0 for inst_id in self.instruments}
-        for pair in self.active_pairs:
-            pa = mids.get(pair.stock_a)
-            pb = mids.get(pair.stock_b)
-            if pa is None or pb is None:
-                continue
-            w = pair.target_weight(pa, pb)
-            if pair.stock_a in paused or pair.stock_b in paused:
-                continue
-            lots_a = int(round(w * self.cfg.max_lots_per_pair))
-            lots_b = int(round(-w * pair.beta * self.cfg.max_lots_per_pair))
-            targets[pair.stock_a] = targets.get(pair.stock_a, 0) + lots_a
-            targets[pair.stock_b] = targets.get(pair.stock_b, 0) + lots_b
-
         fair_values: Dict[str, float] = {}
         if self.cfg.enable_basket_model:
             if self.basket_model is None:
@@ -209,28 +195,44 @@ class StatArbBot:
                     z_exit=self.cfg.exit_z,
                     z_stop=self.cfg.stop_z,
                 )
-            fair_values, basket_weights = self.basket_model.update(mids)
-            for inst_id, bw in basket_weights.items():
-                if inst_id not in paused:
-                    targets[inst_id] = targets.get(inst_id, 0) + int(round(bw * self.cfg.basket_max_lots))
+            fair_values, _ = self.basket_model.update(mids)
 
-        # Keep existing positions untouched on paused instruments instead of forcing new entries
-        current_positions = self.exchange.get_positions()
-        for inst_id in paused:
-            targets[inst_id] = int(current_positions.get(inst_id, 0))
+        # Blend pair-implied fair values into fair_values
+        for pair in self.active_pairs:
+            pa = mids.get(pair.stock_a)
+            pb = mids.get(pair.stock_b)
+            if pa is None or pb is None:
+                continue
+            pair.update(pa, pb)
+            if pair.initialized and pair.beta > 0.1:
+                fv_a = pair.alpha + pair.beta * pb
+                fv_b = (pa - pair.alpha) / pair.beta
+                fair_values[pair.stock_a] = 0.5 * fair_values.get(pair.stock_a, fv_a) + 0.5 * fv_a
+                fair_values[pair.stock_b] = 0.5 * fair_values.get(pair.stock_b, fv_b) + 0.5 * fv_b
 
-        orders_sent = self.executor.execute_target_positions(targets, books, self.instruments)
-        if self.cfg.enable_passive_quoting and fair_values:
+        # 1. Edge-only aggressive IOC (only when book is mispriced >= 3 ticks beyond fair value)
+        sniped = self.executor.execute_fair_value_edge(
+            fair_values,
+            books,
+            self.instruments,
+            paused_instruments=paused,
+            max_edge_lots=min(10, self.cfg.max_lots_per_pair),
+            min_edge_ticks=3,
+        )
+        orders_sent = len(sniped)
+
+        # 2. Passive inventory-skewed market making around fair value (skip sniped tickers to guarantee zero self-trades)
+        if self.cfg.enable_passive_quoting and fair_values and self.exchange.is_connected():
             orders_sent += self.executor.quote_around_fair_value(
                 fair_values,
                 books,
                 self.instruments,
-                paused_instruments=paused,
+                paused_instruments=paused | sniped,
                 quote_lots=self.cfg.quote_lots,
                 edge_ticks=self.cfg.quote_edge_ticks,
             )
 
-        if self.tick_count % self.cfg.log_every_ticks == 0:
+        if self.tick_count % self.cfg.log_every_ticks == 0 and self.exchange.is_connected():
             pnl = self.exchange.get_pnl()
             pos = {k: v for k, v in self.exchange.get_positions().items() if v != 0}
             logger.info(

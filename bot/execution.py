@@ -193,6 +193,92 @@ class RiskAndExecution:
 
         return orders_sent
 
+    def execute_fair_value_edge(
+        self,
+        fair_values: Dict[str, float],
+        books: Dict[str, Any],
+        instruments: Dict[str, Any],
+        paused_instruments: Set[str],
+        max_edge_lots: int = 10,
+        min_edge_ticks: int = 3,
+    ) -> Set[str]:
+        """
+        Send aggressive IOC orders ONLY when the live book is mispriced beyond fair value
+        by at least max(min_edge_ticks * tick, 1.5 * spread).
+        Cancels any resting orders on that instrument first and returns the set of traded
+        instruments (so passive quoting skips them this tick, preventing self-trades).
+        """
+        if not self.exchange.is_connected():
+            return set()
+
+        positions = self.exchange.get_positions()
+        traded: Set[str] = set()
+
+        for inst_id, fv in fair_values.items():
+            if inst_id in paused_instruments or not self.exchange.is_connected():
+                continue
+
+            book = books.get(inst_id)
+            inst = instruments.get(inst_id)
+            if book is None or inst is None:
+                continue
+
+            bid_p, bid_v, ask_p, ask_v = best_bid_ask(book)
+            if bid_p is None or ask_p is None:
+                continue
+
+            tick = float(getattr(inst, "tick_size", 0.10))
+            spread = max(ask_p - bid_p, tick)
+            min_edge = max(min_edge_ticks * tick, 1.5 * spread)
+            cur_pos = int(positions.get(inst_id, 0))
+
+            if ask_p <= fv - min_edge and ask_v and ask_v > 0:
+                side = "bid"
+                desired_delta = clamp_delta_for_limit(max_edge_lots, cur_pos, 0, 0, self.max_position_lots)
+                vol = min(desired_delta, ask_v)
+                price = clamp_price(round_to_tick(ask_p, tick, "bid"), inst)
+            elif bid_p >= fv + min_edge and bid_v and bid_v > 0:
+                side = "ask"
+                desired_delta = clamp_delta_for_limit(-max_edge_lots, cur_pos, 0, 0, self.max_position_lots)
+                vol = min(-desired_delta, bid_v)
+                price = clamp_price(round_to_tick(bid_p, tick, "ask"), inst)
+            else:
+                continue
+
+            if vol <= 0:
+                continue
+
+            open_orders = self.exchange.get_outstanding_orders(inst_id)
+            if open_orders:
+                if not self._can_send_request():
+                    continue
+                self._record_request()
+                self.exchange.delete_orders(inst_id)
+                # Mark as traded and wait until next tick to avoid racing our own cancel
+                traded.add(inst_id)
+                continue
+
+            if not self._can_send_request():
+                continue
+
+            self._record_request()
+            try:
+                resp = self.exchange.insert_order(
+                    inst_id,
+                    price=price,
+                    volume=vol,
+                    side=side,
+                    order_type="ioc",
+                )
+                if resp.success:
+                    traded.add(inst_id)
+                else:
+                    logger.warning("Edge IOC rejected on %s (%s %s@%s): %s", inst_id, side, vol, price, resp.error_reason)
+            except Exception as exc:
+                logger.warning("Edge IOC exception on %s: %s", inst_id, exc)
+
+        return traded
+
     def quote_around_fair_value(
         self,
         fair_values: Dict[str, float],
@@ -203,13 +289,19 @@ class RiskAndExecution:
         edge_ticks: int = 1,
     ) -> int:
         """
-        Maintain inventory-skewed passive limit quotes around each stock's Kalman fair value.
-        Cancels quotes on paused instruments and avoids crossing the spread.
+        Maintain inventory-skewed passive limit quotes around each stock's anchored fair value.
+        Never crosses the opposite side of the book (zero self-trades, zero spread bleed).
         """
+        if not self.exchange.is_connected():
+            return 0
+
         positions = self.exchange.get_positions()
         orders_sent = 0
 
         for inst_id, inst in instruments.items():
+            if not self.exchange.is_connected():
+                break
+
             open_orders = self.exchange.get_outstanding_orders(inst_id)
 
             if inst_id in paused_instruments:
@@ -228,14 +320,18 @@ class RiskAndExecution:
                 continue
 
             tick = float(getattr(inst, "tick_size", 0.10))
+            mid = 0.5 * (bid_p + ask_p)
+            # Anchor fair value near live mid so slow Kalman drift never gets picked off
+            anchored_fv = max(mid - 3.0 * tick, min(mid + 3.0 * tick, 0.5 * mid + 0.5 * fv))
             cur_pos = int(positions.get(inst_id, 0))
 
-            # Inventory skew: shift fair value down when long, up when short
-            skew = -(cur_pos / max(self.max_position_lots, 1)) * tick * 2.0
+            # Strong inventory skew: push quotes down when long, up when short
+            skew = -(cur_pos / max(self.max_position_lots, 1)) * tick * 4.0
             edge = max(1, edge_ticks) * tick
 
-            target_bid = round_to_tick(min(fv + skew - edge, ask_p - tick), tick, "bid")
-            target_ask = round_to_tick(max(fv + skew + edge, bid_p + tick), tick, "ask")
+            # Strictly passive: never bid above best_bid or ask below best_ask (prevents self-trade & spread bleed)
+            target_bid = round_to_tick(min(anchored_fv + skew - edge, bid_p, ask_p - tick), tick, "bid")
+            target_ask = round_to_tick(max(anchored_fv + skew + edge, ask_p, bid_p + tick), tick, "ask")
             target_bid = clamp_price(target_bid, inst)
             target_ask = clamp_price(target_ask, inst)
 
@@ -253,9 +349,11 @@ class RiskAndExecution:
             if not (bid_stale or ask_stale):
                 continue
 
-            # Check open volume & position headroom before replacing quotes
-            bid_vol = clamp_delta_for_limit(quote_lots, cur_pos, 0, 0, self.max_position_lots)
-            ask_vol = -clamp_delta_for_limit(-quote_lots, cur_pos, 0, 0, self.max_position_lots)
+            # Reduce size on the inventory-increasing side when holding a position
+            raw_bid_lots = max(1, quote_lots // 2) if cur_pos > 15 else quote_lots
+            raw_ask_lots = max(1, quote_lots // 2) if cur_pos < -15 else quote_lots
+            bid_vol = clamp_delta_for_limit(raw_bid_lots, cur_pos, 0, 0, self.max_position_lots)
+            ask_vol = -clamp_delta_for_limit(-raw_ask_lots, cur_pos, 0, 0, self.max_position_lots)
             if open_bid_vol + open_ask_vol > self.max_open_order_volume:
                 bid_vol = 0
                 ask_vol = 0
@@ -268,14 +366,20 @@ class RiskAndExecution:
 
             if bid_vol > 0 and self._can_send_request():
                 self._record_request()
-                r_bid = self.exchange.insert_order(inst_id, price=target_bid, volume=bid_vol, side="bid", order_type="limit")
-                if r_bid.success:
-                    orders_sent += 1
+                try:
+                    r_bid = self.exchange.insert_order(inst_id, price=target_bid, volume=bid_vol, side="bid", order_type="limit")
+                    if r_bid.success:
+                        orders_sent += 1
+                except Exception as exc:
+                    logger.warning("Quote bid exception on %s: %s", inst_id, exc)
 
             if ask_vol > 0 and self._can_send_request():
                 self._record_request()
-                r_ask = self.exchange.insert_order(inst_id, price=target_ask, volume=ask_vol, side="ask", order_type="limit")
-                if r_ask.success:
-                    orders_sent += 1
+                try:
+                    r_ask = self.exchange.insert_order(inst_id, price=target_ask, volume=ask_vol, side="ask", order_type="limit")
+                    if r_ask.success:
+                        orders_sent += 1
+                except Exception as exc:
+                    logger.warning("Quote ask exception on %s: %s", inst_id, exc)
 
         return orders_sent
