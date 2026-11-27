@@ -155,6 +155,16 @@ class MockExchange:
         if volume <= 0:
             return MockOrderResponse(success=False, error_reason="Volume must be positive")
 
+        # Mirror Optibook's hard self-trade check
+        open_orders = self._outstanding.get(instrument_id, {})
+        for o in open_orders.values():
+            if side == "bid" and o.side == "ask" and price >= o.price:
+                self._connected = False
+                raise RuntimeError("Order canceled because it would lead to a self-trade")
+            if side == "ask" and o.side == "bid" and price <= o.price:
+                self._connected = False
+                raise RuntimeError("Order canceled because it would lead to a self-trade")
+
         cur = self._positions.get(instrument_id, 0)
         signed = volume if side == "bid" else -volume
         if abs(cur + signed) > self.max_pos:

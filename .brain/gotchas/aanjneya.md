@@ -1,0 +1,2 @@
+- **Issue**: Sending an `ioc` (or `limit`) order that crosses our own resting `limit` order on Optibook causes a **forced disconnect** (`capnp.KjException: Order canceled because it would lead to a self-trade`).
+- **Fix**: Before inserting an aggressive `ioc` order in `bot/execution.py`, check `get_outstanding_orders(inst_id)` for any opposite-side order at a crossing price, call `delete_orders(inst_id)`, and re-read `get_last_price_book(inst_id)` before sending the `ioc`.

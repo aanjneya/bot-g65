@@ -138,24 +138,54 @@ class RiskAndExecution:
                 vol = min(delta, ask_v)
                 price = clamp_price(round_to_tick(ask_p, tick, "bid"), inst)
                 side = "bid"
+                conflicting = [o for o in open_orders.values() if o.side == "ask" and o.price <= price]
             else:
                 if bid_p is None or bid_v is None or bid_v <= 0:
                     continue
                 vol = min(-delta, bid_v)
                 price = clamp_price(round_to_tick(bid_p, tick, "ask"), inst)
                 side = "ask"
+                conflicting = [o for o in open_orders.values() if o.side == "bid" and o.price >= price]
+
+            if vol <= 0:
+                continue
+
+            # CRITICAL (Optibook rule): Crossing our own resting limit order triggers a forced disconnect.
+            # Cancel any conflicting opposite-side resting orders before sending an aggressive IOC.
+            if conflicting:
+                if not self._can_send_request():
+                    continue
+                self._record_request()
+                self.exchange.delete_orders(inst_id)
+                # Refresh book after cancelling our own quotes so we don't trade against stale prices
+                book = self.exchange.get_last_price_book(inst_id)
+                bid_p, bid_v, ask_p, ask_v = best_bid_ask(book)
+                if side == "bid":
+                    if ask_p is None or ask_v is None or ask_v <= 0:
+                        continue
+                    vol = min(delta, ask_v)
+                    price = clamp_price(round_to_tick(ask_p, tick, "bid"), inst)
+                else:
+                    if bid_p is None or bid_v is None or bid_v <= 0:
+                        continue
+                    vol = min(-delta, bid_v)
+                    price = clamp_price(round_to_tick(bid_p, tick, "ask"), inst)
 
             if vol <= 0 or not self._can_send_request():
                 continue
 
             self._record_request()
-            resp = self.exchange.insert_order(
-                inst_id,
-                price=price,
-                volume=vol,
-                side=side,
-                order_type="ioc",
-            )
+            try:
+                resp = self.exchange.insert_order(
+                    inst_id,
+                    price=price,
+                    volume=vol,
+                    side=side,
+                    order_type="ioc",
+                )
+            except Exception as exc:
+                logger.warning("Order exception on %s (%s %s@%s): %s", inst_id, side, vol, price, exc)
+                continue
             if resp.success:
                 orders_sent += 1
             else:
