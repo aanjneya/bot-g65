@@ -31,3 +31,7 @@ __pycache__/
 *.sqlite
 *.db
 *.log
+
+# Large market data & logs (exceeds 25MB git hook limit)
+statarb/stocks_*.csv
+statarb/trade_log.csv
