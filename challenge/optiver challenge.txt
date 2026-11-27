@@ -1,0 +1,89 @@
+So, algorithmic trading.
+
+First, you need to know what the financial instrument is. Financial instrument is anything that you can trade on an exchange. It can be stock, it can be F, an option, a loan.
+
+Today you guys are only going to be trading about trading stocks, so you don't need to worry so much. You're going to be trading them on an exchange, on an order book. So you need to understand a bit how an order book works. On the left side of the order book, we can see the bids. On the center of the order book, you can see the price. This means that, for example, you see that 12 makes to the 44.6. That means that there are 12 lots bid at 44.6, which means that someone sent a message to the exchange saying, "I'm willing to buy 12 lots at 44.6."
+
+Here's the best bid, and there's a bid behind it at 44.59, where somebody say I'm going to buy 156 lots at 44.59. The best offer is 44.62. You see there's 146 lots offered there. And then the difference between the best bid and the best offer is called spread. The bid ask spread.
+
+And in this case it's 2 cents.
+
+You can see two order points here. The spreads between them are quite different. Which one do you think is better?
+
+[ Inaudible ]
+
+But let's suppose that you are an individual, you want to go to your broker and buy some stock, on which of these books will you read? [INAUDIBLE] [INAUDIBLE] It's faster. Yeah, it's faster. You get cheaper execution. Everything is better for you. And that's what market makers provide.
+
+Market makers provide liquid markets so that everyone can execute size for a pretty cheap price, and they can get their execution quicker as well. We make money from this because the price where we're going to buy it is not the same as the price where we're going to sell. So let's say we buy it at 44.6, we sell it at 44.61, we get the one-sided. And buy the standard.
+
+Now, these messages that we sent to the exchange, they're different ways to send it.
+
+In the real world, there are a lot of ways to send it, and our similar exchange are only two, So you don't need to worry about limit orders and IOCs, limit or cancel. Limit order means you tell the exchange, I'd say you want to buy 100 blocks at 44. You just tell the exchange anytime until I cancel this order, I'm going to buy 100 blocks at 44, if someone is going to sell to me.
+
+And limit or cancel means I want to buy any offer that's below or at 44 right now. If there is no offer, I'm not gonna do anything. So you have a little example here where the start situation is in the center and you can see that there are three lots offered at 150 and 15 lots offered at 151 and we want to buy 20 lots up to 150. So right now in the book you see there's only 18 lots offered up to that level. So if we send a limit order, we will still lift those 18 lots. But then we will keep a two-lot binder, such that if someone else wants to sell, they can hit our bid, and they can still buy the remaining two lots.
+
+If we send an IOC, we never leave anything in the book. We'll leave whatever there is to lift up to 151, so we'll leave this 18 lots.
+
+But we don't leave any bits in the book.
+
+In OptiBook, which is our symbol of an exchange, you are allowed to sell anything that you do not have. You do not have to worry about your position. It's fine for it to short sell things. The real world, you can also do the real world, you can also do this, but it's a bit more complicated.
+
+Now, about the challenge that you guys are going to be working on today.
+
+You are going to get a bunch of stocks.
+
+Your goal is to make money, much like in the real world. We are not going to give you any direction or not going to try to tell you what to do. You just have to look at the exchange, analyze the stocks, see how they move, try to find some patterns and try to monetize them. And yeah, your goal is just to make as much money as possible, manage your risk of course, and to be aware of your positions, size them according to your confidence and have a plan to get out of them.
+
+You do have a position limit of 100 blocks, long or short. This means that if you have 75 lots short, you cannot sell more than 25 lots. You cannot even insert an offer for more than 35 lots, because if you get left out, then you would go over your limit.
+
+When you are trading something, it's quite useful to know whether things work. That's the concept of a fair value. So let's say I'm trading stock. Let's say I'm a market maker, and there is no book. Let's say the book is super related. It's super nice for me to know how much I think this stock is worth, such that I can put my business and my offers around that level and I can make money. Hopefully I capture the spread.
+
+Hopefully someone sells me and someone else buys me. But if that doesn't happen and I only buy, I still have a notion of what the fair level is and I still think that buy was a good buy. I still think I should make money from it.
+
+So yeah, my goal should be to buy the board, I think is fair and to sell the board, I think is fair.
+
+Let's say we have this example of stock ADC, and we did some super good model, and we found out that the fair for stock ADC is 100.6. This is the order book below. As you see, our fair value, what we think is the fair value, does not necessarily have to be in the middle of the order book. It can be in pros. So let's say you had the situation. Your fair is 100.6.
+
+What would you do?
+
+How much?
+
+Everything? Why can't you not do that? Why can't you not do that? You don't want to do that? You didn't. But yeah, we will buy anything we can up to 160, right? 160.
+
+Now, the competition, you will be practicing on the exchange until Sunday morning. You can try all kinds of different strategies. The PNL does not matter. You are heavily encouraged to just try things. See what works, see what doesn't. Then at 10 AM, we're going to reset your PNLs. And then we're going to run a 13-minute simulation. And that one does count. So you should prepare for that.
+
+And then run your best strategy at that time. Our judging criteria will be basically to give the win to whoever makes the most money. But we do not want you to do something stupid where you buy everything and you hope it goes up.
+
+So we want you to give the win to the team that maximizes the expected value. That means the team that has the best strategy, but not the one that realizes the best note. So yeah, just try to do things that make sense and that make money more longer. I'll try to do it.
+
+Yeah, like I said, I recommend you try things. You are probably going to get things wrong, things are going to break, and you'd rather be break sooner than later. So just try to connect to exchange, run simple bots, lose money, run from that. Yeah, and we're always here to help you, you can always come to our booth or write some questions on Discord. It's always fine. If you win, we'll give every member of the winning team an iPhone 8 Pro. That's it.
+
+And the second prize will be a pair of AirPods for everyone on the team.
+
+Oh, yeah. Do you know that of the work interns, where everybody's an archival kickstarter and not a lot of archival comprises you? Now, the short of our single-head shake-off.
+
+So, this is our exchange, this is the visualizer. You can see here, you'll see the leaderboard, you'll see all the games, how much money they're making, et cetera. Here you can see all the stocks, and on their moving, and here you can see all the trades that they're going through. Right now it's just our bots taking against each other. If you click on the stock, you can also see the other book for that stock.
+
+All the way with meditates, et cetera.
+
+If you click here, you can see the dots. And yeah, if you have not used RxH before, you should go through them or feed them to your favorite LLM. And yeah, you can use this in order to bring the quiet experience. And then yeah, you should sign in. When you're with this room, you can create your teams. You cannot use weird or not simple word. You got the idea.
+
+Thanks.
+
+And then we will wait for the second presentation. So no one has an advantage and then we're going to go prove our games and then start.
+
+Yeah. That is kind of this. Any questions?
+
+So you registered as a team, are you on to the event to present our end-of-the-world competition
+
+The way the exchange works and the way that our bots that are in the exchange work will not change over the weekend However, you will also be trading against the bots of all the other teams and those will change so the market dynamics will change
+
+You enforce fairness of computer software Sorry can you speak up? You enforce fairness of computer software, do you win the games? No, we provide some AI
+
+How many orders you can insert? Yeah. Yes, there. I think you can read that in the box. You have all the orders as well. [BELL RINGING] Anything else? [INAUDIBLE] So basically, we try to [INAUDIBLE] [INAUDIBLE] [INAUDIBLE]
+
+[INAUDIBLE] [INAUDIBLE] [INAUDIBLE] [INAUDIBLE]
+
+[
+
+]
