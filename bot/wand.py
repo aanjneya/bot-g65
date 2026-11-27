@@ -110,9 +110,10 @@ def wall_stats(snaps):
     return with_wall / total, lifetimes, held, broken
 
 
-def simulate(snaps, trades, hold):
+def simulate(snaps, trades, hold, allow=None):
     """Kaufen 1 Tick ueber der Wand, raus nach `hold` Sekunden oder sofort an die
-    Wand, wenn sie verschwindet. Gibt Liste (gewinn_pessimistisch, gewinn_mid, scratch)."""
+    Wand, wenn sie verschwindet. `allow(i)` = Filter: darf bei Snapshot i quotiert werden?
+    Gibt Liste (gewinn_pessimistisch, gewinn_mid, scratch, fill_zeit)."""
     times = [s[0] for s in snaps]
     tr_times = [t[0] for t in trades]
     results = []
@@ -124,7 +125,7 @@ def simulate(snaps, trades, hold):
             i += 1
             continue
         w = find_wall(bids, bids[0][0], "bid")
-        if not w:
+        if not w or (allow is not None and not allow(i)):
             i += 1
             continue
         wall_p = w[0]
@@ -171,13 +172,120 @@ def simulate(snaps, trades, hold):
             k += 1
         if exit_p is None:
             break
-        results.append((exit_p - our_p, mid_p - our_p, scratch))
+        results.append((exit_p - our_p, mid_p - our_p, scratch, filled_at))
         i = max(k, i + 1)
     return results
 
 
 def fmt(x):
     return f"{x:+.3f}"
+
+
+# ---------- Filter: nur quoten, wenn die Signale nicht "faellt gleich" sagen ----------
+
+LEADERS = {"SNDK": "NVDA", "CRWV": "MU", "NBIS": "AVGO"}  # aus der Lead-Lag-Analyse
+WIN = 2.0     # Sekunden Rueckblick fuer OFI, Leader und Trend
+CAP = 100     # Mengen kappen, damit die Wand selbst das Signal nicht dominiert
+FILTER_HOLD = 5
+
+
+def features(snaps, leader_snaps=None):
+    """Pro Snapshot: Microprice-Neigung, OFI, Leader-Bewegung, eigener Trend (alle als
+    'positiv = gut fuer Kaeufer')."""
+    times = [s[0] for s in snaps]
+    mids = [(b[0][0] + a[0][0]) / 2 if b and a else None for _, b, a in snaps]
+    cum = [0.0]
+    for k in range(1, len(snaps)):
+        _, b0, a0 = snaps[k - 1]
+        _, b1, a1 = snaps[k]
+        e = 0.0
+        if b0 and a0 and b1 and a1:
+            pb0, qb0 = b0[0][0], min(b0[0][1], CAP)
+            pb1, qb1 = b1[0][0], min(b1[0][1], CAP)
+            pa0, qa0 = a0[0][0], min(a0[0][1], CAP)
+            pa1, qa1 = a1[0][0], min(a1[0][1], CAP)
+            e = (qb1 if pb1 >= pb0 else 0) - (qb0 if pb1 <= pb0 else 0) \
+                - (qa1 if pa1 <= pa0 else 0) + (qa0 if pa1 >= pa0 else 0)
+        cum.append(cum[-1] + e)
+    if leader_snaps:
+        lt = [s[0] for s in leader_snaps]
+        lm = [(b[0][0] + a[0][0]) / 2 if b and a else None for _, b, a in leader_snaps]
+    out = []
+    for k, (t, b, a) in enumerate(snaps):
+        f = {"micro": 0.0, "ofi": 0.0, "lead": 0.0, "trend": 0.0}
+        if b and a:
+            qb, qa = min(b[0][1], CAP), min(a[0][1], CAP)
+            micro = (b[0][0] * qa + a[0][0] * qb) / (qb + qa)
+            f["micro"] = micro - mids[k]
+        j = max(bisect_left(times, t - WIN), 0)
+        f["ofi"] = cum[k] - cum[j]
+        if mids[k] is not None and mids[j] is not None:
+            f["trend"] = mids[k] - mids[j]
+        if leader_snaps:
+            a_i = bisect_left(lt, t) - 1
+            b_i = bisect_left(lt, t - WIN) - 1
+            if a_i >= 0 and b_i >= 0 and lm[a_i] is not None and lm[b_i] is not None:
+                f["lead"] = lm[a_i] - lm[b_i]
+        out.append(f)
+    return out
+
+
+FILTERS = {
+    "ohne Filter": lambda f: True,
+    "Microprice": lambda f: f["micro"] >= 0,
+    "OFI": lambda f: f["ofi"] >= 0,
+    "Leader": lambda f: f["lead"] > -TICK / 2,
+    "Trend": lambda f: f["trend"] >= 0,
+    "Micro+OFI": lambda f: f["micro"] >= 0 and f["ofi"] >= 0,
+    "alle 4": lambda f: f["micro"] >= 0 and f["ofi"] >= 0 and f["lead"] > -TICK / 2
+                        and f["trend"] >= 0,
+}
+
+
+def filter_section(books, trades):
+    all_t = sorted(s[0] for v in books.values() for s in v)
+    split = all_t[len(all_t) // 2] if all_t else 0
+    rows = {name: [] for name in FILTERS}
+    per_inst = {name: {} for name in FILTERS}
+    for inst in sorted(books):
+        snaps, tr = books[inst], trades.get(inst, [])
+        lead = books.get(LEADERS.get(inst, ""), None)
+        for side in ("Kauf", "Verkauf"):
+            if side == "Kauf":
+                s, t, l = snaps, tr, lead
+            else:
+                s, t = mirror(snaps, tr)
+                l = mirror(lead, [])[0] if lead else None
+            feats = features(s, l)
+            for name, fn in FILTERS.items():
+                res = simulate(s, t, FILTER_HOLD, allow=lambda i, fn=fn: fn(feats[i]))
+                rows[name] += res
+                d = per_inst[name].setdefault(inst, [0.0, 0])
+                d[0] += sum(r[1] for r in res) * LOT
+                d[1] += len(res)
+    lines = ["", f"## 4. Mit Filter (halten {FILTER_HOLD}s, Summen fuer {LOT} Stueck)", "",
+             "Ein Filter ist nur echt, wenn BEIDE Haelften besser sind als ohne Filter.", "",
+             "| Filter | Fills | Summe schlecht | Summe mid | mid 1. Haelfte | mid 2. Haelfte | mid je Fill |",
+             "|---|---|---|---|---|---|---|"]
+    for name, res in rows.items():
+        if not res:
+            lines.append(f"| {name} | 0 | - | - | - | - | - |")
+            continue
+        bad = sum(r[0] for r in res) * LOT
+        mid = sum(r[1] for r in res) * LOT
+        h1 = sum(r[1] for r in res if r[3] < split) * LOT
+        h2 = sum(r[1] for r in res if r[3] >= split) * LOT
+        lines.append(f"| {name} | {len(res)} | {bad:+.1f} | {mid:+.1f} | {h1:+.1f} | {h2:+.1f} | "
+                     f"{mid / len(res):+.2f} |")
+    best = max((n for n in rows if n != "ohne Filter" and rows[n]),
+               key=lambda n: sum(r[1] for r in rows[n]), default=None)
+    if best:
+        lines += ["", f"### Bester Filter pro Aktie: {best} (Summe mid / Fills)", "",
+                  "| Aktie | " + " | ".join(sorted(per_inst[best])) + " |",
+                  "|---|" + "---|" * len(per_inst[best]),
+                  "| Ergebnis | " + " | ".join(f"{v[0]:+.0f} / {v[1]}" for _, v in
+                                             sorted(per_inst[best].items())) + " |"]
+    return lines
 
 
 def main():
@@ -226,6 +334,7 @@ def main():
         if h in totals:
             b, m, n = totals[h]
             lines.append(f"| {h}s | {n} | {b:+.1f} | {m:+.1f} |")
+    lines += filter_section(books, trades)
     lines += ["", "Lesehilfe: Ist 'mid' klar positiv und 'Scratch-Anteil' niedrig, lohnt sich die",
               "Strategie. Ist schon 'schlecht' positiv, ist sie sehr stark.",
               "Fills sind geschaetzt (wir stehen hinter der Menge, die schon auf unserem Preis lag)."]
