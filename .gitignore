@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+.optibook
 
 # IDEs & OS
 .idea/
@@ -31,3 +32,13 @@ __pycache__/
 *.sqlite
 *.db
 *.log
+
+# Tooling/cache dirs not part of the project
+.cache/
+.config/
+.local/
+.npm/
+.openvscode-server/
+
+# Collector output
+data_*/
