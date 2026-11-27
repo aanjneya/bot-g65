@@ -303,3 +303,83 @@ class OnlineKalmanPair:
             self.current_weight = max(self.current_weight, self.t1_weight) if self.current_weight >= 0 else self.t1_weight
 
         return self.current_weight
+
+
+class BasketFairValueModel:
+    """
+    Cross-sectional 7-vs-1 Kalman fair-value model for the 8-stock universe.
+    Each stock is modeled against the equal-weighted normalized index of the other stocks:
+        P_i(t) = alpha_i,t + beta_i,t * Basket_{-i}(t) + spread_i,t
+    """
+
+    def __init__(
+        self,
+        instruments: List[str],
+        *,
+        delta: float = 1e-5,
+        r_var: float = 1.0,
+        z_window: int = 60,
+        min_warmup: int = 25,
+        z_entry: float = 1.6,
+        z_exit: float = 0.2,
+        z_stop: float = 3.8,
+    ) -> None:
+        self.instruments = list(instruments)
+        self.z_entry = z_entry
+        self.z_exit = z_exit
+        self.z_stop = z_stop
+        self._base_prices: Dict[str, float] = {}
+        self._models: Dict[str, OnlineKalmanPair] = {
+            inst: OnlineKalmanPair(
+                inst,
+                f"BASKET_{inst}",
+                delta=delta,
+                r_var=r_var,
+                z_window=z_window,
+                min_warmup=min_warmup,
+                entry_z1=z_entry,
+                entry_z2=z_entry + 0.7,
+                exit_z=z_exit,
+                stop_z=z_stop,
+                t1_weight=0.5,
+                min_hurdle_bps=5.0,
+            )
+            for inst in self.instruments
+        }
+
+    def update(self, mids: Dict[str, float]) -> Tuple[Dict[str, float], Dict[str, float]]:
+        """
+        Ingest latest mid-prices for all available stocks.
+        Returns (fair_values, target_weights) keyed by instrument_id.
+        """
+        for inst, px in mids.items():
+            if inst not in self._base_prices and px > 0:
+                self._base_prices[inst] = px
+
+        norm_prices: Dict[str, float] = {}
+        for inst, px in mids.items():
+            base = self._base_prices.get(inst)
+            if base and base > 0:
+                norm_prices[inst] = px / base
+
+        fair_values: Dict[str, float] = {}
+        weights: Dict[str, float] = {}
+
+        if len(norm_prices) < 3:
+            return fair_values, weights
+
+        total_norm = sum(norm_prices.values())
+        count = len(norm_prices)
+
+        for inst, px in mids.items():
+            if inst not in norm_prices or inst not in self._models:
+                continue
+            # Leave-one-out normalized basket scaled to 100.0 for numerical conditioning
+            loo_index = ((total_norm - norm_prices[inst]) / (count - 1)) * 100.0
+            model = self._models[inst]
+            w = model.target_weight(px, loo_index)
+            if model.initialized:
+                fair_values[inst] = model.alpha + model.beta * loo_index
+            weights[inst] = w
+
+        return fair_values, weights
