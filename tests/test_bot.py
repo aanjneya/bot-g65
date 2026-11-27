@@ -125,6 +125,31 @@ class TestRiskAndExecution(unittest.TestCase):
         self.assertTrue(ex.is_connected())
         self.assertEqual(ex.get_positions()["VRT"], -10)
 
+    def test_partial_cancel_under_rate_limit_never_self_trades(self) -> None:
+        from bot.execution import RiskAndExecution
+        from bot.mock_exchange import MockInstrument, MockPriceBook, MockPriceVolume
+
+        ex = MockExchange(universe=["VRT"], seed=1, max_pos=100)
+        ex.connect()
+        # Resting ask at 100.00 from an earlier tick
+        ex.insert_order("VRT", price=100.00, volume=5, side="ask", order_type="limit")
+        # Market rallied to 100.50 / 100.90; target_bid would be ~100.60 (>= 100.00 resting ask!)
+        books = {
+            "VRT": MockPriceBook(
+                "VRT",
+                bids=[MockPriceVolume(100.50, 50)],
+                asks=[MockPriceVolume(100.90, 50)],
+            )
+        }
+        insts = {"VRT": MockInstrument("VRT", tick_size=0.10)}
+
+        # Exhaust rate-limit budget so Phase 1 cannot cancel the resting ask at 100.00
+        executor = RiskAndExecution(ex, max_position_lots=100, max_requests_per_sec=1)
+        executor._record_request()
+        sent = executor.quote_around_fair_value({"VRT": 100.70}, books, insts, paused_instruments=set())
+        self.assertEqual(sent, 0)
+        self.assertTrue(ex.is_connected())  # Did NOT self-trade or disconnect
+
 
 class TestMockRunner(unittest.TestCase):
     def test_end_to_end_mock_simulation(self) -> None:

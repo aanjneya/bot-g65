@@ -315,7 +315,10 @@ class RiskAndExecution:
             if inst_id in paused_instruments:
                 if open_orders:
                     self._record_request()
-                    self.exchange.delete_orders(inst_id)
+                    try:
+                        self.exchange.delete_orders(inst_id)
+                    except Exception as exc:
+                        logger.warning("Delete orders exception on %s: %s", inst_id, exc)
                 continue
 
             fv = fair_values.get(inst_id)
@@ -349,8 +352,6 @@ class RiskAndExecution:
 
             open_bids = [o for o in open_orders.values() if o.side == "bid"]
             open_asks = [o for o in open_orders.values() if o.side == "ask"]
-            open_bid_vol = sum(o.volume for o in open_bids)
-            open_ask_vol = sum(o.volume for o in open_asks)
 
             # Reduce size on the inventory-increasing side when holding a position
             raw_bid_lots = max(1, quote_lots // 2) if cur_pos > 15 else quote_lots
@@ -373,35 +374,66 @@ class RiskAndExecution:
             need_bid_amend = not bid_done and bid_price_ok and bid_vol > 0 and open_bids[0].volume > bid_vol and hasattr(self.exchange, "amend_order")
             need_ask_amend = not ask_done and ask_price_ok and ask_vol > 0 and open_asks[0].volume > ask_vol and hasattr(self.exchange, "amend_order")
 
-            # Phase 1: Cancel/amend stale orders BEFORE inserting new ones (prevents self-trade if BBO shifted)
+            # Phase 1: Cancel stale orders BEFORE inserting new ones (prevents self-trade if BBO shifted)
+            remaining_bid_orders = list(open_bids)
+            remaining_ask_orders = list(open_asks)
+
             if not bid_done and not need_bid_amend:
+                remaining_bid_orders = []
                 for ob in open_bids:
                     if not self._can_send_request(passive_reserve):
-                        break
+                        remaining_bid_orders.append(ob)
+                        continue
                     self._record_request()
-                    self.exchange.delete_order(inst_id, order_id=ob.order_id)
+                    try:
+                        self.exchange.delete_order(inst_id, order_id=ob.order_id)
+                    except Exception as exc:
+                        logger.warning("Delete bid exception on %s: %s", inst_id, exc)
+                        remaining_bid_orders.append(ob)
 
             if not ask_done and not need_ask_amend:
+                remaining_ask_orders = []
                 for oa in open_asks:
                     if not self._can_send_request(passive_reserve):
-                        break
+                        remaining_ask_orders.append(oa)
+                        continue
                     self._record_request()
-                    self.exchange.delete_order(inst_id, order_id=oa.order_id)
+                    try:
+                        self.exchange.delete_order(inst_id, order_id=oa.order_id)
+                    except Exception as exc:
+                        logger.warning("Delete ask exception on %s: %s", inst_id, exc)
+                        remaining_ask_orders.append(oa)
 
-            # Phase 2: Amend or insert updated sides
+            live_bid_vol = sum(o.volume for o in remaining_bid_orders)
+            live_ask_vol = sum(o.volume for o in remaining_ask_orders)
+
+            # Never insert a new quote that could cross any still-resting opposite-side order
+            bid_would_self_trade = any(target_bid >= oa.price for oa in remaining_ask_orders)
+            ask_would_self_trade = any(target_ask <= ob.price for ob in remaining_bid_orders)
+
+            # Phase 2: Amend or insert updated sides (only if old orders on that side were cleared)
             if need_bid_amend and self._can_send_request(passive_reserve):
                 self._record_request()
                 try:
                     r_am = self.exchange.amend_order(inst_id, order_id=open_bids[0].order_id, volume=bid_vol)
                     if r_am.success:
+                        live_bid_vol = bid_vol
                         orders_sent += 1
                 except Exception as exc:
                     logger.warning("Amend bid exception on %s: %s", inst_id, exc)
-            elif not bid_done and bid_vol > 0 and open_bid_vol + open_ask_vol <= self.max_open_order_volume and self._can_send_request(passive_reserve):
+            elif (
+                not bid_done
+                and not remaining_bid_orders
+                and not bid_would_self_trade
+                and bid_vol > 0
+                and live_bid_vol + live_ask_vol + bid_vol <= self.max_open_order_volume
+                and self._can_send_request(passive_reserve)
+            ):
                 self._record_request()
                 try:
                     r_bid = self.exchange.insert_order(inst_id, price=target_bid, volume=bid_vol, side="bid", order_type="limit")
                     if r_bid.success:
+                        live_bid_vol += bid_vol
                         orders_sent += 1
                 except Exception as exc:
                     logger.warning("Quote bid exception on %s: %s", inst_id, exc)
@@ -411,14 +443,23 @@ class RiskAndExecution:
                 try:
                     r_am = self.exchange.amend_order(inst_id, order_id=open_asks[0].order_id, volume=ask_vol)
                     if r_am.success:
+                        live_ask_vol = ask_vol
                         orders_sent += 1
                 except Exception as exc:
                     logger.warning("Amend ask exception on %s: %s", inst_id, exc)
-            elif not ask_done and ask_vol > 0 and open_bid_vol + open_ask_vol <= self.max_open_order_volume and self._can_send_request(passive_reserve):
+            elif (
+                not ask_done
+                and not remaining_ask_orders
+                and not ask_would_self_trade
+                and ask_vol > 0
+                and live_bid_vol + live_ask_vol + ask_vol <= self.max_open_order_volume
+                and self._can_send_request(passive_reserve)
+            ):
                 self._record_request()
                 try:
                     r_ask = self.exchange.insert_order(inst_id, price=target_ask, volume=ask_vol, side="ask", order_type="limit")
                     if r_ask.success:
+                        live_ask_vol += ask_vol
                         orders_sent += 1
                 except Exception as exc:
                     logger.warning("Quote ask exception on %s: %s", inst_id, exc)
