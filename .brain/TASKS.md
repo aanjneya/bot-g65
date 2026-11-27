@@ -17,5 +17,5 @@
 
 ## Done
 
-- [x] `@aanjneya` Initialize 4-person hackathon repo, `second-brain` skill, `AGENTS.md`, and symlinks
+- [x] `@aanjneya` Initialize 2-person hackathon repo, `second-brain` skill, `AGENTS.md`, and symlinks
 - [x] `@aanjneya` Harden hackathon infra: 3-way `brain-push.sh`, `.githooks/pre-push`, `verify.sh`, `setup.sh`, `@AGENTS.md`, zero-intervention brain sync

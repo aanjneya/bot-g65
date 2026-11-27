@@ -1,6 +1,6 @@
 # Project Goal & Alignment
 
-> **Living North Star for `aanjneya`, `daksh`, `jivi`, `tim` (synced regularly to `main` with `.brain/`).**
+> **Living North Star for `aanjneya`, `slava` (synced regularly to `main` with `.brain/`).**
 > Every agent MUST read this file before starting work and keep it aligned with where the team is heading.
 
 ## Agent Protection Rule (READ CAREFULLY)

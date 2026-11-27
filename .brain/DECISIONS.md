@@ -6,7 +6,7 @@
 ## Template
 
 ```markdown
-### [HH:MM] <Decision Title> (by <aanjneya|daksh|jivi|tim>)
+### [HH:MM] <Decision Title> (by <aanjneya|slava>)
 - **Context**: Why this decision was needed.
 - **Decision**: What we chose.
 - **Trade-offs**: What we gave up or need to watch out for.
@@ -17,7 +17,7 @@
 ## Log
 
 ### Initial Setup
-- **Context**: 4-person hackathon team (`aanjneya`, `daksh`, `jivi`, `tim`) collaborating with multiple coding agents.
+- **Context**: 2-person hackathon team (`aanjneya`, `slava`) collaborating with multiple coding agents.
 - **Decision**: Use `.brain/` pushed automatically to `main` via `scripts/brain-push.sh` (temporary worktree) with 2-tier context loading, `.brain/TASKS.md` lightweight ownership, `API_CONTRACT.ts`, and `MOCK_MODE=true`.
 - **Trade-offs**: Dropping lock files relies on `.brain/TASKS.md` + feature-folder isolation + table communication instead of hard locks.
 

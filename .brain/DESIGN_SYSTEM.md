@@ -1,6 +1,6 @@
 # Design System
 
-> Shared visual rules so all 4 teammates' agents produce one cohesive UI.
+> Shared visual rules so both teammates' agents produce one cohesive UI.
 > Fill this in once we pick our frontend stack and aesthetic.
 
 - **UI Library / Styling**: _TBD (e.g., Tailwind CSS + shadcn/ui)_

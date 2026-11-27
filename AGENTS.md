@@ -1,8 +1,8 @@
 # AGENTS.md — Start Hack Titans
 
-Shared operating rules for all coding agents (Antigravity, Claude Code, Codex CLI) working in this 4-person hackathon repository.
+Shared operating rules for all coding agents (Antigravity, Claude Code, Codex CLI) working in this 2-person hackathon repository.
 
-**Teammates & IDs**: `aanjneya`, `daksh`, `jivi`, `tim`
+**Teammates & IDs**: `aanjneya`, `slava`
 
 ---
 
@@ -17,7 +17,7 @@ Every agent working in this repository is a **co-founder and technical strategis
   2. **3-minute live demo wow-factor**: Will judges visibly feel the magic within the first 30–90 seconds (`.brain/DEMO_SCRIPT.md`)?
   3. **Hackathon time-to-ship ROI**: Is this the fastest, cleanest path? Call out over-engineering, premature abstraction, and scope creep ruthlessly.
   4. **Demo reliability (`MOCK_MODE=true`)**: Will this survive venue Wi-Fi drops, rate limits, and live stage pressure?
-  5. **Cross-team coherence**: Does this align cleanly with what `aanjneya`, `daksh`, `jivi`, and `tim` are building?
+  5. **Cross-team coherence**: Does this align cleanly with what `aanjneya` and `slava` are building?
 - **Share strategic insights team-wide**: Warn the current user directly in chat, AND log any team-wide warning, rubric gap, or high-impact winning idea in `.brain/INSIGHTS.md` (auto-pushed to `main`).
 
 ---
@@ -28,10 +28,10 @@ Every agent working in this repository is a **co-founder and technical strategis
 - **Automatic Repo Setup on First Session (0-Friction Onboarding)**:
   - At session start (or whenever the user asks to set up/onboard the repo), check `./scripts/setup.sh --check`.
   - If not configured yet (fresh clone), **automatically run `./scripts/setup.sh`** (auto-detects teammate ID from git `user.name`/`user.email`/OS username, enables `.githooks`, verifies symlinks, creates `.env`, and switches to their personal branch).
-  - Only if `./scripts/setup.sh` exits `2` (ambiguous/unknown ID), ask the user which ID they are (`aanjneya`, `daksh`, `jivi`, `tim`) and immediately run `./scripts/setup.sh <id>`.
+  - Only if `./scripts/setup.sh` exits `2` (ambiguous/unknown ID), ask the user which ID they are (`aanjneya`, `slava`) and immediately run `./scripts/setup.sh <id>`.
 - **Zero-Human-Intervention Brain Updates (STRICT)**:
   - Agents MUST update `.brain/` and sync it to `main` **automatically with zero human prompting or intervention**. Never ask "should I update `.brain/`?" or wait for the user to tell you.
-  - Auto-detect the teammate ID from `git config --get hackathon.teammate` (or the current branch name if it matches `aanjneya|daksh|jivi|tim`) — never ask the user who they are.
+  - Auto-detect the teammate ID from `git config --get hackathon.teammate` (or the current branch name if it matches `aanjneya|slava`) — never ask the user who they are.
   - Invoke `./scripts/brain-push.sh` as a **clean standalone command** (no `&&`, `;`, `$(...)`, or shell wrappers) so teammates' one-time auto-approval runs silently:
     ```bash
     ./scripts/brain-push.sh "<short summary>"
@@ -54,10 +54,10 @@ Every agent working in this repository is a **co-founder and technical strategis
     3. Wait for the user to **explicitly reply in chat** (e.g. `"Yes, update GOAL"`) before editing `.brain/GOAL.md` and running `./scripts/brain-push.sh`.
   - **Conflicting direction**: If a prompt contradicts `.brain/GOAL.md`, Explicit Non-Goals, or another teammate's active direction, STOP and warn the user using this exact same approval step before writing conflicting code.
 - **Short-Lived Rolling Branches (No Hour-18 Integration Apocalypse)**:
-  - Work on personal branches (`aanjneya`, `daksh`, `jivi`, `tim`) — never push unverified feature code directly to `main`.
+  - Work on personal branches (`aanjneya`, `slava`) — never push unverified feature code directly to `main`.
   - **2–3 Hour Merge Cadence**: Merge working vertical slices into `main` every **2–3 hours** (and `git merge origin/main` at the start of every new slice) so branches never diverge into merge-conflict hell.
-  - **Hub-First Rule**: Changes to shared hubs (`API_CONTRACT.ts`, `package.json`, root router/layout, DB schema) should land on `main` immediately as a tiny verified commit so all 4 teammates pull them right away.
-  - **Lightweight Ownership in `.brain/TASKS.md`**: Tag active tasks with touched folders/hubs in parentheses — e.g. `[~] @daksh Intake API (api/intake/, API_CONTRACT.ts)`. Before editing a path listed on another teammate's active `[~]` task, warn the user first.
+  - **Hub-First Rule**: Changes to shared hubs (`API_CONTRACT.ts`, `package.json`, root router/layout, DB schema) should land on `main` immediately as a tiny verified commit so both teammates pull them right away.
+  - **Lightweight Ownership in `.brain/TASKS.md`**: Tag active tasks with touched folders/hubs in parentheses — e.g. `[~] @slava Intake API (api/intake/, API_CONTRACT.ts)`. Before editing a path listed on another teammate's active `[~]` task, warn the user first.
 
 ## 3. Engineering Guardrails, Verification & Demo Safety
 

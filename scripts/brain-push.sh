@@ -4,13 +4,13 @@
 # touches WIP feature code, and never silently overwrites teammates' edits.
 #
 # Usage:
-#   ./scripts/brain-push.sh <aanjneya|daksh|jivi|tim> "<short summary>" [--include-challenge]
+#   ./scripts/brain-push.sh <aanjneya|slava> "<short summary>" [--include-challenge]
 #   ./scripts/brain-push.sh "<short summary>" [--include-challenge]   # auto-detects ID from git config / branch
 
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 [aanjneya|daksh|jivi|tim] \"<summary>\" [--include-challenge]" >&2
+  echo "Usage: $0 [aanjneya|slava] \"<summary>\" [--include-challenge]" >&2
   exit 1
 }
 
@@ -18,7 +18,7 @@ usage() {
 
 is_valid_id() {
   case "$1" in
-    aanjneya|daksh|jivi|tim) return 0 ;;
+    aanjneya|slava) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -44,7 +44,7 @@ else
 fi
 
 if ! is_valid_id "$USER_ID"; then
-  echo "Error: Could not determine teammate ID. Pass <aanjneya|daksh|jivi|tim> or run ./scripts/setup.sh <id>." >&2
+  echo "Error: Could not determine teammate ID. Pass <aanjneya|slava> or run ./scripts/setup.sh <id>." >&2
   exit 1
 fi
 

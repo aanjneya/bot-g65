@@ -1,12 +1,12 @@
 ---
 name: second-brain
-description: Active 4-person hackathon brain — automatic zero-intervention .brain/ sync, strategic analysis, high-signal pushback, lean 2-tier context loading, living goal alignment, and cross-agent handoffs. Winning START Hack Munich is a must. Always run before starting work, after fixing bugs, and before pushing.
+description: Active 2-person hackathon brain — automatic zero-intervention .brain/ sync, strategic analysis, high-signal pushback, lean 2-tier context loading, living goal alignment, and cross-agent handoffs. Winning START Hack Munich is a must. Always run before starting work, after fixing bugs, and before pushing.
 ---
 
 # Second Brain Protocol
 
-Shared active brain & coordination protocol for the 4-person **START Hack Munich** team:
-- **Teammate IDs (`<YOUR_ID>`)**: `aanjneya`, `daksh`, `jivi`, `tim` (auto-detected from `git config --get hackathon.teammate` or branch name — never ask the user).
+Shared active brain & coordination protocol for the 2-person **START Hack Munich** team:
+- **Teammate IDs (`<YOUR_ID>`)**: `aanjneya`, `slava` (auto-detected from `git config --get hackathon.teammate` or branch name — never ask the user).
 - **Mission**: **Winning START Hack Munich is a must.** Analyze context actively, connect dots across teammates, warn when something is wrong or low-ROI, and recommend stronger, faster paths.
 - **Zero-Human-Intervention Rule**: Update `.brain/` and run `./scripts/brain-push.sh` **automatically** at natural checkpoints without asking permission or waiting for the user to prompt you. (Only `.brain/GOAL.md` requires explicit user approval.)
 
@@ -17,8 +17,8 @@ Shared active brain & coordination protocol for the 4-person **START Hack Munich
 
 0. **Auto-setup fresh clones (zero manual onboarding)**:
    - Run `./scripts/setup.sh --check`. If it exits non-zero (fresh clone or missing hooks/ID), run `./scripts/setup.sh` immediately.
-   - `./scripts/setup.sh` auto-detects the teammate ID (`aanjneya|daksh|jivi|tim`) from git config/user/email/OS username, enables `.githooks`, verifies skill symlinks, creates `.env`, and switches to their personal branch.
-   - If it exits `2` (could not auto-detect ID), ask the user *"Which teammate are you: `aanjneya`, `daksh`, `jivi`, or `tim`?"* and run `./scripts/setup.sh <id>` right away.
+   - `./scripts/setup.sh` auto-detects the teammate ID (`aanjneya|slava`) from git config/user/email/OS username, enables `.githooks`, verifies skill symlinks, creates `.env`, and switches to their personal branch.
+   - If it exits `2` (could not auto-detect ID), ask the user *"Which teammate are you: `aanjneya` or `slava`?"* and run `./scripts/setup.sh <id>` right away.
 1. **Sync latest team state & check freshness**:
    - Run `git fetch origin` and check `.brain/` freshness via `git log -1 --format=%cr origin/main -- .brain/`.
    - If `.brain/` hasn't been updated in **>3 hours**, warn the user: *"Heads up: `.brain/` is >3h old — confirm recent verbal decisions at the table before relying on `TASKS.md`."*

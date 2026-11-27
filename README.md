@@ -1,6 +1,6 @@
 # start-hack-titans
 
-4-person START Hack Munich repository for `aanjneya`, `daksh`, `jivi`, and `tim` — powered by an automatic, zero-intervention **Second Brain** across Antigravity, Claude Code, and Codex CLI.
+2-person START Hack Munich repository for `aanjneya` and `slava` — powered by an automatic, zero-intervention **Second Brain** across Antigravity, Claude Code, and Codex CLI.
 
 ## 60-Second Onboarding
 
@@ -13,7 +13,7 @@ Open the repo in **Antigravity, Claude Code, or Codex CLI** and start working (o
 
 **Option B — Manual one-liner:**
 ```bash
-./scripts/setup.sh          # auto-detects your ID (or pass: aanjneya | daksh | jivi | tim)
+./scripts/setup.sh          # auto-detects your ID (or pass: aanjneya | slava)
 ```
 
 ## Zero-Intervention Second Brain
@@ -26,7 +26,7 @@ Open the repo in **Antigravity, Claude Code, or Codex CLI** and start working (o
 
 ## Core Team Rules
 
-1. **Rolling 2–3h merges to `main`**: Keep personal branches (`aanjneya`, `daksh`, `jivi`, `tim`) short-lived. Merge working vertical slices to `main` every 2–3 hours after `./scripts/verify.sh` passes.
+1. **Rolling 2–3h merges to `main`**: Keep personal branches (`aanjneya`, `slava`) short-lived. Merge working vertical slices to `main` every 2–3 hours after `./scripts/verify.sh` passes.
 2. **Hub-first commits**: Changes to `API_CONTRACT.ts`, `package.json`, or root router go to `main` immediately so nobody diverges.
 3. **Secrets & `.env`**: Share sponsor API keys via the pinned team `.env` note (never commit `.env` — `.githooks/pre-push` blocks it). `./scripts/verify.sh` flags missing keys automatically.
 4. **Stage survival (`MOCK_MODE=true`)**: Support both `MOCK_MODE=true` env var and a runtime toggle (`?mock=1` or hotkey with a subtle `MOCK` indicator). Tag `demo-safe` on `main` 60 minutes before submission.

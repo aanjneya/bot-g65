@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# 60-second hackathon onboarding for aanjneya, daksh, jivi, tim.
+# 60-second hackathon onboarding for aanjneya, slava.
 # Designed to be run either manually or automatically by a coding agent on first session.
 #
 # Usage:
-#   ./scripts/setup.sh [aanjneya|daksh|jivi|tim]
+#   ./scripts/setup.sh [aanjneya|slava]
 #   ./scripts/setup.sh --check   # exits 0 if this clone is already configured, 1 otherwise
 
 set -euo pipefail
@@ -13,7 +13,7 @@ cd "$REPO_ROOT"
 
 is_valid_id() {
   case "$1" in
-    aanjneya|daksh|jivi|tim) return 0 ;;
+    aanjneya|slava) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -60,7 +60,7 @@ detect_teammate_id() {
 
   local matched=""
   local count=0
-  for candidate in aanjneya daksh jivi tim; do
+  for candidate in aanjneya slava; do
     if printf '%s\n' "$raw_tokens" | grep -Eq "^${candidate}[0-9]*$"; then
       matched="$candidate"
       count=$((count + 1))
@@ -78,19 +78,19 @@ USER_ID=""
 if [[ $# -eq 1 ]]; then
   USER_ID="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
   if ! is_valid_id "$USER_ID"; then
-    echo "Error: <id> must be one of: aanjneya, daksh, jivi, tim (got '$1')" >&2
+    echo "Error: <id> must be one of: aanjneya, slava (got '$1')" >&2
     exit 1
   fi
 elif [[ $# -eq 0 ]]; then
   USER_ID="$(detect_teammate_id || true)"
   if ! is_valid_id "$USER_ID"; then
     echo "Could not auto-detect teammate ID from git config or username." >&2
-    echo "Ask the user which teammate they are (aanjneya, daksh, jivi, tim) and run: ./scripts/setup.sh <id>" >&2
+    echo "Ask the user which teammate they are (aanjneya, slava) and run: ./scripts/setup.sh <id>" >&2
     exit 2
   fi
   echo "Auto-detected teammate ID: $USER_ID"
 else
-  echo "Usage: $0 [aanjneya|daksh|jivi|tim] | --check" >&2
+  echo "Usage: $0 [aanjneya|slava] | --check" >&2
   exit 1
 fi
 
