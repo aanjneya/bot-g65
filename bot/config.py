@@ -53,7 +53,7 @@ class BotConfig:
     max_pairs: int = field(default_factory=lambda: int(os.getenv("MAX_PAIRS", "4")))
     max_lots_per_pair: int = field(default_factory=lambda: int(os.getenv("MAX_LOTS_PER_PAIR", "20")))
     rebalance_pairs_every_ticks: int = field(default_factory=lambda: int(os.getenv("REBALANCE_PAIRS_TICKS", "120")))
-    use_historical_seed: bool = field(default_factory=lambda: _env_bool("USE_HISTORICAL_SEED", True))
+    use_historical_seed: bool = field(default_factory=lambda: _env_bool("USE_HISTORICAL_SEED", False))
     log_every_ticks: int = field(default_factory=lambda: int(os.getenv("LOG_EVERY_TICKS", "20")))
 
     # 7-vs-1 Basket Fair Value model
