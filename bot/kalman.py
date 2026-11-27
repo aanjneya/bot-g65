@@ -342,7 +342,7 @@ class BasketFairValueModel:
                 exit_z=z_exit,
                 stop_z=z_stop,
                 t1_weight=0.5,
-                min_hurdle_bps=5.0,
+                min_hurdle_bps=25.0,
             )
             for inst in self.instruments
         }

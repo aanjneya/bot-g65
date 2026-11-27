@@ -42,12 +42,12 @@ class BotConfig:
     z_window: int = field(default_factory=lambda: int(os.getenv("Z_WINDOW", "60")))
     min_warmup: int = field(default_factory=lambda: int(os.getenv("MIN_WARMUP", "30")))
 
-    entry_z1: float = field(default_factory=lambda: float(os.getenv("ENTRY_Z1", "1.8")))
-    entry_z2: float = field(default_factory=lambda: float(os.getenv("ENTRY_Z2", "2.5")))
+    entry_z1: float = field(default_factory=lambda: float(os.getenv("ENTRY_Z1", "2.0")))
+    entry_z2: float = field(default_factory=lambda: float(os.getenv("ENTRY_Z2", "2.8")))
     exit_z: float = field(default_factory=lambda: float(os.getenv("EXIT_Z", "0.2")))
     stop_z: float = field(default_factory=lambda: float(os.getenv("STOP_Z", "3.8")))
     t1_weight: float = field(default_factory=lambda: float(os.getenv("T1_WEIGHT", "0.5")))
-    min_hurdle_bps: float = field(default_factory=lambda: float(os.getenv("MIN_HURDLE_BPS", "10.0")))
+    min_hurdle_bps: float = field(default_factory=lambda: float(os.getenv("MIN_HURDLE_BPS", "25.0")))
 
     # Sizing & pair selection
     max_pairs: int = field(default_factory=lambda: int(os.getenv("MAX_PAIRS", "4")))

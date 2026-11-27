@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Set
 
 from bot.config import BotConfig
@@ -54,7 +54,7 @@ def seed_history_from_optibook(cfg: BotConfig, instruments: List[str]) -> Dict[s
         from optibook.historical_data_loader import HistoricalDataLoader  # type: ignore
 
         loader = HistoricalDataLoader()
-        end = datetime.utcnow()
+        end = datetime.now(timezone.utc)
         start = end - timedelta(hours=2)
         trades_df = loader.get_trades_df(start, end)
         if trades_df is not None and not trades_df.empty:

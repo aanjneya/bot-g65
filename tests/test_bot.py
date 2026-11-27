@@ -70,6 +70,26 @@ class TestRiskAndExecution(unittest.TestCase):
         self.assertEqual(round_to_tick(44.613, 0.01, "bid"), 44.61)
         self.assertEqual(round_to_tick(44.628, 0.05, "ask"), 44.65)
 
+    def test_no_self_trade_when_ioc_crosses_own_limit_order(self) -> None:
+        from bot.execution import RiskAndExecution
+
+        ex = MockExchange(universe=["VRT"], seed=1, max_pos=100)
+        ex.connect()
+        books = {"VRT": ex.get_last_price_book("VRT")}
+        insts = ex.get_tradable_instruments()
+        best_bid = books["VRT"].bids[0].price
+
+        # Place a resting passive bid at best_bid (simulating our own quote)
+        ex.insert_order("VRT", price=best_bid, volume=5, side="bid", order_type="limit")
+        self.assertEqual(len(ex.get_outstanding_orders("VRT")), 1)
+
+        # Now send an aggressive IOC sell via RiskAndExecution — must cancel resting bid first, not self-trade
+        executor = RiskAndExecution(ex, max_position_lots=100)
+        sent = executor.execute_target_positions({"VRT": -10}, books, insts)
+        self.assertEqual(sent, 1)
+        self.assertTrue(ex.is_connected())
+        self.assertEqual(ex.get_positions()["VRT"], -10)
+
 
 class TestMockRunner(unittest.TestCase):
     def test_end_to_end_mock_simulation(self) -> None:
