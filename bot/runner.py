@@ -1,30 +1,31 @@
-"""Live trading runner for the Optibook Kalman StatArb bot."""
+"""Live trading runner for the Optibook ABMM-S (Adaptive Bayesian Multi-Asset MM & Sniper) bot."""
 
 from __future__ import annotations
 
 import argparse
+import csv
 import logging
-import re
+import os
 import time
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Set
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 from bot.config import BotConfig
-from bot.execution import RiskAndExecution, mid_price
-from bot.kalman import BasketFairValueModel, OnlineKalmanPair, select_top_pairs
+from bot.execution import RiskAndExecution
 from bot.mock_exchange import MockExchange
+from bot.signals import ABMMSAlphaEngine
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-logger = logging.getLogger("statarb-optibook")
+logger = logging.getLogger("abmms-optibook")
 
 
 def build_exchange(cfg: BotConfig) -> Any:
     """Create either MockExchange (MOCK_MODE=true) or optibook Exchange."""
     if cfg.mock_mode:
-        logger.info("Starting in MOCK_MODE=true with synthetic cointegrated market")
+        logger.info("Starting in MOCK_MODE=true with synthetic correlated AI market")
         return MockExchange(universe=cfg.universe, max_pos=cfg.max_position_lots)
 
     from optibook.synchronous_client import Exchange  # type: ignore
@@ -45,33 +46,89 @@ def build_exchange(cfg: BotConfig) -> Any:
     return Exchange(**kwargs)
 
 
-def seed_history_from_optibook(cfg: BotConfig, instruments: List[str]) -> Dict[str, List[float]]:
-    """Optionally seed recent mid-prices from Optibook HistoricalDataLoader."""
-    history: Dict[str, List[float]] = {inst: [] for inst in instruments}
-    if cfg.mock_mode or not cfg.use_historical_seed:
-        return history
+class MarketLogger:
+    """
+    Lightweight CSV recorder embedded inside the live bot (compatible with collector.py / muster.py).
+    Avoids opening a second Optibook connection (which would silently kick the live bot).
+    """
 
-    try:
-        from optibook.historical_data_loader import HistoricalDataLoader  # type: ignore
+    def __init__(self, folder: str, flush_every_sec: float = 15.0) -> None:
+        self.folder = folder
+        self.flush_every_sec = flush_every_sec
+        os.makedirs(folder, exist_ok=True)
+        self._files = [
+            open(os.path.join(folder, name), "w", newline="", encoding="utf-8")
+            for name in ("books.csv", "trades.csv", "news.csv")
+        ]
+        self._books_w, self._trades_w, self._news_w = (csv.writer(f) for f in self._files)
+        self._books_w.writerow(["time", "instrument", "bids", "asks"])
+        self._trades_w.writerow(["time", "instrument", "price", "volume", "aggressor_side", "buyer", "seller"])
+        self._news_w.writerow(["time", "post"])
+        self._last_book: Dict[str, Tuple[str, str]] = {}
+        self._last_flush = time.monotonic()
 
-        loader = HistoricalDataLoader()
-        end = datetime.now(timezone.utc)
-        start = end - timedelta(hours=2)
-        trades_df = loader.get_trades_df(start, end)
-        if trades_df is not None and not trades_df.empty:
-            for inst in instruments:
-                sub = trades_df[trades_df["instrument_id"] == inst]
-                if not sub.empty:
-                    history[inst] = [float(p) for p in sub["price"].tail(200).tolist()]
-            logger.info("Seeded historical prices for %d instruments", sum(1 for v in history.values() if v))
-    except Exception as exc:
-        logger.info("Historical seed skipped (%s) — warming up from live ticks", exc)
+    @staticmethod
+    def _fmt_levels(side: Any) -> str:
+        return "|".join(f"{float(lv.price):.2f}:{int(lv.volume)}" for lv in (side or []))
 
-    return history
+    def record(
+        self,
+        books: Dict[str, Any],
+        trade_ticks: Dict[str, List[Any]],
+        social_feeds: List[Any],
+    ) -> None:
+        now_iso = datetime.now().isoformat()
+        for inst_id, book in books.items():
+            if book is None:
+                continue
+            row = (
+                self._fmt_levels(getattr(book, "bids", None)),
+                self._fmt_levels(getattr(book, "asks", None)),
+            )
+            if row != self._last_book.get(inst_id):
+                self._books_w.writerow([now_iso, inst_id, row[0], row[1]])
+                self._last_book[inst_id] = row
+
+        for inst_id, ticks in trade_ticks.items():
+            for t in ticks:
+                self._trades_w.writerow(
+                    [
+                        now_iso,
+                        inst_id,
+                        getattr(t, "price", ""),
+                        getattr(t, "volume", ""),
+                        getattr(t, "aggressor_side", ""),
+                        getattr(t, "buyer", ""),
+                        getattr(t, "seller", ""),
+                    ]
+                )
+
+        for feed in social_feeds:
+            self._news_w.writerow([now_iso, getattr(feed, "post", "")])
+
+        now_mono = time.monotonic()
+        if now_mono - self._last_flush >= self.flush_every_sec:
+            self.flush()
+            self._last_flush = now_mono
+
+    def flush(self) -> None:
+        for f in self._files:
+            try:
+                f.flush()
+            except Exception:
+                pass
+
+    def close(self) -> None:
+        self.flush()
+        for f in self._files:
+            try:
+                f.close()
+            except Exception:
+                pass
 
 
-class StatArbBot:
-    """Manages pair discovery, online Kalman updates, and risk-guarded execution."""
+class ABMMSBot:
+    """Live/Mock ABMM-S trading bot: multi-signal FV, 8x8 GLFT skew, news sniper, endgame glide."""
 
     def __init__(self, exchange: Any, cfg: BotConfig) -> None:
         self.exchange = exchange
@@ -83,167 +140,133 @@ class StatArbBot:
             max_requests_per_sec=cfg.max_requests_per_sec,
         )
         self.instruments: Dict[str, Any] = {}
-        self.history: Dict[str, List[float]] = {}
-        self.active_pairs: List[OnlineKalmanPair] = []
-        self.basket_model: Optional[BasketFairValueModel] = None
-        self.news_cooldown_until: Dict[str, int] = {}
+        self.alpha: Optional[ABMMSAlphaEngine] = None
+        self.market_logger: Optional[MarketLogger] = None
         self.tick_count = 0
 
-    def _build_pair_model(self, stock_a: str, stock_b: str) -> OnlineKalmanPair:
-        pair = OnlineKalmanPair(
-            stock_a,
-            stock_b,
-            delta=self.cfg.kalman_delta,
-            r_var=self.cfg.kalman_r,
-            z_window=self.cfg.z_window,
-            min_warmup=self.cfg.min_warmup,
-            entry_z1=self.cfg.entry_z1,
-            entry_z2=self.cfg.entry_z2,
-            exit_z=self.cfg.exit_z,
-            stop_z=self.cfg.stop_z,
-            t1_weight=self.cfg.t1_weight,
-            min_hurdle_bps=self.cfg.min_hurdle_bps,
-        )
-        ha = self.history.get(stock_a, [])
-        hb = self.history.get(stock_b, [])
-        n = min(len(ha), len(hb))
-        for pa, pb in zip(ha[-n:], hb[-n:]):
-            pair.update(pa, pb)
-        return pair
+    def _ensure_alpha(self) -> ABMMSAlphaEngine:
+        if self.alpha is None:
+            universe = sorted(self.instruments.keys()) if self.instruments else list(self.cfg.universe)
+            self.alpha = ABMMSAlphaEngine(
+                universe,
+                w_micro=self.cfg.w_micro,
+                w_ofi=self.cfg.w_ofi,
+                w_wall=self.cfg.w_wall,
+                wall_min_volume=self.cfg.wall_min_volume,
+                w_leadlag=self.cfg.w_leadlag,
+                glft_gamma=self.cfg.glft_gamma,
+                base_edge_ticks=float(self.cfg.quote_edge_ticks),
+                vol_spread_mult=self.cfg.vol_spread_mult,
+                quote_lots=self.cfg.quote_lots,
+                max_position_lots=self.cfg.max_position_lots,
+                news_cooldown_ticks=self.cfg.news_cooldown_ticks,
+                enable_news_sniper=self.cfg.enable_news_sniper,
+                news_snipe_lots=self.cfg.news_snipe_lots,
+                session_duration_sec=self.cfg.session_duration_sec,
+                endgame_start_sec=self.cfg.endgame_start_sec,
+                flatten_start_sec=self.cfg.flatten_start_sec,
+                endgame_gamma_mult=self.cfg.endgame_gamma_mult,
+                own_username=self.cfg.username,
+            )
+        return self.alpha
 
-    def _refresh_pairs(self) -> None:
-        selected = select_top_pairs(
-            self.history,
-            max_pairs=self.cfg.max_pairs,
-            min_points=self.cfg.min_warmup,
-        )
-        if not selected:
-            return
+    @property
+    def news_cooldown_until(self) -> Dict[str, int]:
+        return self._ensure_alpha().news_cooldown_until
 
-        existing_keys = {(p.stock_a, p.stock_b): p for p in self.active_pairs}
-        new_pairs: List[OnlineKalmanPair] = []
-        for cand in selected:
-            key = (cand.stock_a, cand.stock_b)
-            if key in existing_keys:
-                new_pairs.append(existing_keys[key])
-            else:
-                logger.info(
-                    "Activated pair %s / %s (hl=%.1f, corr=%.2f, p=%.3f, beta=%.2f)",
-                    cand.stock_a,
-                    cand.stock_b,
-                    cand.half_life,
-                    cand.corr,
-                    cand.p_value,
-                    cand.beta,
-                )
-                new_pairs.append(self._build_pair_model(cand.stock_a, cand.stock_b))
-        self.active_pairs = new_pairs
-
-    def _check_news_guard(self) -> Set[str]:
-        """Poll social media feed and pause affected tickers (or all) for cooldown ticks."""
-        try:
-            feeds = self.exchange.poll_new_social_media_feeds()
-        except Exception:
-            feeds = []
-
-        for feed in feeds:
-            post = str(getattr(feed, "post", "") or "")
-            post_upper = post.upper()
-            mentioned = [inst for inst in self.instruments if re.search(rf"\b{re.escape(inst)}\b", post_upper)]
-            targets = mentioned if mentioned else list(self.instruments.keys())
-            for inst in targets:
-                self.news_cooldown_until[inst] = self.tick_count + self.cfg.news_cooldown_ticks
-            logger.info("News jump guard triggered (%s): pausing %s for %d ticks", post[:60], targets, self.cfg.news_cooldown_ticks)
-
-        return {inst for inst, until in self.news_cooldown_until.items() if self.tick_count < until}
-
-    def step(self) -> int:
-        """Run one market-data + signal + execution cycle. Returns orders sent."""
+    def step(self, now: Optional[float] = None) -> int:
+        """Run one market-data + ABMM-S signal + risk-guarded execution cycle. Returns orders sent."""
         if not self.exchange.is_connected():
             self.exchange.connect()
+
+        if not self.instruments:
+            all_insts = self.exchange.get_tradable_instruments()
+            self.instruments = {k: v for k, v in all_insts.items() if k in self.cfg.universe} or all_insts
 
         if isinstance(self.exchange, MockExchange):
             self.exchange.step_market()
 
         self.tick_count += 1
-        paused = self._check_news_guard()
+        now_ts = time.monotonic() if now is None else float(now)
+
+        # 1. Single-connection market data ingest (books, public TradeTicks, social feeds)
         books: Dict[str, Any] = {}
-        mids: Dict[str, float] = {}
-
+        trade_ticks: Dict[str, List[Any]] = {}
         for inst_id in self.instruments:
-            book = self.exchange.get_last_price_book(inst_id)
-            books[inst_id] = book
-            mp = mid_price(book)
-            hist = self.history.setdefault(inst_id, [])
-            if mp is not None:
-                mids[inst_id] = mp
-                hist.append(mp)
+            books[inst_id] = self.exchange.get_last_price_book(inst_id)
+            if hasattr(self.exchange, "poll_new_trade_ticks"):
+                try:
+                    trade_ticks[inst_id] = self.exchange.poll_new_trade_ticks(inst_id) or []
+                except Exception:
+                    trade_ticks[inst_id] = []
             else:
-                hist.append(float("nan"))
-            if len(hist) > 500:
-                del hist[: len(hist) - 500]
+                trade_ticks[inst_id] = []
 
-        if not self.active_pairs or self.tick_count % self.cfg.rebalance_pairs_every_ticks == 0:
-            self._refresh_pairs()
+        try:
+            social_feeds = self.exchange.poll_new_social_media_feeds() or []
+        except Exception:
+            social_feeds = []
 
-        fair_values: Dict[str, float] = {}
-        if self.cfg.enable_basket_model:
-            if self.basket_model is None:
-                self.basket_model = BasketFairValueModel(
-                    list(self.instruments.keys()),
-                    delta=self.cfg.kalman_delta,
-                    r_var=self.cfg.kalman_r,
-                    z_window=self.cfg.z_window,
-                    min_warmup=min(self.cfg.min_warmup, 25),
-                    z_entry=self.cfg.basket_z_entry,
-                    z_exit=self.cfg.exit_z,
-                    z_stop=self.cfg.stop_z,
-                )
-            fair_values, _ = self.basket_model.update(mids)
+        if self.market_logger is not None:
+            try:
+                self.market_logger.record(books, trade_ticks, social_feeds)
+            except Exception as exc:
+                logger.warning("CSV logger error: %s", exc)
 
-        # Blend pair-implied fair values into fair_values
-        for pair in self.active_pairs:
-            pa = mids.get(pair.stock_a)
-            pb = mids.get(pair.stock_b)
-            if pa is None or pb is None:
-                continue
-            pair.update(pa, pb)
-            if pair.initialized and pair.beta > 0.1:
-                fv_a = pair.alpha + pair.beta * pb
-                fv_b = (pa - pair.alpha) / pair.beta
-                fair_values[pair.stock_a] = 0.5 * fair_values.get(pair.stock_a, fv_a) + 0.5 * fv_a
-                fair_values[pair.stock_b] = 0.5 * fair_values.get(pair.stock_b, fv_b) + 0.5 * fv_b
+        positions = self.exchange.get_positions()
 
-        # 1. Edge-only aggressive IOC (only when book is mispriced >= 3 ticks beyond fair value)
-        sniped = self.executor.execute_fair_value_edge(
-            fair_values,
-            books,
-            self.instruments,
-            paused_instruments=paused,
-            max_edge_lots=min(10, self.cfg.max_lots_per_pair),
-            min_edge_ticks=3,
+        # 2. Compute ABMM-S snapshot (Microprice+OFI, V>250 wall, counterparty markout, lead-lag, GLFT, news, endgame)
+        alpha = self._ensure_alpha()
+        snap = alpha.update(
+            now=now_ts,
+            tick_count=self.tick_count,
+            books=books,
+            instruments=self.instruments,
+            positions=positions,
+            trade_ticks=trade_ticks,
+            social_feeds=social_feeds,
         )
-        orders_sent = len(sniped)
 
-        # 2. Passive inventory-skewed market making around fair value (skip sniped tickers to guarantee zero self-trades)
-        if self.cfg.enable_passive_quoting and fair_values and self.exchange.is_connected():
-            orders_sent += self.executor.quote_around_fair_value(
-                fair_values,
+        orders_sent = 0
+
+        # 3. Priority 1 — Endgame flattener (final 45s of 30-min session)
+        if snap.endgame.should_flatten:
+            orders_sent += self.executor.flatten_positions(books, self.instruments)
+        else:
+            # 4. Priority 2 — <1ms News sentiment sniper (bounded IOC, cancels resting quotes first)
+            news_sniped = self.executor.execute_news_snipes(snap.news_snipes, books, self.instruments)
+            orders_sent += len(news_sniped)
+
+            # 5. Priority 3 — Edge-only aggressive IOC (only when book is mispriced >= 3 ticks & 1.5*spread beyond FV)
+            edge_sniped = self.executor.execute_fair_value_edge(
+                snap.fair_values,
                 books,
                 self.instruments,
-                paused_instruments=paused | sniped,
-                quote_lots=self.cfg.quote_lots,
-                edge_ticks=self.cfg.quote_edge_ticks,
+                paused_instruments=snap.paused | news_sniped,
+                max_edge_lots=self.cfg.edge_ioc_lots,
+                min_edge_ticks=self.cfg.edge_ioc_min_ticks,
             )
+            orders_sent += len(edge_sniped)
+
+            # 6. Priority 4 — Queue-preserving passive GLFT quoting around reservation price
+            if self.cfg.enable_passive_quoting and snap.quote_plans and self.exchange.is_connected():
+                orders_sent += self.executor.quote_from_plans(
+                    snap.quote_plans,
+                    books,
+                    self.instruments,
+                    paused_instruments=snap.paused | news_sniped | edge_sniped,
+                )
 
         if self.tick_count % self.cfg.log_every_ticks == 0 and self.exchange.is_connected():
             pnl = self.exchange.get_pnl()
             pos = {k: v for k, v in self.exchange.get_positions().items() if v != 0}
+            rem_str = f" rem={snap.endgame.remaining_sec:.0f}s" if snap.endgame.remaining_sec is not None else ""
             logger.info(
-                "tick=%d pairs=%d paused=%d pnl=%.2f positions=%s",
+                "tick=%d paused=%d gamma_x=%.1f%s pnl=%.2f positions=%s",
                 self.tick_count,
-                len(self.active_pairs),
-                len(paused),
+                len(snap.paused),
+                snap.endgame.gamma_mult,
+                rem_str,
                 pnl if pnl is not None else 0.0,
                 pos,
             )
@@ -258,8 +281,18 @@ class StatArbBot:
             if not self.instruments:
                 self.instruments = all_insts
 
-            self.history = seed_history_from_optibook(self.cfg, list(self.instruments.keys()))
-            logger.info("Trading universe: %s", sorted(self.instruments.keys()))
+            self._ensure_alpha()
+            if self.cfg.enable_csv_logging:
+                log_dir = self.cfg.csv_log_dir or ("data_live_" + datetime.now().strftime("%d_%H%M%S"))
+                self.market_logger = MarketLogger(log_dir)
+                logger.info("Embedded CSV logger active -> %s", log_dir)
+
+            logger.info(
+                "ABMM-S live on %s (mock=%s, session=%ss)",
+                sorted(self.instruments.keys()),
+                self.cfg.mock_mode,
+                int(self.cfg.session_duration_sec),
+            )
 
             while max_ticks is None or self.tick_count < max_ticks:
                 self.step()
@@ -268,6 +301,8 @@ class StatArbBot:
         except KeyboardInterrupt:
             logger.info("Interrupted — cancelling open orders and disconnecting")
         finally:
+            if self.market_logger is not None:
+                self.market_logger.close()
             for inst_id in self.instruments:
                 try:
                     self.exchange.delete_orders(inst_id)
@@ -279,18 +314,36 @@ class StatArbBot:
                 pass
 
 
+# Backward-compatible alias for existing imports/tests
+StatArbBot = ABMMSBot
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Optibook Kalman StatArb Bot")
+    parser = argparse.ArgumentParser(description="Optibook ABMM-S Trading Bot")
     parser.add_argument("--mock", action="store_true", help="Run against local MockExchange")
     parser.add_argument("--max-ticks", type=int, default=None, help="Stop after N ticks (useful for testing)")
+    parser.add_argument(
+        "--session-sec",
+        type=float,
+        default=None,
+        help="Competition session duration in seconds (e.g. 1800 for 30-min Sunday final)",
+    )
+    parser.add_argument("--log-csv", action="store_true", help="Enable embedded CSV market logger")
+    parser.add_argument("--log-dir", type=str, default=None, help="Directory for embedded CSV logs")
     args = parser.parse_args()
 
     cfg = BotConfig()
     if args.mock:
         cfg.mock_mode = True
+    if args.session_sec is not None:
+        cfg.session_duration_sec = args.session_sec
+    if args.log_csv or args.log_dir:
+        cfg.enable_csv_logging = True
+    if args.log_dir:
+        cfg.csv_log_dir = args.log_dir
 
     exchange = build_exchange(cfg)
-    bot = StatArbBot(exchange, cfg)
+    bot = ABMMSBot(exchange, cfg)
     bot.run(max_ticks=args.max_ticks)
 
 

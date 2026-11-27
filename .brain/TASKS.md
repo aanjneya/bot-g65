@@ -10,13 +10,11 @@
 - [x] `@aanjneya` Approve `.brain/GOAL.md` update for Optiver HackaTUM 2026 ABMM-S strategy
 - [ ] Run `bot/collector.py` + `bot/muster.py` on live practice market (30–60m) to validate house-bot markouts, `V>250` walls, news feed, and lead-lag (`data_*/`)
 - [x] `@aanjneya` Fix 4 execution bugs in `bot/execution.py` (`bot/execution.py`, `bot/mock_exchange.py`, `tests/test_bot.py`)
-- [ ] Build `bot/signals.py` (Microprice+OFI, `V>250` wall anchor, online counterparty markouts, return-space lead-lag, news lexicon) & matrix GLFT `r = F - gamma(t)*Sigma*q` (`bot/runner.py`)
+- [x] `@aanjneya` Build ABMM-S strategy: `bot/signals.py` (Microprice+OFI, `V>250` wall anchor, online counterparty markouts, return-space lead-lag, news lexicon, 8×8 GLFT), endgame glidepath, embedded CSV logger (`bot/signals.py`, `bot/execution.py`, `bot/runner.py`, `bot/config.py`, `bot/mock_exchange.py`, `tests/test_bot.py`)
 
 ## Next
 
-- [ ] Embed lightweight CSV logger inside `bot/runner.py` (1-connection-per-team rule)
-- [ ] Add endgame inventory glidepath (min 27–30) & live regime-decay spread adaptation
-- [ ] Run `pytest` / `./scripts/verify.sh` and live-practice stress test before Sunday 10:00 reset
+- [ ] Run live-practice stress test (`python3 -m bot.runner --log-csv`) & tune weights from `muster.py` before Sunday 10:00 reset (`--session-sec 1800`)
 
 ## Done
 

@@ -50,6 +50,17 @@ class MockSocialMediaFeed:
     meta_data: Optional[dict] = None
 
 
+@dataclass
+class MockTradeTick:
+    instrument_id: str
+    price: float
+    volume: int
+    aggressor_side: str
+    buyer: str = ""
+    seller: str = ""
+    trade_id: int = 0
+
+
 class MockExchange:
     """In-memory cointegrated order-book simulator for local testing and MOCK_MODE=true."""
 
@@ -62,7 +73,9 @@ class MockExchange:
         self._cash: float = 0.0
         self._outstanding: Dict[str, Dict[int, MockOrderStatus]] = {inst: {} for inst in self.universe}
         self._social_feeds: List[MockSocialMediaFeed] = []
+        self._trade_ticks: Dict[str, List[MockTradeTick]] = {inst: [] for inst in self.universe}
         self._next_order_id = 1
+        self._next_trade_id = 1
         self._step = 0
 
         # Base prices and latent factor so pairs like (NVDA, AMD) and (AVGO, MU) are cointegrated
@@ -90,7 +103,7 @@ class MockExchange:
         return self._connected
 
     def step_market(self) -> None:
-        """Advance synthetic cointegrated market by one tick."""
+        """Advance synthetic correlated AI market by one tick and emit synthetic public TradeTicks."""
         self._step += 1
         self._factor += float(self.rng.normal(0.0, 0.15))
         for i, inst in enumerate(self.universe):
@@ -102,6 +115,19 @@ class MockExchange:
             px = self._base.get(inst, 100.0) + beta * self._factor + self._spreads[inst]
             self._prices[inst] = max(1.0, round(px, 2))
 
+            # Emit an occasional synthetic public trade tick for testing counterparty profiling
+            if self._step % 2 == i % 2:
+                side = "bid" if float(self.rng.random()) > 0.5 else "ask"
+                bot_name = "JazzyJellies" if i % 2 == 0 else "PrudentPoultry"
+                self.push_mock_trade_tick(
+                    inst,
+                    price=self._prices[inst],
+                    volume=int(self.rng.integers(2, 15)),
+                    aggressor_side=side,
+                    buyer=bot_name if side == "bid" else "LivelyLasagnas",
+                    seller="LivelyLasagnas" if side == "bid" else bot_name,
+                )
+
     def get_tradable_instruments(self) -> Dict[str, MockInstrument]:
         return {inst: MockInstrument(instrument_id=inst, tick_size=0.01) for inst in self.universe}
 
@@ -111,8 +137,14 @@ class MockExchange:
         ask = round(mid + 0.01, 2)
         return MockPriceBook(
             instrument_id=instrument_id,
-            bids=[MockPriceVolume(price=bid, volume=50), MockPriceVolume(price=round(bid - 0.02, 2), volume=100)],
-            asks=[MockPriceVolume(price=ask, volume=50), MockPriceVolume(price=round(ask + 0.02, 2), volume=100)],
+            bids=[
+                MockPriceVolume(price=bid, volume=50),
+                MockPriceVolume(price=round(bid - 0.02, 2), volume=500),
+            ],
+            asks=[
+                MockPriceVolume(price=ask, volume=50),
+                MockPriceVolume(price=round(ask + 0.02, 2), volume=500),
+            ],
         )
 
     def get_positions(self) -> Dict[str, int]:
@@ -148,13 +180,43 @@ class MockExchange:
         self._outstanding[instrument_id] = {}
 
     def push_mock_news(self, post: str) -> None:
-        """Inject a mock social media post for testing news-feed jump guards."""
+        """Inject a mock social media post for testing news-feed jump guards & snipers."""
         self._social_feeds.append(MockSocialMediaFeed(post=post))
 
     def poll_new_social_media_feeds(self) -> List[MockSocialMediaFeed]:
         feeds = list(self._social_feeds)
         self._social_feeds.clear()
         return feeds
+
+    def push_mock_trade_tick(
+        self,
+        instrument_id: str,
+        *,
+        price: float,
+        volume: int,
+        aggressor_side: str,
+        buyer: str = "",
+        seller: str = "",
+    ) -> None:
+        """Inject a mock public TradeTick for testing counterparty markout profiling."""
+        tid = self._next_trade_id
+        self._next_trade_id += 1
+        self._trade_ticks.setdefault(instrument_id, []).append(
+            MockTradeTick(
+                instrument_id=instrument_id,
+                price=price,
+                volume=volume,
+                aggressor_side=aggressor_side,
+                buyer=buyer,
+                seller=seller,
+                trade_id=tid,
+            )
+        )
+
+    def poll_new_trade_ticks(self, instrument_id: str) -> List[MockTradeTick]:
+        ticks = list(self._trade_ticks.get(instrument_id, []))
+        self._trade_ticks[instrument_id] = []
+        return ticks
 
     def insert_order(
         self,
@@ -181,8 +243,11 @@ class MockExchange:
                 raise RuntimeError("Order canceled because it would lead to a self-trade")
 
         cur = self._positions.get(instrument_id, 0)
-        signed = volume if side == "bid" else -volume
-        if abs(cur + signed) > self.max_pos:
+        open_bid = sum(o.volume for o in open_orders.values() if o.side == "bid")
+        open_ask = sum(o.volume for o in open_orders.values() if o.side == "ask")
+        if side == "bid" and cur + open_bid + volume > self.max_pos:
+            return MockOrderResponse(success=False, error_reason="Position limit exceeded")
+        if side == "ask" and cur - open_ask - volume < -self.max_pos:
             return MockOrderResponse(success=False, error_reason="Position limit exceeded")
 
         book = self.get_last_price_book(instrument_id)
