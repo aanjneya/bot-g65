@@ -33,6 +33,10 @@ __pycache__/
 *.db
 *.log
 
+# Large market data & logs (exceeds 25MB git hook limit)
+statarb/stocks_*.csv
+statarb/trade_log.csv
+
 # Tooling/cache dirs not part of the project
 .cache/
 .config/
