@@ -166,7 +166,7 @@ def run_one_round(
     duration_sec: float,
     out_dir: str,
     mock_mode: bool,
-    poll_sec: float = 0.20,
+    poll_sec: float = 0.05,
 ) -> Dict[str, Any]:
     os.makedirs(out_dir, exist_ok=True)
     cls = _load_strategy_cls(spec)
@@ -336,7 +336,7 @@ def main():
     ap.add_argument("--minutes", type=float, default=3.5, help="Minutes per strategy (default 3.5)")
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
-    ap.add_argument("--poll-sec", type=float, default=0.20, help="Poll interval in seconds (default 0.20 = exact backtest STEP)")
+    ap.add_argument("--poll-sec", type=float, default=0.05, help="Poll interval in seconds (default 0.05 = 20Hz)")
     ap.add_argument("--strategies", nargs="*", default=DEFAULT_STRATEGIES, help="List of module:Class specs")
     ap.add_argument("--out-dir", type=str, default=None, help="Output folder (default data/round_robin_<ts>)")
     args = ap.parse_args()
