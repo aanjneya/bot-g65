@@ -313,6 +313,9 @@ class ABMMSBot:
         self.executor.passive_evidence.observe(
             now_ts, trade_ticks, {u: mid_price(b) for u, b in books.items()}, self.cfg.username
         )
+        self.executor.roundtrip_screen.observe(
+            now_ts, books, self.instruments, trade_ticks, self.cfg.tail_stop_ticks
+        )
         positions = self.exchange.get_positions()
 
         # 2. Compute ABMM-S snapshot (wall-protected entry, profit exit, scratches, markout breaker, GLFT)

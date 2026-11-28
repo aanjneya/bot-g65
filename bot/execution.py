@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from typing import Any, Deque, Dict, Optional, Set, Tuple
 
 from bot.passive_evidence import PassiveEntryEvidence
+from bot.roundtrip_screen import RoundTripScreen
 from bot.signals import find_protecting_wall
 
 logger = logging.getLogger(__name__)
@@ -136,6 +137,7 @@ class RiskAndExecution:
         self.max_requests_per_sec = max_requests_per_sec
         self._req_times: Deque[float] = deque()
         self.passive_evidence = PassiveEntryEvidence()
+        self.roundtrip_screen = RoundTripScreen()
 
     def _can_send_request(self, reserve: int = 0) -> bool:
         now = time.monotonic()
@@ -753,6 +755,18 @@ class RiskAndExecution:
                 else:
                     bid_vol = 0
                     ask_vol = 0
+
+            # Learn on unfunded flat candidates, too: disabling a bad side must not
+            # require a paid fill to discover that its round trips have recovered.
+            # Never veto a reducing side or restore volume removed by any other gate.
+            if cur_pos >= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'bid', target_bid, tick, book.bids, cur_pos == 0 and target_bid < target_ask
+            ):
+                bid_vol = 0
+            if cur_pos <= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'ask', target_ask, tick, book.asks, cur_pos == 0 and target_bid < target_ask
+            ):
+                ask_vol = 0
 
             # Evaluate the final passive price, after wall sizing and self-cross checks.
             # A reducing side must never wait for evidence or be resized by this gate.
