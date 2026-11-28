@@ -317,13 +317,29 @@ def summarize_market_microstructure(snapshot_dir: str) -> str:
                             cp_mk5_cnt[aggressor] += 1
 
             if inst_cnt:
-                lines.append("### Trade Activity by Stock")
+                lines.append("### Trade Activity & 5s->15s Momentum/Reversion by Stock")
                 for inst in sorted(inst_cnt):
                     pxs = inst_prices[inst]
                     rng = max(pxs) - min(pxs) if pxs else 0.0
+                    cont_str = ""
+                    if inst in mid_series:
+                        ts_l, ms_l = mid_series[inst]
+                        cont_vals: List[float] = []
+                        for idx_t in range(0, len(ts_l), 3):
+                            m5 = _lookup_mid((ts_l, ms_l), ts_l[idx_t] + 5.0)
+                            m20 = _lookup_mid((ts_l, ms_l), ts_l[idx_t] + 20.0)
+                            if m5 is not None and m20 is not None:
+                                d1 = (m5 - ms_l[idx_t]) / 0.10
+                                if abs(d1) >= 3.0:
+                                    d2 = (m20 - m5) / 0.10
+                                    cont_vals.append(d2 * (1.0 if d1 > 0 else -1.0))
+                        if cont_vals:
+                            avg_c = sum(cont_vals) / len(cont_vals)
+                            regime = "MOMENTUM" if avg_c > 0.3 else ("MEAN-REVERT" if avg_c < -0.3 else "NEUTRAL")
+                            cont_str = f", >=3t_moves={len(cont_vals)} next_15s={avg_c:+.2f}t ({regime})"
                     lines.append(
                         f"- {inst}: {inst_cnt[inst]} trades, vol={inst_vol[inst]}, "
-                        f"px={pxs[0]:.2f}->{pxs[-1]:.2f} (range={rng:.2f})"
+                        f"px={pxs[0]:.2f}->{pxs[-1]:.2f} (range={rng:.2f}){cont_str}"
                     )
             if cp_vol:
                 lines.append(

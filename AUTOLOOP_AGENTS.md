@@ -10,8 +10,11 @@ The Champion from Cycles 14–18 is **deadlocked at 0 orders** (0 requests out o
 - **Do NOT** propose a logging-only or single-gate edit — it will score `+0.0` and be rejected again.
 - **In THIS cycle**, make a **complete, decisive strategy change** that actually trades and clears `+5` to `+50+` PnL in `backtest.py`:
   1. **Remove the 0-order choke**: Unblock/simplify `RoundTripScreen`, `PassiveEntryEvidence`, `CycleBudget`, and the `>= 1.0 tick` half-spread rounding that pushes quotes behind the wall on 1-tick spreads.
-  2. **Exploit what IS proven positive**: `NBIS` (`+0.408t` live EWMA, `+0.27t` 5s drift, `+0.16t` imbalance) and `CRWV` (`+0.066` 5s imbalance, positive live markout) consistently make money. Let them **quote the touch with real size (`10–25` lots)** when book imbalance / `aggressor_side` flow / wall support is favorable.
-  3. **Isolate the losers (`MU`, `NVDA`, `AMD`, `VRT`)**: Keep them wide or disabled unless they have strong multi-tick edge, instead of choking all 8 stocks to 0 orders.
+  2. **Exploit what IS proven positive (AND per-stock regimes!)**:
+     - Live 5s→20s empirical data (`live_006`) proved two **opposite** regimes across the 8 stocks:
+       - **MEAN-REVERTING** (`AMD` `-2.25t`, `NVDA` `-1.53t`, `MU` `-0.99t` after `>=3t` 5s moves): Fade large spikes (`>=4–5` ticks) or quote asymmetrically against the spike!
+       - **MOMENTUM / TRENDING** (`NBIS` `+1.08t`, `CRWV` `+1.07t`, `SNDK` `+0.70t` after `>=3t` 5s moves): Follow breakouts / book imbalance (`NBIS` `+0.408t` live EWMA, `CRWV` `+0.066` 5s imbalance) and quote the touch at **`10–25` lots**!
+  3. **Use regime-appropriate logic per stock** instead of treating all 8 stocks identically or choking all 8 to 0 orders.
 
 ## Role & Mission
 
