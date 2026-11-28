@@ -828,6 +828,12 @@ class RiskAndExecution:
                 if cur_pos <= 0 and (inst_id, 'ask') in pulled_entries:
                     ask_vol = 0
 
+            # AVGO passive-entry ablation. Keep observing its book and shadow
+            # candidates; allow a funded passive order only to close inventory.
+            if inst_id == "AVGO":
+                bid_vol = min(bid_vol, max(0, -cur_pos))
+                ask_vol = min(ask_vol, max(0, cur_pos))
+
             inst_open_vol = sum(int(o.volume) for o in open_orders.values())
 
             sent, _ = self._sync_passive_quotes(
