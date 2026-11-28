@@ -341,6 +341,35 @@ def summarize_market_microstructure(snapshot_dir: str) -> str:
                         f"- {inst}: {inst_cnt[inst]} trades, vol={inst_vol[inst]}, "
                         f"px={pxs[0]:.2f}->{pxs[-1]:.2f} (range={rng:.2f}){cont_str}"
                     )
+            if len(mid_series) >= 2:
+                lead_lines: List[str] = []
+                names = sorted(mid_series.keys())
+                for a in names:
+                    ts_a, ms_a = mid_series[a]
+                    pairs: List[str] = []
+                    for b in names:
+                        if a == b:
+                            continue
+                        vals: List[float] = []
+                        for idx_t in range(0, len(ts_a), 5):
+                            m5 = _lookup_mid((ts_a, ms_a), ts_a[idx_t] + 5.0)
+                            if m5 is None:
+                                continue
+                            da = (m5 - ms_a[idx_t]) / 0.10
+                            if abs(da) >= 3.0:
+                                b0 = _lookup_mid(mid_series[b], ts_a[idx_t] + 5.0)
+                                b15 = _lookup_mid(mid_series[b], ts_a[idx_t] + 15.0)
+                                if b0 is not None and b15 is not None:
+                                    vals.append(((b15 - b0) / 0.10) * (1.0 if da > 0 else -1.0))
+                        if len(vals) >= 15:
+                            avg_l = sum(vals) / len(vals)
+                            if abs(avg_l) >= 0.4:
+                                pairs.append(f"{b}:{avg_l:+.2f}t({len(vals)})")
+                    if pairs:
+                        lead_lines.append(f"- {a} -> " + ", ".join(pairs))
+                if lead_lines:
+                    lines.append("### Cross-Stock Lead-Lag (after >=3t 5s move in A, next 10s move in B)")
+                    lines.extend(lead_lines)
             if cp_vol:
                 lines.append(
                     "### Counterparty 5s Aggressor Markouts "
