@@ -222,6 +222,77 @@ def snapshot_live_data(live_dir: str, snapshot_dir: str, started_after: float = 
     return copied and lines >= 5
 
 
+def summarize_market_microstructure(snapshot_dir: str) -> str:
+    """Extract per-stock spread/mid stats, top counterparties, and recent news from raw CSVs."""
+    lines: List[str] = []
+    # 1. Trades & Counterparties
+    trades_path = os.path.join(snapshot_dir, "trades.csv")
+    if os.path.isfile(trades_path):
+        import csv
+        from collections import Counter, defaultdict
+
+        inst_vol: Counter[str] = Counter()
+        inst_cnt: Counter[str] = Counter()
+        cp_vol: Counter[str] = Counter()
+        cp_aggr: Counter[str] = Counter()
+        inst_prices: Dict[str, List[float]] = defaultdict(list)
+        try:
+            with open(trades_path, encoding="utf-8", errors="ignore") as f:
+                r = csv.DictReader(f)
+                for row in r:
+                    inst = (row.get("instrument") or "").strip()
+                    if not inst:
+                        continue
+                    try:
+                        vol = int(float(row.get("volume") or 0))
+                        px = float(row.get("price") or 0)
+                    except ValueError:
+                        continue
+                    inst_vol[inst] += vol
+                    inst_cnt[inst] += 1
+                    inst_prices[inst].append(px)
+                    buyer = (row.get("buyer") or "").strip()
+                    seller = (row.get("seller") or "").strip()
+                    side = (row.get("aggressor_side") or "").strip().lower()
+                    if buyer:
+                        cp_vol[buyer] += vol
+                        if side == "bid":
+                            cp_aggr[buyer] += vol
+                    if seller:
+                        cp_vol[seller] += vol
+                        if side == "ask":
+                            cp_aggr[seller] += vol
+            if inst_cnt:
+                lines.append("### Trade Activity by Stock")
+                for inst in sorted(inst_cnt):
+                    pxs = inst_prices[inst]
+                    rng = max(pxs) - min(pxs) if pxs else 0.0
+                    lines.append(
+                        f"- {inst}: {inst_cnt[inst]} trades, vol={inst_vol[inst]}, "
+                        f"px={pxs[0]:.2f}->{pxs[-1]:.2f} (range={rng:.2f})"
+                    )
+            if cp_vol:
+                lines.append("### Top Counterparties (Volume / Aggressor Vol)")
+                for cp, v in cp_vol.most_common(12):
+                    lines.append(f"- {cp}: total_vol={v}, aggressor_vol={cp_aggr[cp]}")
+        except Exception as exc:
+            lines.append(f"(trade summary error: {exc})")
+
+    # 2. Recent News Posts
+    news_path = os.path.join(snapshot_dir, "news.csv")
+    if os.path.isfile(news_path):
+        try:
+            with open(news_path, encoding="utf-8", errors="ignore") as f:
+                news_rows = [ln.strip() for ln in f.readlines()[1:] if ln.strip()]
+            if news_rows:
+                lines.append("### Recent Social Media / News Feed (last 15)")
+                lines.extend(f"- {ln[:220]}" for ln in news_rows[-15:])
+        except Exception:
+            pass
+
+    return "\n".join(lines) if lines else "No microstructure data available."
+
+
 def run_cmd(args: List[str], timeout: int = 300) -> Tuple[int, str]:
     """Run a subprocess in repo root and return (returncode, combined_output)."""
     try:
@@ -244,15 +315,16 @@ def _auth_header(api_key: str, username: str = "", password: str = "") -> str:
     return f"Basic {token}"
 
 
-def call_gemini(
+def call_llm(
     prompt: str,
     api_key: str,
     base_url: str,
     model: str = "azure/gpt-6.2-astra",
     username: str = "",
     password: str = "",
+    reasoning_effort: str = "high",
 ) -> Dict[str, Any]:
-    """Call OpenAI-compatible LLM gateway (Bearer key or Basic auth) and return JSON."""
+    """Call OpenAI-compatible LLM gateway (Astra with high reasoning_effort) and return JSON."""
     raw_text = ""
     auth_hdr = _auth_header(api_key, username, password)
     if OpenAI is not None:
@@ -261,40 +333,65 @@ def call_gemini(
             base_url=base_url,
             default_headers={"Authorization": auth_hdr} if not api_key else None,
         )
+        # Try with reasoning_effort="high" first (omitting temperature for reasoning models);
+        # fall back cleanly if gateway rejects reasoning_effort.
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.25,
-                response_format={"type": "json_object"},
-                timeout=120.0,
-            )
+            kwargs: Dict[str, Any] = {
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "response_format": {"type": "json_object"},
+                "timeout": 300.0,
+            }
+            if reasoning_effort:
+                kwargs["reasoning_effort"] = reasoning_effort
+            try:
+                response = client.chat.completions.create(**kwargs)
+            except Exception as first_exc:
+                if reasoning_effort and ("reasoning_effort" in str(first_exc).lower() or "400" in str(first_exc)):
+                    logger.warning("Gateway rejected reasoning_effort=%s; retrying without it", reasoning_effort)
+                    kwargs.pop("reasoning_effort", None)
+                    response = client.chat.completions.create(**kwargs)
+                else:
+                    raise
             raw_text = (response.choices[0].message.content or "").strip() if response.choices else ""
         except Exception as exc:
             raise RuntimeError(f"OpenAI API call failed: {exc}")
     else:
         url = base_url.rstrip("/") + "/chat/completions"
-        payload = {
+        payload: Dict[str, Any] = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.25,
             "response_format": {"type": "json_object"},
         }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": auth_hdr,
-            },
-            method="POST",
-        )
+        if reasoning_effort:
+            payload["reasoning_effort"] = reasoning_effort
+
+        def _post(body_dict: Dict[str, Any]) -> Dict[str, Any]:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(body_dict).encode("utf-8"),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": auth_hdr,
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                body = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            err_body = exc.read().decode("utf-8", errors="ignore")[:300]
-            raise RuntimeError(f"LLM HTTP {exc.code}: {err_body}") from exc
+            try:
+                body = _post(payload)
+            except urllib.error.HTTPError as exc:
+                err_body = exc.read().decode("utf-8", errors="ignore")[:300]
+                if exc.code == 400 and reasoning_effort:
+                    logger.warning("Gateway rejected reasoning_effort=%s; retrying without it", reasoning_effort)
+                    payload.pop("reasoning_effort", None)
+                    body = _post(payload)
+                else:
+                    raise RuntimeError(f"LLM HTTP {exc.code}: {err_body}") from exc
+        except RuntimeError:
+            raise
         except Exception as exc:
             raise RuntimeError(f"LLM HTTP request failed: {exc}") from exc
         choices = body.get("choices") or []
@@ -309,6 +406,10 @@ def call_gemini(
         raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.DOTALL).strip()
 
     return json.loads(raw_text)
+
+
+# Backward-compatible alias
+call_gemini = call_llm
 
 
 def read_text_safe(rel_path: str, max_chars: int = 12000) -> str:
@@ -329,10 +430,12 @@ def build_agent_prompt(
     baseline: Optional[BacktestMetrics],
     history_tail: str,
     nacht_report: str = "",
+    microstructure: str = "",
+    insights_output: str = "",
 ) -> str:
-    """Assemble compact high-signal context for Gemini, hot-reloading AUTOLOOP_AGENTS.md."""
-    playbook = read_text_safe("AUTOLOOP_AGENTS.md", 8000) or (
-        "You are an autonomous quant trading engineer optimizing an Optibook ABMM-S bot. "
+    """Assemble full quant research context for Astra, hot-reloading AUTOLOOP_AGENTS.md."""
+    playbook = read_text_safe("AUTOLOOP_AGENTS.md", 12000) or (
+        "You are a Senior Quant Research Developer optimizing an Optibook trading bot. "
         "Return ONLY valid JSON with keys: diagnosis, insights, edits, summary."
     )
     goal = read_text_safe(".brain/GOAL.md", 8000)
@@ -344,7 +447,9 @@ def build_agent_prompt(
     runner_py = read_text_safe("bot/runner.py", 30000)
 
     baseline_str = baseline.raw_report if baseline else "No baseline backtest available."
-    nacht_section = f"\n## Multi-Hour Nacht Report\n{nacht_report[:3000]}\n" if nacht_report else ""
+    nacht_section = f"\n## Multi-Hour Nacht Report\n{nacht_report[:4000]}\n" if nacht_report else ""
+    micro_section = f"\n## Live Market Microstructure (Trades, Counterparties, News)\n{microstructure[:6000]}\n" if microstructure else ""
+    insights_section = f"\n## Empirical Diagnostics (bot/insights.py)\n{insights_output[:4000]}\n" if insights_output else ""
     return f"""{playbook}
 
 ---
@@ -354,9 +459,9 @@ def build_agent_prompt(
 
 ## Baseline Backtest on Latest Market Chunk
 {baseline_str}
-{nacht_section}
+{micro_section}{insights_section}{nacht_section}
 ## Muster Empirical Signal Check
-{muster_output[:3000]}
+{muster_output[:4000]}
 
 ## Recent Autoloop History
 {history_tail}
@@ -416,6 +521,18 @@ def apply_edits(edits: List[Dict[str, str]], backup_dir: str) -> Tuple[List[str]
             continue
         
         abs_path = os.path.join(_ROOT, rel)
+        full_content = edit.get("content")
+        if full_content is not None and isinstance(full_content, str):
+            os.makedirs(os.path.dirname(abs_path) or _ROOT, exist_ok=True)
+            bkp_path = os.path.join(backup_dir, rel.replace(os.sep, "__"))
+            if os.path.isfile(abs_path) and not os.path.isfile(bkp_path):
+                shutil.copy2(abs_path, bkp_path)
+            with open(abs_path, "w", encoding="utf-8") as f:
+                f.write(full_content)
+            if rel not in modified:
+                modified.append(rel)
+            continue
+
         if not os.path.isfile(abs_path):
             errors.append(f"edit[{idx}] missing file: {rel}")
             continue
@@ -443,11 +560,14 @@ def apply_edits(edits: List[Dict[str, str]], backup_dir: str) -> Tuple[List[str]
 
 
 def restore_backup(backup_dir: str, modified: List[str]) -> None:
-    """Restore backed-up files after a failed or rejected candidate."""
+    """Restore backed-up files (and remove newly created files) after a rejected candidate."""
     for rel in modified:
         bkp_path = os.path.join(backup_dir, rel.replace(os.sep, "__"))
+        target = os.path.join(_ROOT, rel)
         if os.path.isfile(bkp_path):
-            shutil.copy2(bkp_path, os.path.join(_ROOT, rel))
+            shutil.copy2(bkp_path, target)
+        elif os.path.isfile(target):
+            os.remove(target)
 
 
 def sync_second_brain(
@@ -667,6 +787,8 @@ def main() -> None:
                 last_promoted_backup = None
 
             _, muster_out = run_cmd([sys.executable, "bot/muster.py", snapshot_dir], timeout=120)
+            _, insights_out = run_cmd([sys.executable, "bot/insights.py", snapshot_dir], timeout=120)
+            microstructure = summarize_market_microstructure(snapshot_dir)
             _, base_out = run_cmd(
                 [sys.executable, "bot/backtest.py", snapshot_dir, "--strategy", "runner:BacktestBot"],
                 timeout=180,
@@ -684,15 +806,25 @@ def main() -> None:
             if os.path.isfile(nacht_report_path):
                 with open(nacht_report_path, encoding="utf-8", errors="ignore") as nf:
                     nacht_report = nf.read()
-            prompt = build_agent_prompt(cycle_num, telem, muster_out, baseline, history_tail, nacht_report=nacht_report)
+            prompt = build_agent_prompt(
+                cycle_num,
+                telem,
+                muster_out,
+                baseline,
+                history_tail,
+                nacht_report=nacht_report,
+                microstructure=microstructure,
+                insights_output=insights_out,
+            )
             try:
-                proposal = call_gemini(
+                proposal = call_llm(
                     prompt,
                     api_key=api_key,
                     base_url=base_url,
                     model=model,
                     username=llm_user,
                     password=llm_pass,
+                    reasoning_effort=os.getenv("LLM_REASONING_EFFORT", "high").strip(),
                 )
             except Exception as exc:
                 logger.warning("LLM API call failed in cycle %d: %s", cycle_num, exc)
