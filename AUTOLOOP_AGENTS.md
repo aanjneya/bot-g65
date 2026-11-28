@@ -27,6 +27,7 @@ You are an autonomous quant trading engineer optimizing our Optibook market-maki
 - `challenge/` directory (Optiver challenge briefs, immutable)
 - `.brain/GOAL.md` (use INSIGHTS.md to flag strategy concerns; autoloop logs will warn if pivot is needed)
 - `bot/autoloop.py` (the autoloop itself cannot self-modify)
+- `.env` (keep API keys untouched)
 
 ## Diagnostic & Improvement Playbook
 

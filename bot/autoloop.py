@@ -26,6 +26,8 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -53,8 +55,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("abmms-autoloop")
 
-PROTECTED_PATHS = {"challenge", "bot/autoloop.py", ".brain/GOAL.md"}
-PROTECTED_FILES = {os.path.join("bot", "autoloop.py")}
+PROTECTED_PATHS = {"challenge", "bot/autoloop.py", ".brain/GOAL.md", ".env"}
+PROTECTED_FILES = {os.path.join("bot", "autoloop.py"), ".env"}
 
 
 @dataclass
@@ -218,30 +220,57 @@ def run_cmd(args: List[str], timeout: int = 300) -> Tuple[int, str]:
 
 
 def call_gemini(prompt: str, api_key: str, base_url: str, model: str = "azure/gpt-6.2-astra") -> Dict[str, Any]:
-    """Call OpenAI-compatible LLM gateway (GPT-6.2 Astra on Sixt) and return parsed JSON response."""
-    if OpenAI is None:
-        raise RuntimeError("openai SDK not installed; run: pip install openai")
-    
-    client = OpenAI(api_key=api_key, base_url=base_url)
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.25,
-            response_format={"type": "json_object"},
-            timeout=120.0,
+    """Call OpenAI-compatible LLM gateway (SDK if installed, else stdlib urllib) and return JSON."""
+    raw_text = ""
+    if OpenAI is not None:
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.25,
+                response_format={"type": "json_object"},
+                timeout=120.0,
+            )
+            raw_text = (response.choices[0].message.content or "").strip() if response.choices else ""
+        except Exception as exc:
+            raise RuntimeError(f"OpenAI API call failed: {exc}")
+    else:
+        url = base_url.rstrip("/") + "/chat/completions"
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.25,
+            "response_format": {"type": "json_object"},
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
+            method="POST",
         )
-    except Exception as exc:
-        raise RuntimeError(f"OpenAI API call failed: {exc}")
-    
-    raw_text = response.choices[0].message.content.strip() if response.choices else ""
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            err_body = exc.read().decode("utf-8", errors="ignore")[:300]
+            raise RuntimeError(f"LLM HTTP {exc.code}: {err_body}") from exc
+        except Exception as exc:
+            raise RuntimeError(f"LLM HTTP request failed: {exc}") from exc
+        choices = body.get("choices") or []
+        if choices:
+            raw_text = str(choices[0].get("message", {}).get("content") or "").strip()
+
     if not raw_text:
         raise RuntimeError("LLM returned empty response")
-    
+
     # Trim markdown code fence if present
     if raw_text.startswith("```"):
         raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.DOTALL).strip()
-    
+
     return json.loads(raw_text)
 
 
@@ -268,12 +297,13 @@ def build_agent_prompt(
         "You are an autonomous quant trading engineer optimizing an Optibook ABMM-S bot. "
         "Return ONLY valid JSON with keys: diagnosis, insights, edits, summary."
     )
-    goal = read_text_safe(".brain/GOAL.md", 3000)
-    insights = read_text_safe(".brain/INSIGHTS.md", 4000)
-    notes = read_text_safe("challenge/optibook_website_notizen.md", 3000)
-    config_py = read_text_safe("bot/config.py", 6000)
-    signals_py = read_text_safe("bot/signals.py", 32000)
-    execution_py = read_text_safe("bot/execution.py", 24000)
+    goal = read_text_safe(".brain/GOAL.md", 8000)
+    insights = read_text_safe(".brain/INSIGHTS.md", 8000)
+    notes = read_text_safe("challenge/optibook_website_notizen.md", 8000)
+    config_py = read_text_safe("bot/config.py", 12000)
+    signals_py = read_text_safe("bot/signals.py", 60000)
+    execution_py = read_text_safe("bot/execution.py", 45000)
+    runner_py = read_text_safe("bot/runner.py", 30000)
 
     baseline_str = baseline.raw_report if baseline else "No baseline backtest available."
     return f"""{playbook}
@@ -316,6 +346,11 @@ def build_agent_prompt(
 ### bot/execution.py
 ```python
 {execution_py}
+```
+
+### bot/runner.py
+```python
+{runner_py}
 ```"""
 
 
@@ -418,38 +453,30 @@ def sync_second_brain(
 
 
 def commit_and_push_promoted(cycle_num: int, modified: List[str], summary: str) -> None:
-    """Commit promoted code changes to personal branch and push (auto-detects teammate ID)."""
+    """Commit promoted code changes to the current branch (including main) and push."""
     try:
-        # Auto-detect teammate ID from git config or current branch
-        rc, out = run_cmd(["git", "config", "--get", "hackathon.teammate"], timeout=10)
-        teammate_id = out.strip()
-        if not teammate_id:
-            rc, out = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
-            teammate_id = out.strip()
-        
-        if teammate_id not in ("aanjneya", "slava"):
-            logger.warning("Could not auto-detect teammate ID for git commits; skipping push")
-            return
-        
+        rc, cur_branch = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
+        cur_branch = cur_branch.strip() or "main"
+
         # Stage modified files
         for rel_path in modified:
             abs_path = os.path.join(_ROOT, rel_path)
             if os.path.isfile(abs_path):
                 run_cmd(["git", "add", abs_path], timeout=10)
-        
+
         # Commit
         commit_msg = f"autoloop c{cycle_num}: {summary[:50]}"
         rc, out = run_cmd(["git", "commit", "-m", commit_msg], timeout=30)
         if rc != 0:
-            logger.warning("git commit failed (rc=%d); skipping push", rc)
+            logger.warning("git commit failed (rc=%d): %s", rc, out.strip()[:200])
             return
-        
-        # Push to personal branch
-        rc, out = run_cmd(["git", "push", "origin", teammate_id], timeout=60)
+
+        # Push current branch (main or personal branch)
+        rc, out = run_cmd(["git", "push", "origin", cur_branch], timeout=60)
         if rc != 0:
-            logger.warning("git push to %s failed (rc=%d): %s", teammate_id, rc, out.strip()[:200])
+            logger.warning("git push to %s failed (rc=%d): %s", cur_branch, rc, out.strip()[:200])
         else:
-            logger.info("Promoted changes pushed to origin/%s (cycle %d)", teammate_id, cycle_num)
+            logger.info("Promoted changes pushed to origin/%s (cycle %d)", cur_branch, cycle_num)
     except Exception as exc:
         logger.warning("Exception during git commit/push: %s", exc)
 
@@ -472,9 +499,11 @@ class LiveRunnerManager:
         cmd = [sys.executable, "-m", "bot.runner", "--log-csv", "--log-dir", self.live_dir]
         if self.mock_mode:
             cmd.append("--mock")
+        sub_env = os.environ.copy()
+        sub_env["MOCK_MODE"] = "true" if self.mock_mode else "false"
         log_path = os.path.join(self.live_dir, "runner.log")
         self._log_file = open(log_path, "a", encoding="utf-8")
-        self.proc = subprocess.Popen(cmd, cwd=_ROOT, stdout=self._log_file, stderr=subprocess.STDOUT)
+        self.proc = subprocess.Popen(cmd, cwd=_ROOT, env=sub_env, stdout=self._log_file, stderr=subprocess.STDOUT)
         logger.info("Started live Champion runner (pid=%d) -> %s", self.proc.pid, self.live_dir)
 
     def ensure_alive(self) -> None:

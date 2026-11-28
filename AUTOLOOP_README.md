@@ -27,7 +27,7 @@ pip install openai  # Already done above
 cat .env | grep LLM_GATEWAY
 # Should show:
 # LLM_GATEWAY_BASE_URL=https://llm.orange.sixt.com/v1
-# LLM_GATEWAY_API_KEY=sk-MkbM7_irwo6_LzPkNoUTtg
+# LLM_GATEWAY_API_KEY=sk-your-api-key-here
 # LLM_GATEWAY_MODEL=azure/gpt-6.2-astra
 ```
 
