@@ -213,9 +213,12 @@ def main():
     if len(sys.argv) > 1:
         folder = sys.argv[1]
     else:
-        found = sorted(glob.glob("data_*"), key=os.path.getmtime)
+        found = sorted(
+            [p for p in glob.glob(os.path.join("data", "*")) + glob.glob("data_*") if os.path.isdir(p)],
+            key=os.path.getmtime,
+        )
         if not found:
-            sys.exit("Kein data_ Ordner gefunden. Erst collector.py laufen lassen.")
+            sys.exit("Kein data/ Unterordner gefunden. Erst runner.py --log-csv oder collector.py laufen lassen.")
         folder = found[-1]
     grid, trades, end = load(folder)
     if end < 600:

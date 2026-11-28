@@ -1,0 +1,6 @@
+nohup: ignoring input
+data_27_213800 simple: ABBRUCH wie auf Optibook: mehr als 25 Anfragen pro Sekunde  PnL  +7.3   1.  +7.3 / +0.0   rate  26  
+data_27_230711 simple: ABBRUCH wie auf Optibook: mehr als 25 Anfragen pro Sekunde  PnL  -0.2   1.  -0.2 / +0.0   rate  26  
+live_28_053517_2 simple: ABBRUCH wie auf Optibook: mehr als 25 Anfragen pro Sekunde  PnL  +0.2   1.  +0.2 / +0.0   rate  26  
+live_28_001232_0 simple: ABBRUCH wie auf Optibook: mehr als 25 Anfragen pro Sekunde  PnL  +2.3   1.  +2.3 / +0.0   rate  26  
+live_27_233710_8 simple: ABBRUCH wie auf Optibook: mehr als 25 Anfragen pro Sekunde  PnL  +0.0   1.  +0.0 / +0.0   rate  26  

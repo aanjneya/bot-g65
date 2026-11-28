@@ -51,7 +51,12 @@ def log(msg):
 
 
 def data_dirs():
-    return {d for d in glob.glob("data_*") if os.path.isdir(d) and not d.startswith("data_hist")}
+    candidates = glob.glob(os.path.join("data", "*")) + glob.glob("data_*")
+    return {
+        d for d in candidates
+        if os.path.isdir(d)
+        and not os.path.basename(d).startswith(("data_hist", "hist_", "nacht_"))
+    }
 
 
 def start_collector(cmd):
@@ -202,7 +207,7 @@ def main():
     ap.add_argument("--strategien", default="simple,wall,abmms,spike")
     ap.add_argument("--collector", default=f"{sys.executable} -u {os.path.join(HERE, 'collector.py')}")
     ap.add_argument("--nur-auswerten", nargs="*", help="nur diese Ordner auswerten, nicht sammeln")
-    ap.add_argument("--ordner", default="nacht_" + datetime.now().strftime("%d_%H%M"),
+    ap.add_argument("--ordner", default=os.path.join("data", "nacht_" + datetime.now().strftime("%d_%H%M")),
                     help="Ausgabeordner fuer alles")
     args = ap.parse_args()
     strategies = [s.strip() for s in args.strategien.split(",") if s.strip()]

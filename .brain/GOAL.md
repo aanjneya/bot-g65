@@ -15,10 +15,8 @@
 
 ## 1. Core Goal (What We Are Building)
 
-- **Problem**: Maximize risk-adjusted Expected Value (EV) across 8 correlated AI stocks (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`) in Optiver HackaTUM's 30-minute live Optibook final (Sunday 10:00) under strict `±100` pos, `≤200` open vol, `25 req/s`, and 1-connection limits.
-- **Solution (1–2 sentences)**: **ABMM-S (Adaptive Bayesian Multi-Asset Market Maker & Sniper)** — combines Microprice+OFI, house-bot wall anchors (`V>250`), live `TradeTick` counterparty markouts, return-space lead-lag, and `<1ms` news sniping into a single fair value $\hat{F}_{i,t}$, quoted via multi-asset GLFT covariance skew $\mathbf{r}_t = \hat{\mathbf{F}}_t - \gamma(t)\Sigma\mathbf{q}_t$.
-- **Target User**: Optiver HackaTUM 2026 Live Exchange & Trader Judges.
-- **Why It Wins (Judge Hook)**: Genuine prop-desk quant engineering (8×8 GLFT passive cross-hedging + Glosten-Milgrom counterparty profiling + rule-implied wall extraction + empirical out-of-sample `muster.py` validation), high EV with tight variance and endgame flattening.
+- **Core Goal**: **Make maximum profit (PnL) — nothing else.**
+- **Method**: Autonomous Senior Quant agent (`bot/autoloop.py`) has full freedom to tune, revamp, or replace the trading strategy from scratch, **using every single feed, API field, and feature provided by the challenge organizers to the fullest extent** (full book depth & walls, `TradeTick` buyer/seller/aggressor_side, `poll_new_social_media_feeds`, `poll_new_trades`, cross-stock correlations, `limit`/`ioc`/`amend_order`/`delete_order`) to maximize live PnL on Optibook (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`) while obeying hard exchange limits (`±100` pos, `≤200` open vol, `<25 req/s`, zero self-trade, 1 connection).
 
 ## 2. Must-Have Scope (For the Demo)
 
@@ -36,3 +34,5 @@
 | :--- | :--- | :--- |
 | Init | `aanjneya` | Initialized living goal & alignment file for START Hack Munich. |
 | 23:28 | `aanjneya` | Approved Optiver HackaTUM 2026 ABMM-S strategy (multi-asset GLFT + counterparty/wall/news alpha) & non-goals. |
+| 03:16 | `aanjneya` | Added +$10,000+ overnight live PnL target & autonomous strategy evolution (12–15m cycles) while keeping EV/risk rails. |
+| 03:35 | `aanjneya` | Simplified Core Goal to pure profit (PnL) maximization, using every Optiver/Optibook feature & feed to the fullest extent. |

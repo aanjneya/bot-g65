@@ -44,5 +44,6 @@ statarb/trade_log.csv
 .npm/
 .openvscode-server/
 
-# Collector output
+# Collector & live logger output
+data/
 data_*/

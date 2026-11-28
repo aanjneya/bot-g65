@@ -34,18 +34,21 @@ class BotConfig:
 
     universe: List[str] = field(default_factory=lambda: list(DEFAULT_UNIVERSE))
     poll_interval_sec: float = field(default_factory=lambda: float(os.getenv("POLL_INTERVAL_SEC", "0.25")))
-    max_position_lots: int = field(default_factory=lambda: int(os.getenv("MAX_POSITION_LOTS", "100")))
+    max_position_lots: int = field(default_factory=lambda: int(os.getenv("MAX_POSITION_LOTS", "40")))
+    max_net_portfolio_lots: int = field(default_factory=lambda: int(os.getenv("MAX_NET_PORTFOLIO_LOTS", "120")))
+    max_session_drawdown: float = field(default_factory=lambda: float(os.getenv("MAX_SESSION_DRAWDOWN", "500.0")))
 
-    # ABMM-S signal weights & GLFT parameters
-    w_micro: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_MICRO", "0.65")))
-    w_ofi: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_OFI", "0.35")))
-    w_wall: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_WALL", "0.40")))
+    # Pure ABMM-S Fair-Value & Multi-Asset GLFT parameters
+    w_micro: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_MICRO", "0.45")))
+    w_ofi: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_OFI", "0.20")))
+    w_wall: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_WALL", "0.35")))
     wall_min_volume: int = field(default_factory=lambda: int(os.getenv("ABMMS_WALL_MIN_VOL", "250")))
-    w_leadlag: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_LEADLAG", "0.45")))
-    glft_gamma: float = field(default_factory=lambda: float(os.getenv("ABMMS_GLFT_GAMMA", "2.5")))
-    vol_spread_mult: float = field(default_factory=lambda: float(os.getenv("ABMMS_VOL_SPREAD_MULT", "0.6")))
+    w_leadlag: float = field(default_factory=lambda: float(os.getenv("ABMMS_W_LEADLAG", "0.35")))
+    glft_gamma: float = field(default_factory=lambda: float(os.getenv("ABMMS_GLFT_GAMMA", "6.0")))
+    vol_spread_mult: float = field(default_factory=lambda: float(os.getenv("ABMMS_VOL_SPREAD_MULT", "1.0")))
+    tail_stop_ticks: float = field(default_factory=lambda: float(os.getenv("TAIL_STOP_TICKS", "10.0")))
 
-    # Endgame inventory glidepath (set SESSION_DURATION_SEC=1800 for the 30-min Sunday final)
+    # Endgame timer disabled by default (0 = continuous normal trading for 2-day testing)
     session_duration_sec: float = field(default_factory=lambda: float(os.getenv("SESSION_DURATION_SEC", "0")))
     endgame_start_sec: float = field(default_factory=lambda: float(os.getenv("ENDGAME_START_SEC", "180")))
     flatten_start_sec: float = field(default_factory=lambda: float(os.getenv("FLATTEN_START_SEC", "45")))
@@ -71,20 +74,29 @@ class BotConfig:
     basket_z_entry: float = field(default_factory=lambda: float(os.getenv("BASKET_Z_ENTRY", "1.6")))
     basket_max_lots: int = field(default_factory=lambda: int(os.getenv("BASKET_MAX_LOTS", "15")))
 
-    # Passive market-making & edge sniping
+    # Passive market-making & Fair-Value edge sniping
     enable_passive_quoting: bool = field(default_factory=lambda: _env_bool("ENABLE_PASSIVE_QUOTING", True))
     quote_lots: int = field(default_factory=lambda: int(os.getenv("QUOTE_LOTS", "5")))
     quote_edge_ticks: int = field(default_factory=lambda: int(os.getenv("QUOTE_EDGE_TICKS", "1")))
     max_open_order_volume: int = field(default_factory=lambda: int(os.getenv("MAX_OPEN_ORDER_VOLUME", "180")))
-    edge_ioc_lots: int = field(default_factory=lambda: int(os.getenv("EDGE_IOC_LOTS", "10")))
+    enable_edge_ioc: bool = field(default_factory=lambda: _env_bool("ENABLE_EDGE_IOC", True))
+    edge_ioc_lots: int = field(default_factory=lambda: int(os.getenv("EDGE_IOC_LOTS", "5")))
     edge_ioc_min_ticks: int = field(default_factory=lambda: int(os.getenv("EDGE_IOC_MIN_TICKS", "3")))
 
-    # News-feed jump guard, sniper & Optibook rate limit (<25 req/s)
-    news_cooldown_ticks: int = field(default_factory=lambda: int(os.getenv("NEWS_COOLDOWN_TICKS", "20")))
+    # News-feed jump guard, sentiment sniper & Optibook rate limit (<25 req/s)
+    news_cooldown_ticks: int = field(default_factory=lambda: int(os.getenv("NEWS_COOLDOWN_TICKS", "25")))
     enable_news_sniper: bool = field(default_factory=lambda: _env_bool("ENABLE_NEWS_SNIPER", True))
-    news_snipe_lots: int = field(default_factory=lambda: int(os.getenv("NEWS_SNIPE_LOTS", "10")))
+    news_snipe_lots: int = field(default_factory=lambda: int(os.getenv("NEWS_SNIPE_LOTS", "5")))
     max_requests_per_sec: int = field(default_factory=lambda: int(os.getenv("MAX_REQUESTS_PER_SEC", "20")))
 
     # Embedded CSV logger (safe under Optibook's 1-connection-per-team rule)
     enable_csv_logging: bool = field(default_factory=lambda: _env_bool("ENABLE_CSV_LOGGING", False))
     csv_log_dir: Optional[str] = field(default_factory=lambda: os.getenv("CSV_LOG_DIR") or None)
+
+    # Overnight parallel data-chunk rotation + background nacht.py analysis (--nacht)
+    nacht_mode: bool = field(default_factory=lambda: _env_bool("NACHT_MODE", False))
+    nacht_chunk_min: float = field(default_factory=lambda: float(os.getenv("NACHT_CHUNK_MIN", "60")))
+    nacht_strategies: str = field(
+        default_factory=lambda: os.getenv("NACHT_STRATEGIES", "simple,wall,wall_raw,runner:BacktestBot")
+    )
+    nacht_dir: Optional[str] = field(default_factory=lambda: os.getenv("NACHT_DIR") or None)

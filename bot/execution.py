@@ -6,9 +6,55 @@ import logging
 import math
 import time
 from collections import deque
+from types import SimpleNamespace
 from typing import Any, Deque, Dict, Optional, Set, Tuple
 
+from bot.passive_evidence import PassiveEntryEvidence
+from bot.roundtrip_screen import RoundTripScreen
+from bot.signals import find_protecting_wall
+
 logger = logging.getLogger(__name__)
+
+
+def strip_own_orders(book: Any, open_orders: Optional[Dict[int, Any]], tick_size: float = 0.10) -> Any:
+    """
+    Return a copy of PriceBook with our own resting limit orders subtracted.
+    Prevents self-feedback loops in mid, spread, Microprice, OFI, wall detection, and BBO clamping.
+    """
+    if book is None or not open_orders:
+        return book
+
+    tick = float(tick_size if tick_size and tick_size > 0 else 0.10)
+    own_bid: Dict[int, int] = {}
+    own_ask: Dict[int, int] = {}
+    for o in open_orders.values():
+        key = int(round(float(o.price) / tick))
+        vol = int(o.volume)
+        if o.side == "bid":
+            own_bid[key] = own_bid.get(key, 0) + vol
+        elif o.side == "ask":
+            own_ask[key] = own_ask.get(key, 0) + vol
+
+    clean_bids = []
+    for lv in getattr(book, "bids", None) or []:
+        p = float(lv.price)
+        rem = int(lv.volume) - own_bid.get(int(round(p / tick)), 0)
+        if rem > 0:
+            clean_bids.append(SimpleNamespace(price=p, volume=rem))
+
+    clean_asks = []
+    for lv in getattr(book, "asks", None) or []:
+        p = float(lv.price)
+        rem = int(lv.volume) - own_ask.get(int(round(p / tick)), 0)
+        if rem > 0:
+            clean_asks.append(SimpleNamespace(price=p, volume=rem))
+
+    return SimpleNamespace(
+        instrument_id=getattr(book, "instrument_id", None),
+        timestamp=getattr(book, "timestamp", None),
+        bids=clean_bids,
+        asks=clean_asks,
+    )
 
 
 def round_to_tick(price: float, tick_size: float, side: str) -> float:
@@ -90,6 +136,8 @@ class RiskAndExecution:
         self.max_open_order_volume = max_open_order_volume
         self.max_requests_per_sec = max_requests_per_sec
         self._req_times: Deque[float] = deque()
+        self.passive_evidence = PassiveEntryEvidence()
+        self.roundtrip_screen = RoundTripScreen()
 
     def _can_send_request(self, reserve: int = 0) -> bool:
         now = time.monotonic()
@@ -309,6 +357,32 @@ class RiskAndExecution:
                 logger.warning("News IOC exception on %s: %s", inst_id, exc)
 
         return sniped
+
+    def open_lag_ioc(self, inst_id: str, inst: Any, sign: int, limit_ticks: int, lots: int) -> bool:
+        """Flat-only. Never cancel to chase a signal and never refresh to a worse price."""
+        if sign not in (-1, 1) or not 0 < lots <= min(100, self.max_position_lots, self.max_open_order_volume):
+            return False
+        if not self.exchange.is_connected() or self.exchange.get_outstanding_orders(inst_id):
+            return False
+        if int(self.exchange.get_positions().get(inst_id, 0)) != 0:
+            return False
+        side = 'bid' if sign == 1 else 'ask'
+        tick = float(getattr(inst, 'tick_size', 0.10) or 0.10)
+        if abs(tick - 0.10) > 1e-9:
+            return False
+        px = round_to_tick(limit_ticks / 10.0, tick, side)
+        bp, bv, ap, av = best_bid_ask(self.exchange.get_last_price_book(inst_id))
+        touch, depth = (ap, av) if sign == 1 else (bp, bv)
+        if touch is None or abs(touch - px) > 1e-8 or (depth or 0) < lots or clamp_price(px, inst) != px:
+            return False
+        if not self._can_send_request(reserve=4) or len(self._req_times) >= 20:
+            return False
+        self._record_request()
+        try:
+            return bool(self.exchange.insert_order(inst_id, price=px, volume=lots, side=side, order_type='ioc').success)
+        except Exception as exc:
+            logger.warning('Lag IOC exception on %s: %s', inst_id, exc)
+            return False
 
     def execute_fair_value_edge(
         self,
@@ -543,41 +617,111 @@ class RiskAndExecution:
 
         return orders_sent, total_open_vol
 
+    def execute_scratches(
+        self,
+        scratches: Dict[str, str],
+        books: Dict[str, Any],
+        instruments: Dict[str, Any],
+    ) -> Set[str]:
+        """
+        Immediately flatten positions whose protecting house wall broke/vanished or exceeded max_hold_sec.
+        Cancels resting orders on that instrument first to guarantee zero self-trades.
+        """
+        if not scratches or not self.exchange.is_connected():
+            return set()
+
+        positions = self.exchange.get_positions()
+        scratched: Set[str] = set()
+
+        for inst_id, reason in scratches.items():
+            if not self.exchange.is_connected():
+                break
+            cur_pos = int(positions.get(inst_id, 0))
+            if cur_pos == 0:
+                continue
+            inst = instruments.get(inst_id)
+            if inst is None:
+                continue
+
+            open_orders = self.exchange.get_outstanding_orders(inst_id)
+            if open_orders:
+                if not self._safe_delete_all(inst_id):
+                    continue
+
+            fresh_book = self.exchange.get_last_price_book(inst_id) or books.get(inst_id)
+            bid_p, bid_v, ask_p, ask_v = best_bid_ask(fresh_book)
+            tick = float(getattr(inst, "tick_size", 0.10) or 0.10)
+
+            if cur_pos > 0:
+                if bid_p is None:
+                    continue
+                side = "ask"
+                # Allow 1 extra tick of slippage if wall just broke so we don't miss the exit
+                price = clamp_price(round_to_tick(bid_p - tick, tick, "ask"), inst)
+                vol = cur_pos
+            else:
+                if ask_p is None:
+                    continue
+                side = "bid"
+                price = clamp_price(round_to_tick(ask_p + tick, tick, "bid"), inst)
+                vol = -cur_pos
+
+            if vol <= 0 or not self._can_send_request(reserve=0):
+                continue
+
+            self._record_request()
+            try:
+                resp = self.exchange.insert_order(
+                    inst_id, price=price, volume=vol, side=side, order_type="ioc"
+                )
+                if resp.success:
+                    logger.info("Scratched %s pos=%d (%s) via IOC %s@%.2f", inst_id, cur_pos, reason, side, price)
+                    scratched.add(inst_id)
+            except Exception as exc:
+                logger.warning("Scratch IOC exception on %s (%s): %s", inst_id, reason, exc)
+
+        return scratched
+
     def quote_from_plans(
         self,
         quote_plans: Dict[str, Any],
         books: Dict[str, Any],
         instruments: Dict[str, Any],
         paused_instruments: Set[str],
+        open_orders_by_inst: Optional[Dict[str, Dict[int, Any]]] = None,
+        wall_min_volume: int = 250,
     ) -> int:
         """
-        Maintain passive GLFT limit quotes from ABMM-S QuotePlans.
+        Maintain passive GLFT / wall-backed limit quotes from ABMM-S QuotePlans.
         Never crosses opposite BBO, steps inside wide spreads, preserves queue priority,
-        and enforces portfolio-wide open-order volume and +/-max_pos limits.
+        and enforces per-instrument open-order volume and +/-max_pos limits.
         """
         if not self.exchange.is_connected():
             return 0
 
         positions = self.exchange.get_positions()
-        # Snapshot open orders across all instruments to track portfolio-wide open volume accurately
-        all_open: Dict[str, Dict[int, Any]] = {}
-        total_open_vol = 0
-        for inst_id in instruments:
-            oo = self.exchange.get_outstanding_orders(inst_id)
-            all_open[inst_id] = oo
-            total_open_vol += sum(int(o.volume) for o in oo.values())
-
         passive_reserve = 4 if self.max_requests_per_sec > 8 else 0
         orders_sent = 0
 
-        for inst_id, inst in instruments.items():
+        # Prioritize instruments with largest inventory so risk-reducing exit updates never starve
+        ordered_insts = sorted(
+            instruments.items(),
+            key=lambda kv: abs(int(positions.get(kv[0], 0))),
+            reverse=True,
+        )
+
+        for inst_id, inst in ordered_insts:
             if not self.exchange.is_connected():
                 break
 
-            open_orders = all_open.get(inst_id, {})
+            open_orders = (
+                open_orders_by_inst[inst_id]
+                if open_orders_by_inst is not None and inst_id in open_orders_by_inst
+                else self.exchange.get_outstanding_orders(inst_id)
+            )
             if inst_id in paused_instruments:
-                if open_orders and self._safe_delete_all(inst_id):
-                    total_open_vol = max(0, total_open_vol - sum(int(o.volume) for o in open_orders.values()))
+                if open_orders:
+                    self._safe_delete_all(inst_id)
                 continue
 
             plan = quote_plans.get(inst_id)
@@ -587,23 +731,83 @@ class RiskAndExecution:
 
             bid_p, _, ask_p, _ = best_bid_ask(book)
             if bid_p is None or ask_p is None:
+                if open_orders:
+                    self._safe_delete_all(inst_id)
                 continue
 
             tick = float(getattr(inst, "tick_size", 0.10) or 0.10)
             res_px = float(plan.reservation_price)
             half_sp = max(tick, float(plan.half_spread))
 
-            # Strictly passive (never crosses opposite BBO), CAN step inside wide spreads
-            target_bid = clamp_price(round_to_tick(min(res_px - half_sp, ask_p - tick), tick, "bid"), inst)
-            target_ask = clamp_price(round_to_tick(max(res_px + half_sp, bid_p + tick), tick, "ask"), inst)
-            if target_bid >= target_ask:
-                continue
+            raw_bid = float(plan.bid_price) if getattr(plan, "bid_price", None) is not None else (res_px - half_sp)
+            raw_ask = float(plan.ask_price) if getattr(plan, "ask_price", None) is not None else (res_px + half_sp)
+
+            # Strictly passive against OTHER participants' BBO (books are pre-cleaned of own orders)
+            target_bid = clamp_price(round_to_tick(min(raw_bid, ask_p - tick), tick, "bid"), inst)
+            target_ask = clamp_price(round_to_tick(max(raw_ask, bid_p + tick), tick, "ask"), inst)
 
             cur_pos = int(positions.get(inst_id, 0))
             bid_vol = clamp_delta_for_limit(int(plan.bid_lots), cur_pos, 0, 0, self.max_position_lots)
             ask_vol = -clamp_delta_for_limit(-int(plan.ask_lots), cur_pos, 0, 0, self.max_position_lots)
 
-            sent, total_open_vol = self._sync_passive_quotes(
+            # Size entries at the price we will actually rest, not at unrounded FV.
+            # Joining a wall does not leave its queue behind us if our order fills.
+            probe_cap = 1 if cur_pos == 0 else 0
+            if cur_pos >= 0 and bid_vol > 0:
+                bid_wall = find_protecting_wall(book, "bid", tick, wall_min_volume=wall_min_volume)
+                if bid_wall is None or abs(target_bid - bid_wall - tick) > 1e-8:
+                    bid_vol = min(bid_vol, probe_cap)
+            if cur_pos <= 0 and ask_vol > 0:
+                ask_wall = find_protecting_wall(book, "ask", tick, wall_min_volume=wall_min_volume)
+                if ask_wall is None or abs(ask_wall - target_ask - tick) > 1e-8:
+                    ask_vol = min(ask_vol, probe_cap)
+
+            # Compete for a passive exit without crossing the external book or flipping inventory.
+            if cur_pos > 0:
+                exit_ask = max(bid_p + tick, ask_p - tick)
+                target_ask = min(target_ask, clamp_price(round_to_tick(exit_ask, tick, "ask"), inst))
+                ask_vol = min(ask_vol, cur_pos)
+            elif cur_pos < 0:
+                exit_bid = min(ask_p - tick, bid_p + tick)
+                target_bid = max(target_bid, clamp_price(round_to_tick(exit_bid, tick, "bid"), inst))
+                bid_vol = min(bid_vol, -cur_pos)
+
+            if target_bid >= target_ask - 1e-9:
+                # Never cross ourselves: keep only the inventory-reducing side!
+                if cur_pos > 0:
+                    bid_vol = 0
+                elif cur_pos < 0:
+                    ask_vol = 0
+                else:
+                    bid_vol = 0
+                    ask_vol = 0
+
+            # Learn on unfunded flat candidates, too: disabling a bad side must not
+            # require a paid fill to discover that its round trips have recovered.
+            # Never veto a reducing side or restore volume removed by any other gate.
+            if cur_pos >= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'bid', target_bid, tick, book.bids, cur_pos == 0 and target_bid < target_ask
+            ):
+                bid_vol = 0
+            if cur_pos <= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'ask', target_ask, tick, book.asks, cur_pos == 0 and target_bid < target_ask
+            ):
+                ask_vol = 0
+
+            # Evaluate the final passive price, after wall sizing and self-cross checks.
+            # A reducing side must never wait for evidence or be resized by this gate.
+            if cur_pos >= 0 and bid_vol > 0:
+                bid_vol = self.passive_evidence.entry_lots(
+                    inst_id, 'bid', target_bid, tick, bid_vol, cur_pos, book.bids
+                )
+            if cur_pos <= 0 and ask_vol > 0:
+                ask_vol = self.passive_evidence.entry_lots(
+                    inst_id, 'ask', target_ask, tick, ask_vol, -cur_pos, book.asks
+                )
+
+            inst_open_vol = sum(int(o.volume) for o in open_orders.values())
+
+            sent, _ = self._sync_passive_quotes(
                 inst_id=inst_id,
                 inst=inst,
                 target_bid=target_bid,
@@ -611,7 +815,7 @@ class RiskAndExecution:
                 bid_vol=bid_vol,
                 ask_vol=ask_vol,
                 open_orders=open_orders,
-                total_open_vol=total_open_vol,
+                total_open_vol=inst_open_vol,
                 passive_reserve=passive_reserve,
             )
             orders_sent += sent

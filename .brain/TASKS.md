@@ -12,6 +12,8 @@
 - [x] `@aanjneya` Fix 4 execution bugs in `bot/execution.py` (`bot/execution.py`, `bot/mock_exchange.py`, `tests/test_bot.py`)
 - [x] `@aanjneya` Build ABMM-S strategy: `bot/signals.py` (Microprice+OFI, `V>250` wall anchor, online counterparty markouts, return-space lead-lag, news lexicon, 8×8 GLFT), endgame glidepath, embedded CSV logger (`bot/signals.py`, `bot/execution.py`, `bot/runner.py`, `bot/config.py`, `bot/mock_exchange.py`, `tests/test_bot.py`)
 
+- [x] `@aanjneya` Build 5-hour Gemini autonomous optimization & hot-deploy loop (`bot/autoloop.py`, `bot/runner.py`, `tests/test_bot.py`)
+
 ## Next
 
 - [ ] Run live-practice stress test (`python3 -m bot.runner --log-csv`) & tune weights from `muster.py` before Sunday 10:00 reset (`--session-sec 1800`)
