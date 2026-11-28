@@ -222,31 +222,78 @@ def snapshot_live_data(live_dir: str, snapshot_dir: str, started_after: float = 
     return copied and lines >= 5
 
 
+def _parse_mid_series(books_path: str) -> Dict[str, Tuple[List[float], List[float]]]:
+    """Parse per-instrument (timestamps, mid_prices) from books.csv for fast markout lookup."""
+    import csv
+    from collections import defaultdict
+
+    ts_map: Dict[str, List[float]] = defaultdict(list)
+    mid_map: Dict[str, List[float]] = defaultdict(list)
+    if not os.path.isfile(books_path):
+        return {}
+    try:
+        with open(books_path, encoding="utf-8", errors="ignore") as f:
+            for row in csv.DictReader(f):
+                inst = (row.get("instrument") or "").strip()
+                t_str = (row.get("time") or "").strip()
+                bids = (row.get("bids") or "").strip()
+                asks = (row.get("asks") or "").strip()
+                if not inst or not t_str or not bids or not asks:
+                    continue
+                try:
+                    t = datetime.fromisoformat(t_str).timestamp()
+                    bb = float(bids.split("|", 1)[0].split(":", 1)[0])
+                    ba = float(asks.split("|", 1)[0].split(":", 1)[0])
+                    ts_map[inst].append(t)
+                    mid_map[inst].append(0.5 * (bb + ba))
+                except Exception:
+                    continue
+    except Exception:
+        return {}
+    return {inst: (ts_map[inst], mid_map[inst]) for inst in ts_map}
+
+
+def _lookup_mid(series: Tuple[List[float], List[float]], target_t: float) -> Optional[float]:
+    from bisect import bisect_left
+
+    ts_list, mids = series
+    if not ts_list:
+        return None
+    idx = bisect_left(ts_list, target_t)
+    if idx >= len(ts_list):
+        return mids[-1]
+    return mids[idx]
+
+
 def summarize_market_microstructure(snapshot_dir: str) -> str:
-    """Extract per-stock spread/mid stats, top counterparties, and recent news from raw CSVs."""
+    """Extract per-stock stats, per-counterparty 5s markouts, and news-jump attribution."""
+    import csv
+    from collections import Counter, defaultdict
+
     lines: List[str] = []
-    # 1. Trades & Counterparties
+    mid_series = _parse_mid_series(os.path.join(snapshot_dir, "books.csv"))
+
+    # 1. Trades & Per-Counterparty 5s Markouts
     trades_path = os.path.join(snapshot_dir, "trades.csv")
     if os.path.isfile(trades_path):
-        import csv
-        from collections import Counter, defaultdict
-
         inst_vol: Counter[str] = Counter()
         inst_cnt: Counter[str] = Counter()
         cp_vol: Counter[str] = Counter()
-        cp_aggr: Counter[str] = Counter()
+        cp_aggr_vol: Counter[str] = Counter()
+        cp_mk5_sum: Dict[str, float] = defaultdict(float)
+        cp_mk5_cnt: Counter[str] = Counter()
         inst_prices: Dict[str, List[float]] = defaultdict(list)
         try:
             with open(trades_path, encoding="utf-8", errors="ignore") as f:
-                r = csv.DictReader(f)
-                for row in r:
+                for row in csv.DictReader(f):
                     inst = (row.get("instrument") or "").strip()
                     if not inst:
                         continue
                     try:
                         vol = int(float(row.get("volume") or 0))
                         px = float(row.get("price") or 0)
-                    except ValueError:
+                        t_val = datetime.fromisoformat((row.get("time") or "").strip()).timestamp()
+                    except Exception:
                         continue
                     inst_vol[inst] += vol
                     inst_cnt[inst] += 1
@@ -256,12 +303,19 @@ def summarize_market_microstructure(snapshot_dir: str) -> str:
                     side = (row.get("aggressor_side") or "").strip().lower()
                     if buyer:
                         cp_vol[buyer] += vol
-                        if side == "bid":
-                            cp_aggr[buyer] += vol
                     if seller:
                         cp_vol[seller] += vol
-                        if side == "ask":
-                            cp_aggr[seller] += vol
+
+                    aggressor = buyer if side == "bid" else (seller if side == "ask" else "")
+                    if aggressor and inst in mid_series:
+                        cp_aggr_vol[aggressor] += vol
+                        m5 = _lookup_mid(mid_series[inst], t_val + 5.0)
+                        if m5 is not None:
+                            sgn = 1.0 if side == "bid" else -1.0
+                            aggr_mk_ticks = sgn * (m5 - px) / 0.10
+                            cp_mk5_sum[aggressor] += aggr_mk_ticks
+                            cp_mk5_cnt[aggressor] += 1
+
             if inst_cnt:
                 lines.append("### Trade Activity by Stock")
                 for inst in sorted(inst_cnt):
@@ -272,21 +326,44 @@ def summarize_market_microstructure(snapshot_dir: str) -> str:
                         f"px={pxs[0]:.2f}->{pxs[-1]:.2f} (range={rng:.2f})"
                     )
             if cp_vol:
-                lines.append("### Top Counterparties (Volume / Aggressor Vol)")
-                for cp, v in cp_vol.most_common(12):
-                    lines.append(f"- {cp}: total_vol={v}, aggressor_vol={cp_aggr[cp]}")
+                lines.append(
+                    "### Counterparty 5s Aggressor Markouts "
+                    "(negative aggr_mk5s = UNINFORMED/PROFITABLE to fade; positive = INFORMED/TOXIC)"
+                )
+                for cp, v in cp_vol.most_common(15):
+                    n_mk = cp_mk5_cnt[cp]
+                    avg_mk = f"{cp_mk5_sum[cp] / n_mk:+.2f}t({n_mk})" if n_mk > 0 else "n/a"
+                    lines.append(
+                        f"- {cp}: total_vol={v}, aggr_vol={cp_aggr_vol[cp]}, aggr_mk5s={avg_mk}"
+                    )
         except Exception as exc:
             lines.append(f"(trade summary error: {exc})")
 
-    # 2. Recent News Posts
+    # 2. News -> 10s Price Jump Attribution
     news_path = os.path.join(snapshot_dir, "news.csv")
     if os.path.isfile(news_path):
         try:
             with open(news_path, encoding="utf-8", errors="ignore") as f:
-                news_rows = [ln.strip() for ln in f.readlines()[1:] if ln.strip()]
+                news_rows = list(csv.DictReader(f))
             if news_rows:
-                lines.append("### Recent Social Media / News Feed (last 15)")
-                lines.extend(f"- {ln[:220]}" for ln in news_rows[-15:])
+                lines.append("### News Feed -> 10s Mid-Price Moves (last 15)")
+                for row in news_rows[-15:]:
+                    t_str = (row.get("time") or "").strip()
+                    post = (row.get("post") or "").strip()
+                    moves: List[str] = []
+                    try:
+                        t_news = datetime.fromisoformat(t_str).timestamp()
+                        for inst, series in sorted(mid_series.items()):
+                            m0 = _lookup_mid(series, t_news)
+                            m10 = _lookup_mid(series, t_news + 10.0)
+                            if m0 is not None and m10 is not None:
+                                dt = (m10 - m0) / 0.10
+                                if abs(dt) >= 2.0:
+                                    moves.append(f"{inst}:{dt:+.1f}t")
+                    except Exception:
+                        pass
+                    mv_str = ", ".join(moves) if moves else "no >=2t move"
+                    lines.append(f"- [{t_str[-8:]}] {post[:160]} -> [{mv_str}]")
         except Exception:
             pass
 
