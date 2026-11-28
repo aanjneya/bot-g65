@@ -31,11 +31,6 @@ __pycache__/
 # Databases & local artifacts
 *.sqlite
 *.db
-*.log
-
-# Large market data & logs (exceeds 25MB git hook limit)
-statarb/stocks_*.csv
-statarb/trade_log.csv
 
 # Tooling/cache dirs not part of the project
 .cache/
@@ -43,7 +38,3 @@ statarb/trade_log.csv
 .local/
 .npm/
 .openvscode-server/
-
-# Collector & live logger output
-data/
-data_*/

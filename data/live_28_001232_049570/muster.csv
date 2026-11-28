@@ -1,0 +1,10 @@
+urteil,muster,aktie,sekunden,reaktion,faelle,effekt_h1,effekt_h2,kosten,netto
+NUR FAIR VALUE,Mitte der grossen Orders weicht ab,AMD,1,mit dem Signal,94,0.027,0.025,0.117,-0.092
+NUR FAIR VALUE,Orderbuch stark einseitig,MU,1,mit dem Signal,1181,0.003,0.005,0.116,-0.111
+NUR FAIR VALUE,Mitte der grossen Orders weicht ab,AVGO,1,mit dem Signal,272,0.022,0.022,0.139,-0.117
+NUR FAIR VALUE,Orderbuch stark einseitig,ALLE,1,mit dem Signal,8897,0.005,0.007,0.129,-0.123
+NICHT STABIL,Grosser Trade (ab 20),ALLE,1,mit dem Signal,851,0.011,0.037,0.136,-0.098
+NICHT STABIL,Orderbuch stark einseitig,NVDA,1,mit dem Signal,1005,0.009,0.018,0.121,-0.103
+NICHT STABIL,Orderbuch stark einseitig,AMD,1,mit dem Signal,1066,0.016,0.014,0.128,-0.114
+NICHT STABIL,Mitte der grossen Orders weicht ab,SNDK,1,mit dem Signal,290,0.01,-0.044,0.121,-0.165
+NICHT STABIL,Ploetzlicher Sprung,ALLE,1,mit dem Signal,80,0.068,0.001,0.172,-0.171

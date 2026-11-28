@@ -1,0 +1,6 @@
+28.11 00:12:17  Werte /home/workspace/data/live_27_233710_872388 aus ...
+28.11 00:12:18    /home/workspace/data/live_27_233710_872388 simple: PnL 0.0
+28.11 00:12:22    /home/workspace/data/live_27_233710_872388 wall: PnL -455.5
+28.11 00:12:27    /home/workspace/data/live_27_233710_872388 wall_raw: PnL -439.5
+28.11 00:12:35    /home/workspace/data/live_27_233710_872388 runner:BacktestBot: PnL -98.5
+28.11 00:12:40  Bericht aktualisiert: nacht_bericht.md

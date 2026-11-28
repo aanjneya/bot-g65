@@ -1,0 +1,26 @@
+{
+  "per_stock_analysis": {
+    "AMD": "Lost 1.2 on 8 replay fills. The stable 1s imbalance effect was +0.012 per share but \u22120.099 net of spread. Keep it as a fair-value input, not an IOC trigger.",
+    "AVGO": "Lost 8.7 on 12 fills and finished flat. Replay markout was already \u22127.21 ticks at 1s and reached \u22127.96 ticks at 5s; the latest live 5s EWMA was also negative at \u22122.594 ticks. Test removing passive entries while preserving exits and the AVGO market-data feed.",
+    "CRWV": "Had 32 replay fills, the most of any stock, but lost only 0.7. Its \u22120.003 per-share 5s replay markout does not justify a blanket reduction in passive activity or a size increase.",
+    "MU": "No replay fills. The \u22120.58-tick reversion after 37 large moves is a mid-price effect, not a demonstrated executable return. Four live markout observations are insufficient to increase size.",
+    "NBIS": "Lost 2.5 on 19 replay fills and ended short one lot. Replay 5s markout was \u22121.36 ticks versus a latest live EWMA of +0.256 ticks. Keep sizing unchanged and retain AVGO observations for the NBIS lead-lag signal.",
+    "NVDA": "Earned 3.1 on just 2 replay fills, while the latest live 5s EWMA was \u22121.0 tick on 2 observations. Neither sample supports sizing up. The stable 1s book signal remained negative after crossing costs.",
+    "SNDK": "Lost 0.1 on 4 replay fills. Only 7 large-move observations support the +0.71-tick continuation estimate; leave execution unchanged.",
+    "VRT": "No replay fills. AVGO moves preceded a +1.73-tick signed VRT move over 103 observations. Preserve AVGO as a signal source, but do not equate that midpoint move with an available entry-to-exit spread."
+  },
+  "diagnosis": "The main loss is concentrated in AVGO, not in excessive portfolio inventory. Live PnL fell 11.0 and ended flat; replay lost 10.1 with peak gross inventory of only 2 lots. AVGO alone accounted for 8.7 of the net replay loss on 12 of 77 fills. Its markout deteriorated only another 0.75 tick from 1s to 5s, consistent with the early adverse markout recorded in cycle 5. Shortening the 5s breaker cannot recover a loss already present at 1s. AVGO also showed +1.95 ticks of continuation after 171 large moves, which makes fading those moves questionable but does not prove that a momentum IOC pays both spreads. The two AVGO tail-stop submissions identify exits to inspect, not a PnL attribution. With 74 passive fills, 3 aggressive fills, no spread-clearing Muster signal, and the runner negative in both Nacht windows, the cleanest next test is to remove one source of exposure rather than increase size.",
+  "strategy_plan": "Make AVGO passive quotes reduce-only. When flat, target zero on both sides; when long, allow only the liquidation ask; when short, allow only the cover bid. Apply the cap at final execution sizing so the shadow screen still sees candidates, stale entry quotes follow the existing cancellation path, and AVGO continues to inform other stocks. Change no other stock, exit price, stop, or IOC rule. This tests the incremental PnL of AVGO passive entries, not a forecast that removing them will earn 8.7. The candidate is unverified: run `python3 -m unittest tests/test_bot.py` and the identical cycle_006 replay via `bot/backtest.py --strategy runner:BacktestBot` against the frozen Champion before promotion. Require a gain greater than 0.5 over the \u221210.1 baseline, continued fills, and no disconnect or limit violation. Repeat the paired comparison on a non-overlapping chunk before treating the improvement as durable; restore AVGO passive entries if they show positive incremental round-trip PnL on fresh data.",
+  "insights": [
+    "AVGO's cycle-6 replay markout was \u22127.21 ticks at 1s versus \u22127.96 ticks at 5s. Entry selection is the first lever to test; reducing the breaker delay addresses only subsequent exposure.",
+    "Removing AVGO's reported \u22128.7 from the \u221210.1 total still leaves \u22121.4. Loss avoidance is worth testing, but it is not evidence of a profitable remaining portfolio; only a paired rerun measures the effect."
+  ],
+  "edits": [
+    {
+      "path": "bot/execution.py",
+      "search": "            inst_open_vol = sum(int(o.volume) for o in open_orders.values())",
+      "replace": "            # AVGO passive-entry ablation. Keep observing its book and shadow\n            # candidates; allow a funded passive order only to close inventory.\n            if inst_id == \"AVGO\":\n                bid_vol = min(bid_vol, max(0, -cur_pos))\n                ask_vol = min(ask_vol, max(0, cur_pos))\n\n            inst_open_vol = sum(int(o.volume) for o in open_orders.values())"
+    }
+  ],
+  "summary": "Test reduce-only AVGO passive quotes"
+}

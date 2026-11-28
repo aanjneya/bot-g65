@@ -1,0 +1,63 @@
+2026-11-28 02:25:13,492 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 02:25:13,492 [INFO] Background thread started
+2026-11-28 02:25:13,507 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 02:25:13,507 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 02:25:13,514 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 02:25:13,768 [INFO] Embedded CSV logger active -> /home/workspace/data/autoloop_28_022513/live_001_022513
+2026-11-28 02:25:13,768 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=False, session=0s)
+2026-11-28 02:25:23,813 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=-1808.50 pos={} mk5s={'SNDK': '+0.50t(1)'}
+2026-11-28 02:25:34,051 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=-1808.40 pos={} mk5s={'SNDK': '+0.75t(3)'}
+2026-11-28 02:25:44,314 [INFO] tick=120 paused=0 gamma_x=1.0 pnl=-1808.40 pos={} mk5s={'SNDK': '+0.56t(4)'}
+2026-11-28 02:25:54,563 [INFO] tick=160 paused=0 gamma_x=1.0 pnl=-1808.20 pos={} mk5s={'SNDK': '+0.56t(4)'}
+2026-11-28 02:26:04,854 [INFO] tick=200 paused=0 gamma_x=1.0 pnl=-1807.60 pos={} mk5s={'SNDK': '+0.52t(8)', 'CRWV': '+1.50t(2)'}
+2026-11-28 02:26:15,125 [INFO] tick=240 paused=0 gamma_x=1.0 pnl=-1807.60 pos={} mk5s={'SNDK': '+0.52t(8)', 'CRWV': '+1.23t(5)'}
+2026-11-28 02:26:25,386 [INFO] tick=280 paused=0 gamma_x=1.0 pnl=-1807.60 pos={} mk5s={'SNDK': '+0.52t(8)', 'CRWV': '+1.23t(5)'}
+2026-11-28 02:26:35,619 [INFO] tick=320 paused=0 gamma_x=1.0 pnl=-1807.10 pos={'SNDK': 4} mk5s={'SNDK': '+0.52t(8)', 'CRWV': '+1.23t(5)'}
+2026-11-28 02:26:45,873 [INFO] tick=360 paused=0 gamma_x=1.0 pnl=-1807.10 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+1.23t(5)'}
+2026-11-28 02:26:56,080 [INFO] tick=400 paused=0 gamma_x=1.0 pnl=-1807.10 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+1.23t(5)'}
+2026-11-28 02:27:06,363 [INFO] tick=440 paused=0 gamma_x=1.0 pnl=-1805.60 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+1.23t(5)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)'}
+2026-11-28 02:27:09,696 [WARNING] order delete failed with reason: Could not find order id to delete
+2026-11-28 02:27:16,612 [INFO] tick=480 paused=0 gamma_x=1.0 pnl=-1805.10 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+0.88t(7)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)'}
+2026-11-28 02:27:26,820 [INFO] tick=520 paused=0 gamma_x=1.0 pnl=-1804.10 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+1.15t(9)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+1.38t(2)'}
+2026-11-28 02:27:37,052 [INFO] tick=560 paused=0 gamma_x=1.0 pnl=-1804.10 pos={} mk5s={'SNDK': '-0.69t(14)', 'CRWV': '+1.15t(9)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:27:47,310 [INFO] tick=600 paused=0 gamma_x=1.0 pnl=-1803.10 pos={} mk5s={'SNDK': '-0.14t(15)', 'CRWV': '+1.15t(9)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:27:57,560 [INFO] tick=640 paused=0 gamma_x=1.0 pnl=-1803.00 pos={} mk5s={'SNDK': '-0.48t(16)', 'CRWV': '+1.15t(9)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:07,863 [INFO] tick=680 paused=0 gamma_x=1.0 pnl=-1802.00 pos={'SNDK': 1} mk5s={'SNDK': '-0.05t(18)', 'CRWV': '+0.90t(11)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:18,145 [INFO] tick=720 paused=0 gamma_x=1.0 pnl=-1801.80 pos={'SNDK': 5} mk5s={'SNDK': '+0.34t(23)', 'CRWV': '+0.90t(11)', 'AMD': '+1.38t(2)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:28,383 [INFO] tick=760 paused=0 gamma_x=1.0 pnl=-1801.30 pos={} mk5s={'SNDK': '+0.25t(26)', 'CRWV': '+0.44t(13)', 'AMD': '+0.91t(3)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:38,640 [INFO] tick=800 paused=0 gamma_x=1.0 pnl=-1801.30 pos={'SNDK': 2} mk5s={'SNDK': '+0.25t(26)', 'CRWV': '+0.44t(13)', 'AMD': '+0.80t(4)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:48,916 [INFO] tick=840 paused=0 gamma_x=1.0 pnl=-1801.00 pos={} mk5s={'SNDK': '+0.54t(28)', 'CRWV': '+0.44t(13)', 'AMD': '+0.80t(4)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.65t(4)'}
+2026-11-28 02:28:59,182 [INFO] tick=880 paused=0 gamma_x=1.0 pnl=-1800.60 pos={} mk5s={'SNDK': '+0.08t(31)', 'CRWV': '+0.47t(15)', 'AMD': '+0.80t(4)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.58t(6)'}
+2026-11-28 02:29:09,462 [INFO] tick=920 paused=0 gamma_x=1.0 pnl=-1800.50 pos={} mk5s={'SNDK': '+0.08t(31)', 'CRWV': '+0.67t(17)', 'AMD': '+0.80t(4)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.58t(6)'}
+2026-11-28 02:29:19,734 [INFO] tick=960 paused=0 gamma_x=1.0 pnl=-1803.50 pos={} mk5s={'SNDK': '+0.55t(34)', 'CRWV': '+0.67t(17)', 'AMD': '+0.80t(4)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.58t(6)', 'VRT': '-5.25t(2)'}
+2026-11-28 02:29:22,049 [INFO] Scratched AMD pos=5 (tail_stop_loss) via IOC ask@148.00
+2026-11-28 02:29:30,020 [INFO] tick=1000 paused=0 gamma_x=1.0 pnl=-1851.30 pos={} mk5s={'SNDK': '+0.43t(36)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.58t(6)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:29:40,308 [INFO] tick=1040 paused=0 gamma_x=1.0 pnl=-1850.80 pos={} mk5s={'SNDK': '+0.33t(37)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:29:50,539 [INFO] tick=1080 paused=0 gamma_x=1.0 pnl=-1850.70 pos={} mk5s={'SNDK': '+0.37t(38)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:00,806 [INFO] tick=1120 paused=0 gamma_x=1.0 pnl=-1850.70 pos={} mk5s={'SNDK': '+0.03t(39)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:11,042 [INFO] tick=1160 paused=0 gamma_x=1.0 pnl=-1850.70 pos={} mk5s={'SNDK': '+0.03t(39)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:21,299 [INFO] tick=1200 paused=0 gamma_x=1.0 pnl=-1850.70 pos={} mk5s={'SNDK': '+0.03t(39)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:31,517 [INFO] tick=1240 paused=0 gamma_x=1.0 pnl=-1850.70 pos={'SNDK': 2} mk5s={'SNDK': '-0.02t(41)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '-0.75t(10)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:41,791 [INFO] tick=1280 paused=0 gamma_x=1.0 pnl=-1850.60 pos={} mk5s={'SNDK': '-0.14t(42)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.40t(13)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:30:52,028 [INFO] tick=1320 paused=0 gamma_x=1.0 pnl=-1850.50 pos={} mk5s={'SNDK': '+0.36t(46)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.78t(16)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:02,242 [INFO] tick=1360 paused=0 gamma_x=1.0 pnl=-1850.50 pos={} mk5s={'SNDK': '+0.36t(46)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.78t(16)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:12,544 [INFO] tick=1400 paused=0 gamma_x=1.0 pnl=-1850.50 pos={} mk5s={'SNDK': '+0.36t(46)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.78t(16)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:22,786 [INFO] tick=1440 paused=0 gamma_x=1.0 pnl=-1850.50 pos={} mk5s={'SNDK': '+0.36t(46)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.78t(16)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:33,063 [INFO] tick=1480 paused=0 gamma_x=1.0 pnl=-1849.80 pos={'NBIS': 5} mk5s={'SNDK': '+0.36t(46)', 'CRWV': '+0.67t(17)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.96t(17)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:43,359 [INFO] tick=1520 paused=0 gamma_x=1.0 pnl=-1849.30 pos={} mk5s={'SNDK': '+0.39t(49)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.36t(20)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:31:53,608 [INFO] tick=1560 paused=0 gamma_x=1.0 pnl=-1849.30 pos={} mk5s={'SNDK': '+0.42t(50)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.24t(23)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:32:03,909 [INFO] tick=1600 paused=0 gamma_x=1.0 pnl=-1849.30 pos={} mk5s={'SNDK': '+0.42t(50)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.24t(23)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:32:14,195 [INFO] tick=1640 paused=0 gamma_x=1.0 pnl=-1848.80 pos={'SNDK': 1, 'NBIS': 1} mk5s={'SNDK': '+0.33t(52)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.24t(23)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:32:24,442 [INFO] tick=1680 paused=0 gamma_x=1.0 pnl=-1848.80 pos={} mk5s={'SNDK': '+0.20t(56)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.48t(25)', 'VRT': '-4.06t(3)'}
+2026-11-28 02:32:34,713 [INFO] tick=1720 paused=0 gamma_x=1.0 pnl=-1848.00 pos={} mk5s={'SNDK': '+0.20t(56)', 'CRWV': '+0.50t(19)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.48t(25)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(1)'}
+2026-11-28 02:32:44,981 [INFO] tick=1760 paused=0 gamma_x=1.0 pnl=-1849.90 pos={'AVGO': -5} mk5s={'SNDK': '+0.45t(58)', 'CRWV': '+0.63t(22)', 'AMD': '-3.92t(6)', 'AVGO': '+3.25t(2)', 'NBIS': '+0.05t(28)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(2)', 'NVDA': '-0.50t(1)'}
+2026-11-28 02:32:55,260 [INFO] tick=1800 paused=0 gamma_x=1.0 pnl=-1849.40 pos={} mk5s={'SNDK': '+0.45t(58)', 'CRWV': '+0.63t(22)', 'AMD': '-3.92t(6)', 'AVGO': '+1.31t(3)', 'NBIS': '+0.01t(31)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(2)', 'NVDA': '-0.00t(2)'}
+2026-11-28 02:33:05,545 [INFO] tick=1840 paused=0 gamma_x=1.0 pnl=-1848.90 pos={} mk5s={'SNDK': '+0.45t(58)', 'CRWV': '+0.63t(22)', 'AMD': '-3.92t(6)', 'AVGO': '+0.11t(4)', 'NBIS': '+0.01t(31)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(2)', 'NVDA': '-0.00t(2)'}
+2026-11-28 02:33:15,804 [INFO] tick=1880 paused=0 gamma_x=1.0 pnl=-1848.90 pos={} mk5s={'SNDK': '+0.45t(58)', 'CRWV': '+0.63t(22)', 'AMD': '-3.92t(6)', 'AVGO': '+0.11t(4)', 'NBIS': '+0.23t(33)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(2)', 'NVDA': '-0.00t(2)'}
+2026-11-28 02:33:26,087 [INFO] tick=1920 paused=0 gamma_x=1.0 pnl=-1847.90 pos={'NBIS': 5} mk5s={'SNDK': '+0.45t(58)', 'CRWV': '+0.63t(22)', 'AMD': '-3.92t(6)', 'AVGO': '+0.11t(4)', 'NBIS': '+0.29t(34)', 'VRT': '-4.06t(3)', 'MU': '+0.50t(2)', 'NVDA': '-0.00t(2)'}
+2026-11-28 02:33:35,443 [INFO] Interrupted — cancelling open orders and disconnecting
+2026-11-28 02:33:35,469 [INFO] Background nacht analysis started for /home/workspace/data/autoloop_28_022513/live_001_022513 -> /home/workspace/data/autoloop_28_022513/nacht/nacht_bericht.md
+2026-11-28 02:33:35,483 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 02:33:35,483 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 02:33:35,483 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 02:33:35,849 [INFO] Background thread exited

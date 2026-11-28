@@ -1,0 +1,486 @@
+2026-11-28 06:05:18,800 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 06:05:18,801 [INFO] Background thread started
+2026-11-28 06:05:18,829 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 06:05:18,830 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 06:05:18,836 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 06:05:19,095 [INFO] Embedded CSV logger active -> /home/workspace/data/autoloop_28_023335/live_006_060518
+2026-11-28 06:05:19,095 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=False, session=0s)
+2026-11-28 06:05:28,884 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:05:38,924 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:05:48,965 [INFO] tick=120 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:05:59,006 [INFO] tick=160 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:09,045 [INFO] tick=200 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:19,085 [INFO] tick=240 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:29,125 [INFO] tick=280 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:39,165 [INFO] tick=320 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:49,204 [INFO] tick=360 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:06:59,245 [INFO] tick=400 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:09,285 [INFO] tick=440 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:19,325 [INFO] tick=480 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:29,365 [INFO] tick=520 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:39,405 [INFO] tick=560 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:49,445 [INFO] tick=600 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:07:59,485 [INFO] tick=640 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:09,525 [INFO] tick=680 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:19,565 [INFO] tick=720 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:29,605 [INFO] tick=760 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:39,646 [INFO] tick=800 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:49,685 [INFO] tick=840 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:08:59,725 [INFO] tick=880 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:09,765 [INFO] tick=920 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:19,806 [INFO] tick=960 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:29,847 [INFO] tick=1000 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:39,887 [INFO] tick=1040 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:49,927 [INFO] tick=1080 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:09:59,968 [INFO] tick=1120 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:10:10,008 [INFO] tick=1160 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:10:20,050 [INFO] tick=1200 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:10:30,090 [INFO] tick=1240 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:10:40,131 [INFO] tick=1280 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:10:50,170 [INFO] tick=1320 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:00,210 [INFO] tick=1360 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:10,250 [INFO] tick=1400 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:20,290 [INFO] tick=1440 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:30,330 [INFO] tick=1480 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:40,372 [INFO] tick=1520 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:11:50,411 [INFO] tick=1560 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:00,451 [INFO] tick=1600 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:10,492 [INFO] tick=1640 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:20,532 [INFO] tick=1680 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:30,572 [INFO] tick=1720 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:40,613 [INFO] tick=1760 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:12:50,653 [INFO] tick=1800 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:00,693 [INFO] tick=1840 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:10,734 [INFO] tick=1880 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:20,775 [INFO] tick=1920 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:30,816 [INFO] tick=1960 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:40,856 [INFO] tick=2000 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:13:50,897 [INFO] tick=2040 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:00,937 [INFO] tick=2080 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:10,977 [INFO] tick=2120 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:21,017 [INFO] tick=2160 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:31,057 [INFO] tick=2200 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:41,099 [INFO] tick=2240 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:14:51,139 [INFO] tick=2280 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:01,180 [INFO] tick=2320 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:11,220 [INFO] tick=2360 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:21,261 [INFO] tick=2400 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:31,301 [INFO] tick=2440 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:41,341 [INFO] tick=2480 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:15:51,382 [INFO] tick=2520 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:01,423 [INFO] tick=2560 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:11,462 [INFO] tick=2600 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:21,502 [INFO] tick=2640 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:31,543 [INFO] tick=2680 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:41,583 [INFO] tick=2720 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:16:51,623 [INFO] tick=2760 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:01,664 [INFO] tick=2800 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:11,704 [INFO] tick=2840 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:21,745 [INFO] tick=2880 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:31,787 [INFO] tick=2920 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:41,827 [INFO] tick=2960 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:17:51,867 [INFO] tick=3000 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:01,908 [INFO] tick=3040 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:11,948 [INFO] tick=3080 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:21,989 [INFO] tick=3120 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:32,030 [INFO] tick=3160 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:42,071 [INFO] tick=3200 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:18:52,113 [INFO] tick=3240 paused=0 gamma_x=1.0 pnl=-2161.50 pos={} mk5s={}
+2026-11-28 06:19:02,165 [INFO] tick=3280 paused=0 gamma_x=1.0 pnl=-2161.40 pos={'CRWV': -1} mk5s={}
+2026-11-28 06:19:12,226 [INFO] tick=3320 paused=0 gamma_x=1.0 pnl=-2161.30 pos={} mk5s={'CRWV': '+0.04t(4)'}
+2026-11-28 06:19:22,273 [INFO] tick=3360 paused=0 gamma_x=1.0 pnl=-2161.40 pos={'CRWV': -1} mk5s={'CRWV': '+0.21t(6)'}
+2026-11-28 06:19:32,321 [INFO] tick=3400 paused=0 gamma_x=1.0 pnl=-2161.30 pos={} mk5s={'CRWV': '-0.10t(8)'}
+2026-11-28 06:19:42,372 [INFO] tick=3440 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.32t(10)'}
+2026-11-28 06:19:52,438 [INFO] tick=3480 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.23t(14)'}
+2026-11-28 06:20:02,493 [INFO] tick=3520 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:20:12,535 [INFO] tick=3560 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:20:22,577 [INFO] tick=3600 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:20:32,618 [INFO] tick=3640 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:20:42,661 [INFO] tick=3680 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:20:52,702 [INFO] tick=3720 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:21:02,762 [INFO] tick=3760 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.00t(16)'}
+2026-11-28 06:21:12,825 [INFO] tick=3800 paused=0 gamma_x=1.0 pnl=-2161.20 pos={} mk5s={'CRWV': '+0.13t(17)'}
+2026-11-28 06:21:22,879 [INFO] tick=3840 paused=0 gamma_x=1.0 pnl=-2161.30 pos={'CRWV': -1} mk5s={'CRWV': '+0.22t(18)'}
+2026-11-28 06:21:32,935 [INFO] tick=3880 paused=0 gamma_x=1.0 pnl=-2161.10 pos={} mk5s={'CRWV': '-1.18t(24)'}
+2026-11-28 06:21:42,976 [INFO] tick=3920 paused=0 gamma_x=1.0 pnl=-2161.10 pos={} mk5s={'CRWV': '-1.18t(24)'}
+2026-11-28 06:21:53,018 [INFO] tick=3960 paused=0 gamma_x=1.0 pnl=-2161.10 pos={} mk5s={'CRWV': '-1.18t(24)'}
+2026-11-28 06:22:03,060 [INFO] tick=4000 paused=0 gamma_x=1.0 pnl=-2161.10 pos={} mk5s={'CRWV': '-1.18t(24)'}
+2026-11-28 06:22:13,101 [INFO] tick=4040 paused=0 gamma_x=1.0 pnl=-2161.10 pos={} mk5s={'CRWV': '-1.18t(24)'}
+2026-11-28 06:22:23,169 [INFO] tick=4080 paused=0 gamma_x=1.0 pnl=-2160.90 pos={'CRWV': -1} mk5s={'CRWV': '-0.26t(26)'}
+2026-11-28 06:22:33,225 [INFO] tick=4120 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.36t(28)'}
+2026-11-28 06:22:43,267 [INFO] tick=4160 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:22:53,309 [INFO] tick=4200 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:03,350 [INFO] tick=4240 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:13,391 [INFO] tick=4280 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:23,433 [INFO] tick=4320 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:33,476 [INFO] tick=4360 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:43,519 [INFO] tick=4400 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:23:53,562 [INFO] tick=4440 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:03,606 [INFO] tick=4480 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:13,648 [INFO] tick=4520 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:23,690 [INFO] tick=4560 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:33,733 [INFO] tick=4600 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:43,774 [INFO] tick=4640 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:24:53,817 [INFO] tick=4680 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:03,860 [INFO] tick=4720 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:13,903 [INFO] tick=4760 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:23,944 [INFO] tick=4800 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:33,986 [INFO] tick=4840 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:44,028 [INFO] tick=4880 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:25:54,071 [INFO] tick=4920 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:04,112 [INFO] tick=4960 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:14,155 [INFO] tick=5000 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:24,197 [INFO] tick=5040 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:34,238 [INFO] tick=5080 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:44,280 [INFO] tick=5120 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:26:54,323 [INFO] tick=5160 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:04,365 [INFO] tick=5200 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:14,406 [INFO] tick=5240 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:24,448 [INFO] tick=5280 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:34,490 [INFO] tick=5320 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:44,532 [INFO] tick=5360 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:27:54,573 [INFO] tick=5400 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:04,617 [INFO] tick=5440 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:14,659 [INFO] tick=5480 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:24,701 [INFO] tick=5520 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:34,742 [INFO] tick=5560 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:44,783 [INFO] tick=5600 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:28:54,826 [INFO] tick=5640 paused=0 gamma_x=1.0 pnl=-2160.90 pos={} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:29:04,912 [INFO] tick=5680 paused=0 gamma_x=1.0 pnl=-2160.80 pos={'NBIS': -1} mk5s={'CRWV': '-0.23t(30)'}
+2026-11-28 06:29:14,998 [INFO] tick=5720 paused=0 gamma_x=1.0 pnl=-2160.80 pos={'NBIS': -1} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '-0.25t(2)'}
+2026-11-28 06:29:25,082 [INFO] tick=5760 paused=0 gamma_x=1.0 pnl=-2160.70 pos={} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '-0.04t(7)'}
+2026-11-28 06:29:35,134 [INFO] tick=5800 paused=0 gamma_x=1.0 pnl=-2160.60 pos={} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '+0.29t(9)'}
+2026-11-28 06:29:45,196 [INFO] tick=5840 paused=0 gamma_x=1.0 pnl=-2160.60 pos={} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '+0.09t(10)'}
+2026-11-28 06:29:55,265 [INFO] tick=5880 paused=0 gamma_x=1.0 pnl=-2160.60 pos={} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '+0.09t(10)'}
+2026-11-28 06:30:05,354 [INFO] tick=5920 paused=0 gamma_x=1.0 pnl=-2160.50 pos={} mk5s={'CRWV': '-0.23t(30)', 'NBIS': '+0.09t(10)'}
+2026-11-28 06:30:15,417 [INFO] tick=5960 paused=0 gamma_x=1.0 pnl=-2160.40 pos={} mk5s={'CRWV': '+0.09t(32)', 'NBIS': '+0.23t(14)'}
+2026-11-28 06:30:25,493 [INFO] tick=6000 paused=0 gamma_x=1.0 pnl=-2160.40 pos={'NBIS': -1} mk5s={'CRWV': '+0.09t(32)', 'NBIS': '+0.10t(16)'}
+2026-11-28 06:30:35,595 [INFO] tick=6040 paused=0 gamma_x=1.0 pnl=-2160.20 pos={'NBIS': -1} mk5s={'CRWV': '+0.09t(32)', 'NBIS': '-0.10t(18)'}
+2026-11-28 06:30:45,656 [INFO] tick=6080 paused=0 gamma_x=1.0 pnl=-2160.10 pos={} mk5s={'CRWV': '+0.26t(36)', 'NBIS': '+0.04t(21)'}
+2026-11-28 06:30:55,713 [INFO] tick=6120 paused=0 gamma_x=1.0 pnl=-2160.10 pos={} mk5s={'CRWV': '+0.26t(36)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:05,797 [INFO] tick=6160 paused=0 gamma_x=1.0 pnl=-2160.10 pos={} mk5s={'CRWV': '+0.26t(36)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:15,867 [INFO] tick=6200 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.32t(37)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:25,919 [INFO] tick=6240 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:35,975 [INFO] tick=6280 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:46,028 [INFO] tick=6320 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:31:56,074 [INFO] tick=6360 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:06,135 [INFO] tick=6400 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:16,185 [INFO] tick=6440 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:26,238 [INFO] tick=6480 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:36,308 [INFO] tick=6520 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:46,372 [INFO] tick=6560 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:32:56,498 [INFO] tick=6600 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:06,569 [INFO] tick=6640 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:16,625 [INFO] tick=6680 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:26,692 [INFO] tick=6720 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:36,767 [INFO] tick=6760 paused=0 gamma_x=1.0 pnl=-2160.00 pos={} mk5s={'CRWV': '+0.62t(38)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:46,820 [INFO] tick=6800 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+1.09t(39)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:33:56,885 [INFO] tick=6840 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:06,934 [INFO] tick=6880 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:16,983 [INFO] tick=6920 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:27,060 [INFO] tick=6960 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:37,108 [INFO] tick=7000 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:47,160 [INFO] tick=7040 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:34:57,222 [INFO] tick=7080 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:07,265 [INFO] tick=7120 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:17,307 [INFO] tick=7160 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:27,349 [INFO] tick=7200 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:37,392 [INFO] tick=7240 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:47,434 [INFO] tick=7280 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:35:57,476 [INFO] tick=7320 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:07,550 [INFO] tick=7360 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:17,614 [INFO] tick=7400 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:27,660 [INFO] tick=7440 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:37,723 [INFO] tick=7480 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:47,783 [INFO] tick=7520 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:36:57,834 [INFO] tick=7560 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:07,877 [INFO] tick=7600 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:17,919 [INFO] tick=7640 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:27,961 [INFO] tick=7680 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:38,003 [INFO] tick=7720 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:48,045 [INFO] tick=7760 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:37:58,088 [INFO] tick=7800 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:08,130 [INFO] tick=7840 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:18,172 [INFO] tick=7880 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:28,216 [INFO] tick=7920 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:38,258 [INFO] tick=7960 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:48,300 [INFO] tick=8000 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:38:58,342 [INFO] tick=8040 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:08,386 [INFO] tick=8080 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:18,428 [INFO] tick=8120 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:28,471 [INFO] tick=8160 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:38,513 [INFO] tick=8200 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:48,555 [INFO] tick=8240 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:39:58,600 [INFO] tick=8280 paused=0 gamma_x=1.0 pnl=-2159.90 pos={} mk5s={'CRWV': '+0.44t(40)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:08,652 [INFO] tick=8320 paused=0 gamma_x=1.0 pnl=-2159.80 pos={} mk5s={'CRWV': '+0.46t(41)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:18,704 [INFO] tick=8360 paused=0 gamma_x=1.0 pnl=-2159.80 pos={'CRWV': -1} mk5s={'CRWV': '+0.47t(42)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:28,771 [INFO] tick=8400 paused=0 gamma_x=1.0 pnl=-2159.80 pos={} mk5s={'CRWV': '+0.14t(44)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:38,829 [INFO] tick=8440 paused=0 gamma_x=1.0 pnl=-2159.70 pos={} mk5s={'CRWV': '+0.23t(45)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:48,893 [INFO] tick=8480 paused=0 gamma_x=1.0 pnl=-2159.70 pos={} mk5s={'CRWV': '+0.55t(46)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:40:58,943 [INFO] tick=8520 paused=0 gamma_x=1.0 pnl=-2159.60 pos={} mk5s={'CRWV': '+0.38t(49)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:09,000 [INFO] tick=8560 paused=0 gamma_x=1.0 pnl=-2159.60 pos={} mk5s={'CRWV': '+0.41t(50)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:19,049 [INFO] tick=8600 paused=0 gamma_x=1.0 pnl=-2159.60 pos={} mk5s={'CRWV': '+0.41t(50)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:29,095 [INFO] tick=8640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.32t(53)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:39,142 [INFO] tick=8680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.37t(54)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:49,184 [INFO] tick=8720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.37t(54)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:41:59,231 [INFO] tick=8760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.37t(54)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:09,289 [INFO] tick=8800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.37t(54)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:19,341 [INFO] tick=8840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.07t(58)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:29,391 [INFO] tick=8880 paused=0 gamma_x=1.0 pnl=-2159.60 pos={'CRWV': -1} mk5s={'CRWV': '-0.02t(61)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:39,439 [INFO] tick=8920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '+0.02t(63)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:49,482 [INFO] tick=8960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:42:59,531 [INFO] tick=9000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:09,574 [INFO] tick=9040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:19,616 [INFO] tick=9080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:29,659 [INFO] tick=9120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:39,703 [INFO] tick=9160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:49,746 [INFO] tick=9200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:43:59,789 [INFO] tick=9240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:44:09,832 [INFO] tick=9280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:44:19,874 [INFO] tick=9320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:44:29,917 [INFO] tick=9360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:44:39,959 [INFO] tick=9400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:44:50,000 [INFO] tick=9440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:00,044 [INFO] tick=9480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:10,107 [INFO] tick=9520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:20,147 [INFO] tick=9560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:30,189 [INFO] tick=9600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:40,230 [INFO] tick=9640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:45:50,272 [INFO] tick=9680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:00,313 [INFO] tick=9720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:10,354 [INFO] tick=9760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:20,395 [INFO] tick=9800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:30,437 [INFO] tick=9840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:40,478 [INFO] tick=9880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:46:50,520 [INFO] tick=9920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:00,561 [INFO] tick=9960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:10,629 [INFO] tick=10000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:20,671 [INFO] tick=10040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:30,713 [INFO] tick=10080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:40,755 [INFO] tick=10120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:47:50,798 [INFO] tick=10160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:00,839 [INFO] tick=10200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:10,882 [INFO] tick=10240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:20,924 [INFO] tick=10280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:30,968 [INFO] tick=10320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:41,011 [INFO] tick=10360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:48:51,054 [INFO] tick=10400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:01,096 [INFO] tick=10440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:11,139 [INFO] tick=10480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:21,181 [INFO] tick=10520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:31,224 [INFO] tick=10560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:41,266 [INFO] tick=10600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:49:51,310 [INFO] tick=10640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:01,351 [INFO] tick=10680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:11,394 [INFO] tick=10720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:21,437 [INFO] tick=10760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:31,479 [INFO] tick=10800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:41,521 [INFO] tick=10840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:50:51,563 [INFO] tick=10880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:01,606 [INFO] tick=10920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:11,649 [INFO] tick=10960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:21,690 [INFO] tick=11000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:31,732 [INFO] tick=11040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:41,775 [INFO] tick=11080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:51:51,817 [INFO] tick=11120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:01,859 [INFO] tick=11160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:11,902 [INFO] tick=11200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:21,943 [INFO] tick=11240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:31,984 [INFO] tick=11280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:42,027 [INFO] tick=11320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:52:52,069 [INFO] tick=11360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:02,112 [INFO] tick=11400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:12,154 [INFO] tick=11440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:22,197 [INFO] tick=11480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:32,239 [INFO] tick=11520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:42,281 [INFO] tick=11560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:53:52,323 [INFO] tick=11600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:02,366 [INFO] tick=11640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:12,407 [INFO] tick=11680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:22,448 [INFO] tick=11720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:32,490 [INFO] tick=11760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:42,532 [INFO] tick=11800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:54:52,574 [INFO] tick=11840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:02,616 [INFO] tick=11880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:12,658 [INFO] tick=11920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:22,700 [INFO] tick=11960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:32,743 [INFO] tick=12000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:42,786 [INFO] tick=12040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:55:52,830 [INFO] tick=12080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:02,872 [INFO] tick=12120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:12,915 [INFO] tick=12160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:22,957 [INFO] tick=12200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:33,001 [INFO] tick=12240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:43,044 [INFO] tick=12280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:56:53,086 [INFO] tick=12320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:03,128 [INFO] tick=12360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:13,170 [INFO] tick=12400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:23,213 [INFO] tick=12440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:33,255 [INFO] tick=12480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:43,298 [INFO] tick=12520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:57:53,339 [INFO] tick=12560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:03,382 [INFO] tick=12600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:13,423 [INFO] tick=12640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:23,465 [INFO] tick=12680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:33,507 [INFO] tick=12720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:43,551 [INFO] tick=12760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:58:53,594 [INFO] tick=12800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:03,637 [INFO] tick=12840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:13,679 [INFO] tick=12880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:23,722 [INFO] tick=12920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:33,780 [INFO] tick=12960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:43,821 [INFO] tick=13000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 06:59:53,864 [INFO] tick=13040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:03,905 [INFO] tick=13080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:13,947 [INFO] tick=13120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:23,989 [INFO] tick=13160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:34,031 [INFO] tick=13200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:44,073 [INFO] tick=13240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:00:54,115 [INFO] tick=13280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:04,164 [INFO] tick=13320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:14,205 [INFO] tick=13360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:24,247 [INFO] tick=13400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:34,290 [INFO] tick=13440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:44,332 [INFO] tick=13480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:01:54,374 [INFO] tick=13520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:04,417 [INFO] tick=13560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:14,459 [INFO] tick=13600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:24,501 [INFO] tick=13640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:34,543 [INFO] tick=13680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:44,584 [INFO] tick=13720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:02:54,626 [INFO] tick=13760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:04,667 [INFO] tick=13800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:14,708 [INFO] tick=13840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:24,750 [INFO] tick=13880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:34,792 [INFO] tick=13920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:44,833 [INFO] tick=13960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:03:54,875 [INFO] tick=14000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:04,916 [INFO] tick=14040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:14,959 [INFO] tick=14080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:25,000 [INFO] tick=14120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:35,042 [INFO] tick=14160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:45,084 [INFO] tick=14200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:04:55,125 [INFO] tick=14240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:05,167 [INFO] tick=14280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:15,209 [INFO] tick=14320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:19,271 [INFO] Rotated CSV chunk /home/workspace/data/autoloop_28_023335/live_006_060518 -> data/live_28_070519_248556
+2026-11-28 07:05:19,276 [INFO] Background nacht analysis started for /home/workspace/data/autoloop_28_023335/live_006_060518 -> /home/workspace/data/autoloop_28_023335/nacht/nacht_bericht.md
+2026-11-28 07:05:25,301 [INFO] tick=14360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:35,344 [INFO] tick=14400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:45,460 [INFO] tick=14440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:05:55,501 [INFO] tick=14480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:05,543 [INFO] tick=14520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:15,585 [INFO] tick=14560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:25,629 [INFO] tick=14600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:35,672 [INFO] tick=14640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:45,714 [INFO] tick=14680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:06:55,756 [INFO] tick=14720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:05,798 [INFO] tick=14760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:15,841 [INFO] tick=14800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:25,883 [INFO] tick=14840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:35,924 [INFO] tick=14880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:45,967 [INFO] tick=14920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:07:56,009 [INFO] tick=14960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:06,051 [INFO] tick=15000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:16,095 [INFO] tick=15040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:26,137 [INFO] tick=15080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:36,181 [INFO] tick=15120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:46,223 [INFO] tick=15160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:08:56,265 [INFO] tick=15200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:06,307 [INFO] tick=15240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:16,350 [INFO] tick=15280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:26,392 [INFO] tick=15320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:36,434 [INFO] tick=15360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:46,476 [INFO] tick=15400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:09:56,519 [INFO] tick=15440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:06,561 [INFO] tick=15480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:16,604 [INFO] tick=15520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:26,647 [INFO] tick=15560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:36,690 [INFO] tick=15600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:46,731 [INFO] tick=15640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:10:56,773 [INFO] tick=15680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:06,816 [INFO] tick=15720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:16,858 [INFO] tick=15760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:26,900 [INFO] tick=15800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:36,943 [INFO] tick=15840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:46,986 [INFO] tick=15880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:11:57,029 [INFO] tick=15920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:07,071 [INFO] tick=15960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:17,113 [INFO] tick=16000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:27,155 [INFO] tick=16040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:37,197 [INFO] tick=16080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:47,239 [INFO] tick=16120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:12:57,283 [INFO] tick=16160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:07,327 [INFO] tick=16200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:17,369 [INFO] tick=16240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:27,412 [INFO] tick=16280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:37,453 [INFO] tick=16320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:47,496 [INFO] tick=16360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:13:57,538 [INFO] tick=16400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:07,581 [INFO] tick=16440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:17,623 [INFO] tick=16480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:27,665 [INFO] tick=16520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:37,707 [INFO] tick=16560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:47,748 [INFO] tick=16600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:14:57,791 [INFO] tick=16640 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:07,855 [INFO] tick=16680 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:17,896 [INFO] tick=16720 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:27,938 [INFO] tick=16760 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:37,980 [INFO] tick=16800 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:48,022 [INFO] tick=16840 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:15:58,065 [INFO] tick=16880 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:08,107 [INFO] tick=16920 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:18,149 [INFO] tick=16960 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:28,192 [INFO] tick=17000 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:38,234 [INFO] tick=17040 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:48,277 [INFO] tick=17080 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:16:58,318 [INFO] tick=17120 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:08,360 [INFO] tick=17160 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:18,402 [INFO] tick=17200 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:28,443 [INFO] tick=17240 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:38,486 [INFO] tick=17280 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:48,528 [INFO] tick=17320 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:17:58,570 [INFO] tick=17360 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:08,613 [INFO] tick=17400 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:18,655 [INFO] tick=17440 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:28,698 [INFO] tick=17480 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:38,740 [INFO] tick=17520 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:48,783 [INFO] tick=17560 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:18:58,827 [INFO] tick=17600 paused=0 gamma_x=1.0 pnl=-2159.50 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.41t(22)'}
+2026-11-28 07:19:08,900 [INFO] tick=17640 paused=0 gamma_x=1.0 pnl=-2159.40 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.56t(23)'}
+2026-11-28 07:19:18,955 [INFO] tick=17680 paused=0 gamma_x=1.0 pnl=-2159.40 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.67t(24)'}
+2026-11-28 07:19:29,006 [INFO] tick=17720 paused=0 gamma_x=1.0 pnl=-2159.30 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.67t(24)'}
+2026-11-28 07:19:39,068 [INFO] tick=17760 paused=0 gamma_x=1.0 pnl=-2159.30 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.59t(26)'}
+2026-11-28 07:19:49,114 [INFO] tick=17800 paused=0 gamma_x=1.0 pnl=-2159.30 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.37t(28)'}
+2026-11-28 07:19:59,166 [INFO] tick=17840 paused=0 gamma_x=1.0 pnl=-2159.30 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.15t(29)'}
+2026-11-28 07:20:09,217 [INFO] tick=17880 paused=0 gamma_x=1.0 pnl=-2159.20 pos={'NBIS': 1} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.35t(32)'}
+2026-11-28 07:20:19,264 [INFO] tick=17920 paused=0 gamma_x=1.0 pnl=-2159.20 pos={'NBIS': 1} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.23t(34)'}
+2026-11-28 07:20:29,312 [INFO] tick=17960 paused=0 gamma_x=1.0 pnl=-2159.10 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.30t(35)'}
+2026-11-28 07:20:39,396 [INFO] tick=18000 paused=0 gamma_x=1.0 pnl=-2159.10 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.47t(36)'}
+2026-11-28 07:20:49,464 [INFO] tick=18040 paused=0 gamma_x=1.0 pnl=-2159.10 pos={'NBIS': 1} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.47t(36)'}
+2026-11-28 07:20:59,512 [INFO] tick=18080 paused=0 gamma_x=1.0 pnl=-2159.00 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.45t(38)'}
+2026-11-28 07:21:09,574 [INFO] tick=18120 paused=0 gamma_x=1.0 pnl=-2159.00 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.45t(38)'}
+2026-11-28 07:21:19,620 [INFO] tick=18160 paused=0 gamma_x=1.0 pnl=-2159.00 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.45t(38)'}
+2026-11-28 07:21:29,670 [INFO] tick=18200 paused=0 gamma_x=1.0 pnl=-2159.00 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.45t(38)'}
+2026-11-28 07:21:39,716 [INFO] tick=18240 paused=0 gamma_x=1.0 pnl=-2158.90 pos={'NBIS': 1} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.45t(38)'}
+2026-11-28 07:21:49,767 [INFO] tick=18280 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.47t(39)'}
+2026-11-28 07:21:59,826 [INFO] tick=18320 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:22:09,868 [INFO] tick=18360 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:22:19,912 [INFO] tick=18400 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:22:29,954 [INFO] tick=18440 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:22:39,997 [INFO] tick=18480 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:22:50,041 [INFO] tick=18520 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:00,085 [INFO] tick=18560 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:10,128 [INFO] tick=18600 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:20,170 [INFO] tick=18640 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:30,213 [INFO] tick=18680 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:40,255 [INFO] tick=18720 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:23:50,297 [INFO] tick=18760 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:24:00,340 [INFO] tick=18800 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:24:10,383 [INFO] tick=18840 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={'CRWV': '-0.11t(64)', 'NBIS': '+0.22t(40)'}
+2026-11-28 07:24:10,775 [INFO] Interrupted — cancelling open orders and disconnecting
+2026-11-28 07:24:10,797 [INFO] Background nacht analysis started for data/live_28_070519_248556 -> /home/workspace/data/autoloop_28_023335/nacht/nacht_bericht.md
+2026-11-28 07:24:10,812 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 07:24:10,812 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 07:24:10,816 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 07:24:10,992 [INFO] Background thread exited

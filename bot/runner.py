@@ -553,9 +553,57 @@ class BacktestBot:
         self._bot.step(now=time.time())
 
 
+def _run_lab_strategy(spec: str, cfg: BotConfig, max_ticks: Optional[int] = None) -> None:
+    """Run any `module:Class` Strategy Lab winner against live Optibook or MockExchange."""
+    bot_dir = os.path.dirname(os.path.abspath(__file__))
+    if bot_dir not in sys.path:
+        sys.path.insert(0, bot_dir)
+    if cfg.session_duration_sec > 0:
+        os.environ["SESSION_DURATION_SEC"] = str(cfg.session_duration_sec)
+
+    mod_name, cls_name = spec.split(":")
+    mod = __import__(mod_name)
+    cls = getattr(mod, cls_name)
+
+    cfg.max_position_lots = 100
+    exchange = build_exchange(cfg)
+    exchange.connect()
+    strat = cls(exchange)
+    logger.info("Strategy Lab live: %s (mock=%s, session=%ss)", spec, cfg.mock_mode, int(cfg.session_duration_sec))
+    ticks = 0
+    try:
+        while exchange.is_connected() and (max_ticks is None or ticks < max_ticks):
+            if cfg.mock_mode and hasattr(exchange, "step_market"):
+                exchange.step_market()
+            strat.step()
+            ticks += 1
+            if ticks % 50 == 0:
+                logger.info("tick=%d pnl=%.2f pos=%s", ticks, exchange.get_pnl(), exchange.get_positions())
+            if not cfg.mock_mode or max_ticks is None:
+                time.sleep(0.20)
+    except KeyboardInterrupt:
+        logger.info("Interrupted — cancelling open orders and disconnecting")
+    finally:
+        for inst_id in getattr(strat, "insts", []):
+            try:
+                exchange.delete_orders(inst_id)
+            except Exception:
+                pass
+        try:
+            exchange.disconnect()
+        except Exception:
+            pass
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Optibook ABMM-S Trading Bot")
+    parser = argparse.ArgumentParser(description="Optibook ABMM-S & Strategy Lab Trading Bot")
     parser.add_argument("--mock", action="store_true", help="Run against local MockExchange")
+    parser.add_argument(
+        "--lab-strategy",
+        type=str,
+        default=None,
+        help="Run a Strategy Lab `module:Class` (e.g. strat_top2_delay_deconv:DelayDeconvWaveBot)",
+    )
     parser.add_argument("--max-ticks", type=int, default=None, help="Stop after N ticks (useful for testing)")
     parser.add_argument(
         "--session-sec",
@@ -589,6 +637,10 @@ def main() -> None:
         cfg.nacht_chunk_min = args.chunk_min
     if args.nacht_strategies:
         cfg.nacht_strategies = args.nacht_strategies
+
+    if args.lab_strategy:
+        _run_lab_strategy(args.lab_strategy, cfg, max_ticks=args.max_ticks)
+        return
 
     exchange = build_exchange(cfg)
     bot = ABMMSBot(exchange, cfg)

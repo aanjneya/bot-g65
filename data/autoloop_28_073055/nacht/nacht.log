@@ -1,0 +1,18 @@
+28.11 08:13:02  Werte /home/workspace/data/autoloop_28_073055/live_001_073055 aus ...
+28.11 08:13:03    /home/workspace/data/autoloop_28_073055/live_001_073055 simple: PnL -164.3
+28.11 08:13:07    /home/workspace/data/autoloop_28_073055/live_001_073055 wall: PnL -519.2
+28.11 08:13:12    /home/workspace/data/autoloop_28_073055/live_001_073055 wall_raw: PnL -825.0
+28.11 08:13:21    /home/workspace/data/autoloop_28_073055/live_001_073055 runner:BacktestBot: PnL -18.3
+28.11 08:13:27  Bericht aktualisiert: nacht_bericht.md
+28.11 08:26:56  Werte /home/workspace/data/autoloop_28_073055/live_002_081303 aus ...
+28.11 08:26:57    /home/workspace/data/autoloop_28_073055/live_002_081303 simple: PnL 12.9
+28.11 08:26:59    /home/workspace/data/autoloop_28_073055/live_002_081303 wall: PnL -42.0
+28.11 08:27:00    /home/workspace/data/autoloop_28_073055/live_002_081303 wall_raw: PnL -216.7
+28.11 08:27:04    /home/workspace/data/autoloop_28_073055/live_002_081303 runner:BacktestBot: PnL -0.8
+28.11 08:27:06  Bericht aktualisiert: nacht_bericht.md
+28.11 08:54:44  Werte /home/workspace/data/autoloop_28_073055/live_003_082658 aus ...
+28.11 08:54:45    /home/workspace/data/autoloop_28_073055/live_003_082658 simple: PnL 195.3
+28.11 08:54:48    /home/workspace/data/autoloop_28_073055/live_003_082658 wall: PnL -360.6
+28.11 08:54:51    /home/workspace/data/autoloop_28_073055/live_003_082658 wall_raw: PnL -624.5
+28.11 08:54:57    /home/workspace/data/autoloop_28_073055/live_003_082658 runner:BacktestBot: PnL -1.4
+28.11 08:55:00  Bericht aktualisiert: nacht_bericht.md

@@ -1,0 +1,10 @@
+urteil,muster,aktie,sekunden,reaktion,faelle,effekt_h1,effekt_h2,kosten,netto
+NUR FAIR VALUE,Mitte der grossen Orders weicht ab,ALLE,5,mit dem Signal,1041,0.009,0.046,0.113,-0.068
+NUR FAIR VALUE,Orderbuch stark einseitig,MU,5,mit dem Signal,361,0.046,0.022,0.104,-0.082
+NUR FAIR VALUE,Orderbuch stark einseitig,NBIS,5,mit dem Signal,397,0.016,0.031,0.113,-0.082
+NUR FAIR VALUE,Orderbuch stark einseitig,NVDA,1,mit dem Signal,800,0.038,0.021,0.106,-0.084
+NUR FAIR VALUE,Orderbuch stark einseitig,ALLE,1,mit dem Signal,7363,0.015,0.012,0.108,-0.096
+NUR FAIR VALUE,Orderbuch stark einseitig,MU,1,mit dem Signal,846,0.014,0.008,0.104,-0.096
+NUR FAIR VALUE,Orderbuch stark einseitig,NBIS,1,mit dem Signal,1061,0.006,0.011,0.112,-0.101
+NUR FAIR VALUE,Orderbuch stark einseitig,CRWV,1,mit dem Signal,1009,0.012,0.011,0.114,-0.104
+NICHT STABIL,Mitte der grossen Orders weicht ab,AVGO,1,mit dem Signal,146,0.035,0.062,0.106,-0.045

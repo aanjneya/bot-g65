@@ -1,0 +1,12 @@
+28.11 01:12:32  Werte /home/workspace/data/live_28_001232_049570 aus ...
+28.11 01:12:34    /home/workspace/data/live_28_001232_049570 simple: PnL 2.3
+28.11 01:12:40    /home/workspace/data/live_28_001232_049570 wall: PnL -850.7
+28.11 01:12:48    /home/workspace/data/live_28_001232_049570 wall_raw: PnL -1138.9
+28.11 01:13:00    /home/workspace/data/live_28_001232_049570 runner:BacktestBot: PnL -512.1
+28.11 01:13:08  Bericht aktualisiert: nacht_bericht.md
+28.11 01:43:07  Werte /home/workspace/data/live_28_011232_216881 aus ...
+28.11 01:43:08    /home/workspace/data/live_28_011232_216881 simple: PnL 0.5
+28.11 01:43:11    /home/workspace/data/live_28_011232_216881 wall: PnL -477.9
+28.11 01:43:15    /home/workspace/data/live_28_011232_216881 wall_raw: PnL -676.2
+28.11 01:43:22    /home/workspace/data/live_28_011232_216881 runner:BacktestBot: PnL -351.3
+28.11 01:43:26  Bericht aktualisiert: nacht_bericht.md

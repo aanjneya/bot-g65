@@ -21,7 +21,7 @@ Trennungen kurz hintereinander wartet es laenger, um keinen Teamkollegen staendi
 
 Optionen:
     --chunk 60                      Minuten pro Datenordner
-    --strategien simple,wall,wall_raw   Strategien fuer den Backtest (auch modul:Klasse)
+    --strategien simple,wall,abmms,spike   Strategien fuer den Backtest (auch modul:Klasse)
 """
 import argparse
 import glob
@@ -141,7 +141,7 @@ def analyse(folder, strategies):
         }
         log(f"  {folder} {s}: PnL {res['strategien'][s]['pnl']}")
     # weitere Analysen schreiben ihre Berichte in den Ordner
-    for script in ("muster.py", "folge.py", "wand.py"):
+    for script in ("muster.py", "folge.py", "wand.py", "sprung.py"):
         if os.path.exists(os.path.join(HERE, script)):
             run([os.path.join(HERE, script), folder])
     try:
@@ -204,7 +204,7 @@ def finish(folder, strategies):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--chunk", type=float, default=60, help="Minuten pro Datenordner")
-    ap.add_argument("--strategien", default="simple,wall,wall_raw")
+    ap.add_argument("--strategien", default="simple,wall,abmms,spike")
     ap.add_argument("--collector", default=f"{sys.executable} -u {os.path.join(HERE, 'collector.py')}")
     ap.add_argument("--nur-auswerten", nargs="*", help="nur diese Ordner auswerten, nicht sammeln")
     ap.add_argument("--ordner", default=os.path.join("data", "nacht_" + datetime.now().strftime("%d_%H%M")),

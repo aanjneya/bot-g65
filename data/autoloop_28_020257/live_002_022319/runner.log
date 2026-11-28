@@ -1,0 +1,25 @@
+2026-11-28 02:23:19,594 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 02:23:19,595 [INFO] Background thread started
+2026-11-28 02:23:19,610 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 02:23:19,611 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 02:23:19,615 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 02:23:19,864 [INFO] Embedded CSV logger active -> /home/workspace/data/autoloop_28_020257/live_002_022319
+2026-11-28 02:23:19,865 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=False, session=0s)
+2026-11-28 02:23:29,897 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=-1795.20 pos={} mk5s={'AVGO': '-2.50t(1)'}
+2026-11-28 02:23:40,209 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=-1798.20 pos={'MU': 5} mk5s={'AVGO': '-2.50t(1)', 'MU': '-0.50t(1)', 'SNDK': '-0.50t(1)'}
+2026-11-28 02:23:50,520 [INFO] tick=120 paused=0 gamma_x=1.0 pnl=-1797.10 pos={'SNDK': 1} mk5s={'AVGO': '-2.50t(1)', 'MU': '-0.87t(3)', 'SNDK': '-0.50t(1)', 'CRWV': '-1.97t(3)'}
+2026-11-28 02:24:00,799 [INFO] tick=160 paused=0 gamma_x=1.0 pnl=-1797.00 pos={} mk5s={'AVGO': '-2.50t(1)', 'MU': '-0.87t(3)', 'SNDK': '-0.15t(5)', 'CRWV': '-0.54t(6)'}
+2026-11-28 02:24:11,070 [INFO] tick=200 paused=0 gamma_x=1.0 pnl=-1796.80 pos={} mk5s={'AVGO': '-2.50t(1)', 'MU': '-0.87t(3)', 'SNDK': '-0.15t(5)', 'CRWV': '-0.16t(7)', 'NBIS': '+1.00t(2)'}
+2026-11-28 02:24:12,102 [INFO] Scratched AVGO pos=-5 (tail_stop_loss) via IOC bid@202.50
+2026-11-28 02:24:21,354 [INFO] tick=240 paused=0 gamma_x=1.0 pnl=-1804.80 pos={} mk5s={'AVGO': '-3.97t(3)', 'MU': '-0.87t(3)', 'SNDK': '-0.15t(5)', 'CRWV': '-0.04t(10)', 'NBIS': '+0.13t(4)'}
+2026-11-28 02:24:23,143 [INFO] Scratched VRT pos=-5 (tail_stop_loss) via IOC bid@71.50
+2026-11-28 02:24:31,682 [INFO] tick=280 paused=0 gamma_x=1.0 pnl=-1809.40 pos={} mk5s={'AVGO': '-3.97t(3)', 'MU': '-0.87t(3)', 'SNDK': '-0.15t(5)', 'CRWV': '-0.04t(10)', 'NBIS': '+0.20t(6)', 'VRT': '-8.00t(2)'}
+2026-11-28 02:24:41,940 [INFO] tick=320 paused=0 gamma_x=1.0 pnl=-1809.40 pos={'SNDK': 5} mk5s={'AVGO': '-3.97t(3)', 'MU': '-0.87t(3)', 'SNDK': '-0.15t(5)', 'CRWV': '-0.03t(13)', 'NBIS': '-0.14t(8)', 'VRT': '-8.00t(2)'}
+2026-11-28 02:24:52,237 [INFO] tick=360 paused=0 gamma_x=1.0 pnl=-1808.90 pos={} mk5s={'AVGO': '-3.60t(4)', 'MU': '-0.87t(3)', 'SNDK': '+0.10t(8)', 'CRWV': '-0.03t(13)', 'NBIS': '-0.14t(8)', 'VRT': '-8.00t(2)'}
+2026-11-28 02:25:02,541 [INFO] tick=400 paused=0 gamma_x=1.0 pnl=-1808.30 pos={'NBIS': 3} mk5s={'AVGO': '-2.08t(5)', 'MU': '-0.87t(3)', 'SNDK': '+0.46t(11)', 'CRWV': '-0.03t(13)', 'NBIS': '+0.02t(9)', 'VRT': '-8.00t(2)'}
+2026-11-28 02:25:12,775 [INFO] Interrupted — cancelling open orders and disconnecting
+2026-11-28 02:25:12,800 [INFO] Background nacht analysis started for /home/workspace/data/autoloop_28_020257/live_002_022319 -> /home/workspace/data/autoloop_28_020257/nacht/nacht_bericht.md
+2026-11-28 02:25:12,817 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 02:25:12,817 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 02:25:12,822 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 02:25:13,699 [INFO] Background thread exited

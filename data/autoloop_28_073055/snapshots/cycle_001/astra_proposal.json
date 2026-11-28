@@ -1,0 +1,49 @@
+{
+  "per_stock_analysis": {
+    "AMD": "Replay lost 6.7 on 16 fills and finished flat. The latest live 5s markout was slightly positive (+0.077 ticks), unlike replay (\u22120.431 price units). The +4.20-tick continuation after 53 large moves is worth testing separately; it is not a measured return at executable entry and exit prices.",
+    "AVGO": "Replay lost 4.9 on 12 fills, with a \u22120.408 price-unit 5s markout. The +0.89-tick continuation estimate is smaller than one tick before execution costs. Neither result supports increasing size.",
+    "CRWV": "76 replay fills cost only 0.3, but the latest live 5s markout was \u22123.049 ticks. Book imbalance predicted +0.018 price units at 1s in the second half, yet was \u22120.101 net for crossing. Preserve passive opportunities rather than turning this into an IOC signal.",
+    "MU": "Six replay fills lost 1.3. The latest live markout was \u22121.587 ticks, and the 1s imbalance effect did not meet the stability criterion. Eleven large-move observations are insufficient to fund a reversion trade.",
+    "NBIS": "66 replay fills broke even to reported precision. The +2.36-tick continuation estimate comes from only 11 events, while the latest live own-fill markout was \u22120.955 ticks. Public drift and returns conditional on our fills are not interchangeable.",
+    "NVDA": "The largest replay loss, 9.1, came from only eight fills. Its 5s replay markout was \u22121.125 price units (\u221211.25 ticks); the latest live reading was also adverse at \u22128.663 ticks on six observations. A one-lot entry limits quantity, not the loss from a gap.",
+    "SNDK": "Replay lost 3.5 on ten fills despite 18,113 lots of public turnover, the highest in the universe. High traded volume does not establish that liquidity remains on our exit side after our quote fills.",
+    "VRT": "Four replay fills lost 1.8 and the latest live 5s markout was \u22123.693 ticks. Ten continuation events and an unstable 5s imbalance result do not justify a directional entry."
+  },
+  "diagnosis": "The Champion is trading, but fill count hides where it loses money. CRWV and NBIS supplied 142 of 198 replay fills for a combined \u22120.3; AMD, AVGO and NVDA supplied only 36 fills for \u221220.7, or 75% of the reported loss. Replay lost in both halves, finished flat in every stock, and peaked at only two gross lots and 17 requests/s. Live PnL fell 19.1 and also ended flat. Neither more request capacity nor a tighter aggregate position cap addresses that pattern. A specific weakness in execution is testable: an unprotected flat quote can still receive one lot even if the only visible liquidity near its price is ahead of it in the queue. After a sell sweep fills our bid, we cannot count the consumed bids at or above our price as an available exit; the ask case is symmetric. The tail-stop submissions are consistent with costly exits, but the supplied results do not identify which entries lacked support or attribute losses to those submissions. Test the depth hypothesis rather than treating it as established.",
+  "strategy_plan": "Test one change to passive entry sizing. At the final rounded quote, measure external volume exactly one tick behind it. Reserve the 90th percentile of recent nonempty opposing-aggressor poll volumes as a stress allowance, then reserve enough depth to unwind inventory already held in that direction. Fund at most the residual, never more than the existing strategy approved. This is a stress test, not a forecast that displayed orders will survive. It permits a one-lot probe behind ordinary depth without requiring a 250-lot wall, adds no exchange requests, and leaves reducing quotes, scratches, IOC selection and BacktestBot wiring unchanged. The new gate runs after both existing evidence screens so it does not suppress their observations. This is an unverified candidate: run `python3 -m unittest tests/test_bot.py`, `python3 -m unittest tests/test_sweep_cover.py`, and the Champion/candidate replay on the same cycle_001 snapshot with `--strategy runner:BacktestBot`. Compare PnL by half and stock, fills, drawdown, request peak and disconnects. Reject an idle result; require a gate-beating active replay without a disconnect and confirm on an untouched chunk before sizing up. A smaller loss alone is not evidence of positive EV.",
+  "insights": [
+    "CRWV and NBIS accounted for 72% of replay fills but only 0.3 of the 27.6 loss. Assess a passive filter by which fills and losses it removes, not by the decline in total turnover.",
+    "The current one-lot fallback can approve a passive entry with no displayed exit depth one tick behind it. Depth at the entry price is not a backstop: it may have been consumed by the very flow that filled us."
+  ],
+  "edits": [
+    {
+      "path": "bot/sweep_cover.py",
+      "content": "\"\"\"Stress-size passive entries using external liquidity behind the fill price.\"\"\"\n\nfrom collections import deque\nfrom math import ceil\n\n\nclass SweepCover:\n    def __init__(self):\n        self._flow = {}  # (instrument, exposed passive side) -> recent nonempty poll totals\n\n    def observe(self, now, trade_ticks):\n        for inst_id, trades in trade_ticks.items():\n            totals = {'bid': 0, 'ask': 0}\n            for trade in trades or ():\n                side = str(getattr(trade, 'aggressor_side', '')).lower()\n                if side in totals:\n                    exposed = 'bid' if side == 'ask' else 'ask'\n                    totals[exposed] += max(0, int(getattr(trade, 'volume', 0) or 0))\n            for exposed, volume in totals.items():\n                history = self._flow.setdefault((inst_id, exposed), deque(maxlen=64))\n                while history and now - history[0][0] > 60.0:\n                    history.popleft()\n                if volume:\n                    history.append((now, volume))\n\n    def entry_lots(self, inst_id, side, price, tick, levels, inventory, approved):\n        if approved <= 0 or tick <= 0 or side not in ('bid', 'ask'):\n            return 0\n        back = price - tick if side == 'bid' else price + tick\n        depth = sum(max(0, int(lv.volume)) for lv in levels or ()\n                    if abs(float(lv.price) - back) <= tick * 1e-6)\n        volumes = sorted(v for _, v in self._flow.get((inst_id, side), ()))\n        stress = volumes[ceil(0.90 * len(volumes)) - 1] if volumes else 1\n        return min(approved, max(0, depth - stress - max(0, inventory)))\n"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "from bot.signals import find_protecting_wall",
+      "replace": "from bot.signals import find_protecting_wall\nfrom bot.sweep_cover import SweepCover"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "        self.roundtrip_screen = RoundTripScreen()",
+      "replace": "        self.roundtrip_screen = RoundTripScreen()\n        self.sweep_cover = SweepCover()"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "        self.executor.passive_evidence.observe(\n",
+      "replace": "        # These prints size the stress allowance for the NEXT quote; they are not fills of it.\n        self.executor.sweep_cover.observe(now_ts, trade_ticks)\n        self.executor.passive_evidence.observe(\n"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "            inst_open_vol = sum(int(o.volume) for o in open_orders.values())",
+      "replace": "            # Only size risk additions. A reducing quote never needs backing depth.\n            if cur_pos >= 0 and bid_vol > 0:\n                bid_vol = self.sweep_cover.entry_lots(\n                    inst_id, 'bid', target_bid, tick, book.bids, cur_pos, bid_vol\n                )\n            if cur_pos <= 0 and ask_vol > 0:\n                ask_vol = self.sweep_cover.entry_lots(\n                    inst_id, 'ask', target_ask, tick, book.asks, -cur_pos, ask_vol\n                )\n\n            inst_open_vol = sum(int(o.volume) for o in open_orders.values())"
+    },
+    {
+      "path": "tests/test_sweep_cover.py",
+      "content": "import unittest\nfrom types import SimpleNamespace as NS\n\nfrom bot.sweep_cover import SweepCover\n\n\nclass SweepCoverTests(unittest.TestCase):\n    def test_consumed_queue_and_distant_wall_do_not_back_bid(self):\n        gate = SweepCover()\n        bids = [NS(price=10.1, volume=400), NS(price=10.0, volume=800), NS(price=9.8, volume=500)]\n        self.assertEqual(gate.entry_lots('X', 'bid', 10.0, .1, bids, 0, 1), 0)\n        bids.append(NS(price=9.9, volume=2))\n        self.assertEqual(gate.entry_lots('X', 'bid', 10.0, .1, bids, 0, 5), 1)\n\n    def test_ask_uses_buy_sweep_and_reserves_short_inventory(self):\n        gate = SweepCover()\n        gate.observe(1, {'X': [NS(aggressor_side='bid', volume=3), NS(aggressor_side='bid', volume=4), NS(aggressor_side='ask', volume=99)]})\n        asks = [NS(price=10.1, volume=12)]\n        self.assertEqual(gate.entry_lots('X', 'ask', 10.0, .1, asks, 2, 8), 3)\n        self.assertEqual(gate.entry_lots('X', 'ask', 10.0, .1, asks, 2, 1), 1)\n        self.assertEqual(gate.entry_lots('Y', 'ask', 10.0, .1, asks, 2, 8), 8)\n\n    def test_percentile_and_expiry_without_paid_fill(self):\n        gate = SweepCover()\n        for v in range(1, 11):\n            gate.observe(v, {'X': [NS(aggressor_side='ask', volume=v)]})\n        bids = [NS(price=9.9, volume=10)]\n        self.assertEqual(gate.entry_lots('X', 'bid', 10.0, .1, bids, 0, 5), 1)\n        gate.observe(71, {'X': []})\n        self.assertEqual(gate.entry_lots('X', 'bid', 10.0, .1, bids, 0, 5), 5)\n"
+    }
+  ],
+  "summary": "Size entries against surviving depth"
+}
