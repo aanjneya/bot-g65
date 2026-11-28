@@ -717,6 +717,16 @@ class RiskAndExecution:
             bid_vol = clamp_delta_for_limit(int(plan.bid_lots), cur_pos, 0, 0, self.max_position_lots)
             ask_vol = -clamp_delta_for_limit(-int(plan.ask_lots), cur_pos, 0, 0, self.max_position_lots)
 
+            # Compete for a passive exit without crossing the external book or flipping inventory.
+            if cur_pos > 0:
+                exit_ask = max(bid_p + tick, ask_p - tick)
+                target_ask = min(target_ask, clamp_price(round_to_tick(exit_ask, tick, "ask"), inst))
+                ask_vol = min(ask_vol, cur_pos)
+            elif cur_pos < 0:
+                exit_bid = min(ask_p - tick, bid_p + tick)
+                target_bid = max(target_bid, clamp_price(round_to_tick(exit_bid, tick, "bid"), inst))
+                bid_vol = min(bid_vol, -cur_pos)
+
             if target_bid >= target_ask - 1e-9:
                 # Never cross ourselves: keep only the inventory-reducing side!
                 if cur_pos > 0:
