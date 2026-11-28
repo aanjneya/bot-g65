@@ -22,6 +22,7 @@ from bot.config import BotConfig
 from bot.cycle_budget import CycleBudget
 from bot.execution import RiskAndExecution, mid_price, strip_own_orders
 from bot.lag_taker import LagTaker
+from bot.touch_flow import TouchFlow
 from bot.mock_exchange import MockExchange
 from bot.signals import ABMMSAlphaEngine
 
@@ -157,6 +158,7 @@ class ABMMSBot:
         self.exchange = exchange
         self.cfg = cfg
         self.cycle_budget = CycleBudget()
+        self.touch_flow = TouchFlow()
         self.lag_taker = LagTaker(cfg.edge_ioc_lots)
         self.lag_due: Dict[str, float] = {}
         self.executor = RiskAndExecution(
@@ -313,6 +315,7 @@ class ABMMSBot:
             except Exception as exc:
                 logger.warning("CSV logger error: %s", exc)
 
+        probe_touches = self.touch_flow.observe(now_ts, books, trade_ticks, own_trades, self.cfg.username)
         self.executor.passive_evidence.observe(
             now_ts, trade_ticks, {u: mid_price(b) for u, b in books.items()}, self.cfg.username
         )
@@ -417,6 +420,7 @@ class ABMMSBot:
                     paused_instruments=snap.paused | scratched | news_sniped | edge_sniped,
                     open_orders_by_inst=open_orders_by_inst,
                     wall_min_volume=self.cfg.wall_min_volume,
+                    probe_touches=probe_touches,
                 )
 
         if self.tick_count % self.cfg.log_every_ticks == 0 and self.exchange.is_connected():

@@ -690,6 +690,7 @@ class RiskAndExecution:
         paused_instruments: Set[str],
         open_orders_by_inst: Optional[Dict[str, Dict[int, Any]]] = None,
         wall_min_volume: int = 250,
+        probe_touches: Optional[Set[str]] = None,
     ) -> int:
         """
         Maintain passive GLFT / wall-backed limit quotes from ABMM-S QuotePlans.
@@ -752,15 +753,28 @@ class RiskAndExecution:
 
             # Size entries at the price we will actually rest, not at unrounded FV.
             # Joining a wall does not leave its queue behind us if our order fills.
-            probe_cap = 1 if cur_pos == 0 else 0
-            if cur_pos >= 0 and bid_vol > 0:
+            probe_ready = cur_pos == 0 and probe_touches is not None and inst_id in probe_touches
+            mid = 0.5 * (bid_p + ask_p)
+            # Select the actual candidate price even if upstream sizing is zero:
+            # the shadow round-trip screen below must see the same queue we would join.
+            if cur_pos >= 0:
                 bid_wall = find_protecting_wall(book, "bid", tick, wall_min_volume=wall_min_volume)
                 if bid_wall is None or abs(target_bid - bid_wall - tick) > 1e-8:
-                    bid_vol = min(bid_vol, probe_cap)
-            if cur_pos <= 0 and ask_vol > 0:
+                    if (probe_ready and res_px >= mid - 1e-9 and raw_bid >= bid_p - tick - 1e-9
+                            and abs(clamp_price(bid_p, inst) - bid_p) < 1e-9):
+                        target_bid = round_to_tick(bid_p, tick, 'bid')
+                        bid_vol = min(bid_vol, 1)
+                    else:
+                        bid_vol = 0
+            if cur_pos <= 0:
                 ask_wall = find_protecting_wall(book, "ask", tick, wall_min_volume=wall_min_volume)
                 if ask_wall is None or abs(ask_wall - target_ask - tick) > 1e-8:
-                    ask_vol = min(ask_vol, probe_cap)
+                    if (probe_ready and res_px <= mid + 1e-9 and raw_ask <= ask_p + tick + 1e-9
+                            and abs(clamp_price(ask_p, inst) - ask_p) < 1e-9):
+                        target_ask = round_to_tick(ask_p, tick, 'ask')
+                        ask_vol = min(ask_vol, 1)
+                    else:
+                        ask_vol = 0
 
             # Compete for a passive exit without crossing the external book or flipping inventory.
             if cur_pos > 0:
