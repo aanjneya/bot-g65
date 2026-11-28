@@ -50,6 +50,16 @@ DEFAULT_STRATEGIES = [
     "strat_top1_blind_kalman:BlindGraphKalmanBot",
 ]
 
+OTHER_LAB_STRATEGIES = [
+    "_surge_55k:N1_Fix1LotStarve_CombineM1M3",
+    "_push_55k:M3_TwoScale_OU_Upcoming",
+    "_push_55k:M1_UnifiedClip_FixExit",
+    "_break_50k:K1_ClipPassive_NoFlip",
+    "_grad_climb:G1_Keep1_NoAMD",
+    "_slide12_test:U2_Tighter",
+    "strat_glft_8stock:MultiAssetGLFTPortfolioBot",
+]
+
 
 def flatten_all_positions(ex: Any, insts: List[str], max_wait_sec: float = 15.0) -> Dict[str, int]:
     """Cancel all resting orders and flatten every non-zero position via rate-safe IOC orders."""
@@ -179,6 +189,24 @@ def run_one_round(
 
     ex = build_exchange(cfg)
     ex.connect()
+
+    # Global price_change_limit guard on ex.insert_order so ANY legacy Strategy Lab module is safe on live Optibook
+    orig_insert = ex.insert_order
+    last_tight_mid: Dict[str, float] = {}
+
+    def safe_insert_order(inst, *, price, volume, side, order_type="limit"):
+        b = ex.get_last_price_book(inst)
+        if b and b.bids and b.asks and (float(b.asks[0].price) - float(b.bids[0].price)) <= 3.0:
+            last_tight_mid[inst] = 0.5 * (float(b.bids[0].price) + float(b.asks[0].price))
+        ref = last_tight_mid.get(inst)
+        if ref and ref > 0:
+            max_dev = min(3.5, max(1.5, 0.06 * abs(ref)))
+            lo = round(max(0.1, ref - max_dev), 1)
+            hi = round(ref + max_dev, 1)
+            price = round(max(lo, min(hi, float(price))), 1)
+        return orig_insert(inst, price=price, volume=volume, side=side, order_type=order_type)
+
+    ex.insert_order = safe_insert_order
     strat = cls(ex)
     insts = list(getattr(strat, "insts", [])) or sorted(ex.get_tradable_instruments().keys())
 
@@ -337,21 +365,31 @@ def main():
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
     ap.add_argument("--poll-sec", type=float, default=0.05, help="Poll interval in seconds (default 0.05 = 20Hz)")
-    ap.add_argument("--strategies", nargs="*", default=DEFAULT_STRATEGIES, help="List of module:Class specs")
+    ap.add_argument("--batch", choices=["top7", "other7", "all14"], default="top7", help="Which preset strategy batch to run")
+    ap.add_argument("--strategies", nargs="*", default=None, help="Explicit list of module:Class specs")
     ap.add_argument("--out-dir", type=str, default=None, help="Output folder (default data/round_robin_<ts>)")
     args = ap.parse_args()
+
+    if args.strategies:
+        strat_list = args.strategies
+    elif args.batch == "other7":
+        strat_list = OTHER_LAB_STRATEGIES
+    elif args.batch == "all14":
+        strat_list = DEFAULT_STRATEGIES + OTHER_LAB_STRATEGIES
+    else:
+        strat_list = DEFAULT_STRATEGIES
 
     dur_sec = args.seconds if args.seconds is not None else args.minutes * 60.0
     out_root = args.out_dir or os.path.join(ROOT, "data", f"round_robin_{datetime.now():%d_%H%M%S}")
     os.makedirs(out_root, exist_ok=True)
 
     results = []
-    for idx, spec in enumerate(args.strategies, 1):
+    for idx, spec in enumerate(strat_list, 1):
         sub_dir = os.path.join(out_root, f"r{idx:02d}_{spec.split(':')[-1]}")
         res = run_one_round(spec, dur_sec, sub_dir, mock_mode=args.mock, poll_sec=max(0.01, args.poll_sec))
         results.append(res)
         md_path = write_round_robin_report(results, out_root)
-        if idx < len(args.strategies):
+        if idx < len(strat_list):
             time.sleep(0.5 if args.mock else 2.0)
 
     print("\n" + open(md_path, encoding="utf-8").read())
