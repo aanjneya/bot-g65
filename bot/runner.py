@@ -18,6 +18,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
+from bot.avgo_shock import AvgoShockVeto
 from bot.config import BotConfig
 from bot.cycle_budget import CycleBudget
 from bot.execution import RiskAndExecution, mid_price, strip_own_orders
@@ -161,6 +162,7 @@ class ABMMSBot:
         self.cycle_budget = CycleBudget()
         self.touch_flow = TouchFlow()
         self.maker_pull = MakerPull()
+        self.avgo_shock = AvgoShockVeto()
         self.lag_taker = LagTaker(cfg.edge_ioc_lots)
         self.lag_due: Dict[str, float] = {}
         self.executor = RiskAndExecution(
@@ -317,7 +319,10 @@ class ABMMSBot:
             except Exception as exc:
                 logger.warning("CSV logger error: %s", exc)
 
-        pulled_entries = self.maker_pull.observe(now_ts, books)
+        pulled_entries = set(self.maker_pull.observe(now_ts, books) or ())
+        adverse_side = self.avgo_shock.observe(now_ts, books.get('AVGO'))
+        if adverse_side is not None:
+            pulled_entries.add(('CRWV', adverse_side))
         probe_touches = self.touch_flow.observe(now_ts, books, trade_ticks, own_trades, self.cfg.username)
         self.executor.passive_evidence.observe(
             now_ts, trade_ticks, {u: mid_price(b) for u, b in books.items()}, self.cfg.username
