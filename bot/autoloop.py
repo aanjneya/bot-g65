@@ -187,12 +187,29 @@ def summarize_telemetry(telemetry_path: str) -> Dict[str, Any]:
     }
 
 
-def snapshot_live_data(live_dir: str, snapshot_dir: str) -> bool:
+def latest_active_data_dir(primary_dir: str, started_after: float) -> str:
+    """Return the freshest live data folder (handles bot.runner --nacht chunk rotation)."""
+    candidates = [primary_dir]
+    data_root = os.path.join(_ROOT, "data")
+    if os.path.isdir(data_root):
+        for name in os.listdir(data_root):
+            if name.startswith("live_"):
+                full = os.path.join(data_root, name)
+                if os.path.isdir(full) and os.path.getmtime(full) >= started_after:
+                    candidates.append(full)
+    valid = [d for d in candidates if os.path.isfile(os.path.join(d, "books.csv"))]
+    if not valid:
+        return primary_dir
+    return max(valid, key=lambda d: os.path.getmtime(os.path.join(d, "books.csv")))
+
+
+def snapshot_live_data(live_dir: str, snapshot_dir: str, started_after: float = 0.0) -> bool:
     """Copy current CSVs and telemetry.jsonl into an isolated snapshot folder."""
+    src_dir = latest_active_data_dir(live_dir, started_after) if started_after > 0 else live_dir
     os.makedirs(snapshot_dir, exist_ok=True)
     copied = False
     for name in ("books.csv", "trades.csv", "news.csv", "telemetry.jsonl"):
-        src = os.path.join(live_dir, name)
+        src = os.path.join(src_dir, name)
         if os.path.isfile(src):
             shutil.copy2(src, os.path.join(snapshot_dir, name))
             copied = True
@@ -291,6 +308,7 @@ def build_agent_prompt(
     muster_output: str,
     baseline: Optional[BacktestMetrics],
     history_tail: str,
+    nacht_report: str = "",
 ) -> str:
     """Assemble compact high-signal context for Gemini, hot-reloading AUTOLOOP_AGENTS.md."""
     playbook = read_text_safe("AUTOLOOP_AGENTS.md", 8000) or (
@@ -306,6 +324,7 @@ def build_agent_prompt(
     runner_py = read_text_safe("bot/runner.py", 30000)
 
     baseline_str = baseline.raw_report if baseline else "No baseline backtest available."
+    nacht_section = f"\n## Multi-Hour Nacht Report\n{nacht_report[:3000]}\n" if nacht_report else ""
     return f"""{playbook}
 
 ---
@@ -315,7 +334,7 @@ def build_agent_prompt(
 
 ## Baseline Backtest on Latest Market Chunk
 {baseline_str}
-
+{nacht_section}
 ## Muster Empirical Signal Check
 {muster_output[:3000]}
 
@@ -482,29 +501,49 @@ def commit_and_push_promoted(cycle_num: int, modified: List[str], summary: str) 
 
 
 class LiveRunnerManager:
-    """Manages the single-connection live `bot.runner` subprocess."""
+    """Manages the single-connection live `bot.runner --nacht` subprocess."""
 
-    def __init__(self, mock_mode: bool, base_dir: str) -> None:
+    def __init__(self, mock_mode: bool, base_dir: str, nacht_chunk_min: float = 60.0) -> None:
         self.mock_mode = mock_mode
         self.base_dir = base_dir
+        self.nacht_dir = os.path.join(base_dir, "nacht")
+        self.nacht_chunk_min = nacht_chunk_min
         self.proc: Optional[subprocess.Popen[Any]] = None
         self.live_dir: Optional[str] = None
+        self.started_at: float = 0.0
         self._log_file: Optional[Any] = None
         self._run_idx = 0
 
     def start(self) -> None:
         self._run_idx += 1
+        self.started_at = time.time()
         self.live_dir = os.path.join(self.base_dir, f"live_{self._run_idx:03d}_{datetime.now().strftime('%H%M%S')}")
         os.makedirs(self.live_dir, exist_ok=True)
-        cmd = [sys.executable, "-m", "bot.runner", "--log-csv", "--log-dir", self.live_dir]
+        os.makedirs(self.nacht_dir, exist_ok=True)
+        cmd = [
+            sys.executable,
+            "-m",
+            "bot.runner",
+            "--nacht",
+            "--chunk-min",
+            str(self.nacht_chunk_min),
+            "--log-dir",
+            self.live_dir,
+        ]
         if self.mock_mode:
             cmd.append("--mock")
         sub_env = os.environ.copy()
         sub_env["MOCK_MODE"] = "true" if self.mock_mode else "false"
+        sub_env["NACHT_DIR"] = self.nacht_dir
         log_path = os.path.join(self.live_dir, "runner.log")
         self._log_file = open(log_path, "a", encoding="utf-8")
         self.proc = subprocess.Popen(cmd, cwd=_ROOT, env=sub_env, stdout=self._log_file, stderr=subprocess.STDOUT)
-        logger.info("Started live Champion runner (pid=%d) -> %s", self.proc.pid, self.live_dir)
+        logger.info(
+            "Started live Champion runner --nacht (pid=%d, chunk=%sm) -> %s",
+            self.proc.pid,
+            self.nacht_chunk_min,
+            self.live_dir,
+        )
 
     def ensure_alive(self) -> None:
         if self.proc is None or self.proc.poll() is not None:
@@ -536,6 +575,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="5-hour autonomous LLM + backtest-gated trading loop")
     parser.add_argument("--hours", type=float, default=5.0, help="Total runtime in hours (default 5.0)")
     parser.add_argument("--cycle-min", type=float, default=20.0, help="Minutes per optimization cycle (default 20)")
+    parser.add_argument("--nacht-chunk-min", type=float, default=60.0, help="Minutes per --nacht rotation chunk (default 60)")
     parser.add_argument("--mock", action="store_true", help="Run against MockExchange for dry-run testing")
     parser.add_argument("--no-push", action="store_true", help="Skip ./scripts/brain-push.sh")
     parser.add_argument("--rollback-loss", type=float, default=-150.0, help="Auto-rollback if promoted live delta PnL <= this")
@@ -554,7 +594,7 @@ def main() -> None:
 
     run_root = os.path.join(_ROOT, "data", "autoloop_" + datetime.now().strftime("%d_%H%M%S"))
     os.makedirs(run_root, exist_ok=True)
-    runner = LiveRunnerManager(mock_mode=args.mock, base_dir=run_root)
+    runner = LiveRunnerManager(mock_mode=args.mock, base_dir=run_root, nacht_chunk_min=args.nacht_chunk_min)
 
     deadline = time.monotonic() + args.hours * 3600.0
     cycle_sec = max(15.0, args.cycle_min * 60.0)
@@ -575,7 +615,7 @@ def main() -> None:
                 continue
 
             snapshot_dir = os.path.join(run_root, "snapshots", f"cycle_{cycle_num:03d}")
-            if not snapshot_live_data(runner.live_dir, snapshot_dir):
+            if not snapshot_live_data(runner.live_dir, snapshot_dir, started_after=runner.started_at):
                 logger.warning("Cycle %d skipped: insufficient market data in %s", cycle_num, runner.live_dir)
                 continue
 
@@ -616,7 +656,12 @@ def main() -> None:
                 continue
 
             history_tail = read_text_safe(".brain/autoloop_log.md", 3000)[-2000:]
-            prompt = build_agent_prompt(cycle_num, telem, muster_out, baseline, history_tail)
+            nacht_report_path = os.path.join(runner.nacht_dir, "nacht_bericht.md")
+            nacht_report = ""
+            if os.path.isfile(nacht_report_path):
+                with open(nacht_report_path, encoding="utf-8", errors="ignore") as nf:
+                    nacht_report = nf.read()
+            prompt = build_agent_prompt(cycle_num, telem, muster_out, baseline, history_tail, nacht_report=nacht_report)
             try:
                 proposal = call_gemini(prompt, api_key=api_key, base_url=base_url, model=model)
             except Exception as exc:
