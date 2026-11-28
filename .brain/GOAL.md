@@ -15,10 +15,8 @@
 
 ## 1. Core Goal (What We Are Building)
 
-- **Problem**: Target **+$15,000+ live PnL** (with positive 5s markouts and bounded drawdown) overnight, and maximize risk-adjusted Expected Value (EV) in Optiver HackaTUM's 30-minute live Optibook final (Sunday 10:00) under strict `±100` pos, `≤200` open vol, `25 req/s`, and 1-connection limits.
-- **Solution (1–2 sentences)**: **Autonomous Strategy Evolution (`bot/autoloop.py`, 12–15 min cycles)** starting from **ABMM-S** (Microprice+OFI, `V>250` walls, counterparty markouts, lead-lag, news sniper, 8×8 GLFT skew), with full freedom for the agent to refactor, replace, or combine signals whenever out-of-sample `backtest.py` + live telemetry prove higher EV.
-- **Target User**: Optiver HackaTUM 2026 Live Exchange & Trader Judges.
-- **Why It Wins (Judge Hook)**: Genuine prop-desk quant engineering (8×8 GLFT passive cross-hedging + Glosten-Milgrom counterparty profiling + rule-implied wall extraction + empirical out-of-sample `muster.py` validation), high EV with tight variance and endgame flattening.
+- **Core Goal**: **Make maximum profit (PnL) — nothing else.**
+- **Method**: Autonomous Senior Quant agent (`bot/autoloop.py`) has full freedom to tune, revamp, or replace the trading strategy from scratch, **using every single feed, API field, and feature provided by the challenge organizers to the fullest extent** (full book depth & walls, `TradeTick` buyer/seller/aggressor_side, `poll_new_social_media_feeds`, `poll_new_trades`, cross-stock correlations, `limit`/`ioc`/`amend_order`/`delete_order`) to maximize live PnL on Optibook (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`) while obeying hard exchange limits (`±100` pos, `≤200` open vol, `<25 req/s`, zero self-trade, 1 connection).
 
 ## 2. Must-Have Scope (For the Demo)
 
@@ -37,3 +35,4 @@
 | Init | `aanjneya` | Initialized living goal & alignment file for START Hack Munich. |
 | 23:28 | `aanjneya` | Approved Optiver HackaTUM 2026 ABMM-S strategy (multi-asset GLFT + counterparty/wall/news alpha) & non-goals. |
 | 03:16 | `aanjneya` | Added +$10,000+ overnight live PnL target & autonomous strategy evolution (12–15m cycles) while keeping EV/risk rails. |
+| 03:35 | `aanjneya` | Simplified Core Goal to pure profit (PnL) maximization, using every Optiver/Optibook feature & feed to the fullest extent. |
