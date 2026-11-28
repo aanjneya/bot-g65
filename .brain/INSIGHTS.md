@@ -27,3 +27,7 @@
 
 - [ ] **[Autoloop C1]** (02:23): Test a passive exit one tick inside a wide spread, capped at the inventory remaining. This gives the bot a chance to exit before a stop without turning a one-lot exit into a four-lot position in the opposite direction.
 - [ ] **[Autoloop C1]** (02:23): Compare tail-stop count and volume, drawdown, and 5s markouts against the Champion on an untouched chunk. Muster found no signal that covered the spread, so leave aggressive entries unchanged for this test.
+- [ ] **[Autoloop C1]** (02:47): AMD and AVGO generated 64% of the replay loss on 13% of fills, with adverse markouts already present at 1s. Entry selection deserves a separate test from the previous passive-exit change.
+- [ ] **[Autoloop C1]** (02:47): The active strategy uses two-sided walls to shift fair value, not to qualify entry size. The logs describe wall-backed quoting, but the execution path permits full-size passive entries with no same-side wall.
+- [ ] **[Autoloop C2]** (03:02): NVDA and AVGO accounted for 71% of the net replay loss on 13% of fills, both ending flat. The existing wall check qualifies geometry, not the expected return on a five-lot fill.
+- [ ] **[Autoloop C2]** (03:02): CRWV made +1.5 with negative 5s replay markout, while AVGO lost 13.8 with positive 5s replay markout. Use markout to screen entry risk, but use size-weighted executions and completed inventory cycles to judge profit.
