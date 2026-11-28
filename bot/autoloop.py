@@ -26,11 +26,14 @@ import signal
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None  # type: ignore
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
@@ -42,7 +45,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("abmms-autoloop")
 
-ALLOWED_EDIT_PREFIX = "bot" + os.sep
+PROTECTED_PATHS = {"challenge", "bot/autoloop.py", ".brain/GOAL.md"}
 PROTECTED_FILES = {os.path.join("bot", "autoloop.py")}
 
 
@@ -206,32 +209,31 @@ def run_cmd(args: List[str], timeout: int = 300) -> Tuple[int, str]:
         return 124, f"TIMEOUT after {timeout}s: {' '.join(args)}"
 
 
-def call_gemini(prompt: str, api_key: str, model: str = "gemini-2.5-flash") -> Dict[str, Any]:
-    """Call Gemini generateContent REST API using stdlib urllib and return parsed JSON."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.25,
-            "responseMimeType": "application/json",
-        },
-    }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        body = json.loads(resp.read().decode("utf-8"))
-
-    candidates = body.get("candidates") or []
-    if not candidates:
-        raise RuntimeError(f"Gemini returned no candidates: {body}")
-    parts = candidates[0].get("content", {}).get("parts", [])
-    raw_text = "".join(p.get("text", "") for p in parts).strip()
+def call_gemini(prompt: str, api_key: str, base_url: str, model: str = "azure/gpt-6.2-astra") -> Dict[str, Any]:
+    """Call OpenAI-compatible LLM gateway (GPT-6.2 Astra on Sixt) and return parsed JSON response."""
+    if OpenAI is None:
+        raise RuntimeError("openai SDK not installed; run: pip install openai")
+    
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.25,
+            response_format={"type": "json_object"},
+            timeout=120.0,
+        )
+    except Exception as exc:
+        raise RuntimeError(f"OpenAI API call failed: {exc}")
+    
+    raw_text = response.choices[0].message.content.strip() if response.choices else ""
+    if not raw_text:
+        raise RuntimeError("LLM returned empty response")
+    
+    # Trim markdown code fence if present
     if raw_text.startswith("```"):
         raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.DOTALL).strip()
+    
     return json.loads(raw_text)
 
 
@@ -310,7 +312,7 @@ def build_agent_prompt(
 
 
 def apply_edits(edits: List[Dict[str, str]], backup_dir: str) -> Tuple[List[str], List[str]]:
-    """Validate and apply search/replace edits inside `bot/`, saving backups first."""
+    """Validate and apply search/replace edits everywhere except protected paths, saving backups first."""
     os.makedirs(backup_dir, exist_ok=True)
     modified: List[str] = []
     errors: List[str] = []
@@ -319,9 +321,18 @@ def apply_edits(edits: List[Dict[str, str]], backup_dir: str) -> Tuple[List[str]
         rel = os.path.normpath(edit.get("path", "").strip())
         search = edit.get("search", "")
         replace = edit.get("replace", "")
-        if not rel.startswith(ALLOWED_EDIT_PREFIX) or rel in PROTECTED_FILES or ".." in rel:
-            errors.append(f"edit[{idx}] disallowed path: {rel}")
+        
+        # Check protection rules: reject if in protected paths or contains path traversal
+        if ".." in rel:
+            errors.append(f"edit[{idx}] path traversal blocked: {rel}")
             continue
+        
+        # Reject if path starts with any protected prefix
+        is_protected = any(rel.startswith(p) for p in PROTECTED_PATHS)
+        if is_protected or rel in PROTECTED_FILES:
+            errors.append(f"edit[{idx}] protected path: {rel}")
+            continue
+        
         abs_path = os.path.join(_ROOT, rel)
         if not os.path.isfile(abs_path):
             errors.append(f"edit[{idx}] missing file: {rel}")
@@ -398,6 +409,43 @@ def sync_second_brain(
             logger.info("Second brain synced to main (cycle %d)", cycle_num)
 
 
+def commit_and_push_promoted(cycle_num: int, modified: List[str], summary: str) -> None:
+    """Commit promoted code changes to personal branch and push (auto-detects teammate ID)."""
+    try:
+        # Auto-detect teammate ID from git config or current branch
+        rc, out = run_cmd(["git", "config", "--get", "hackathon.teammate"], timeout=10)
+        teammate_id = out.strip()
+        if not teammate_id:
+            rc, out = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], timeout=10)
+            teammate_id = out.strip()
+        
+        if teammate_id not in ("aanjneya", "slava"):
+            logger.warning("Could not auto-detect teammate ID for git commits; skipping push")
+            return
+        
+        # Stage modified files
+        for rel_path in modified:
+            abs_path = os.path.join(_ROOT, rel_path)
+            if os.path.isfile(abs_path):
+                run_cmd(["git", "add", abs_path], timeout=10)
+        
+        # Commit
+        commit_msg = f"autoloop c{cycle_num}: {summary[:50]}"
+        rc, out = run_cmd(["git", "commit", "-m", commit_msg], timeout=30)
+        if rc != 0:
+            logger.warning("git commit failed (rc=%d); skipping push", rc)
+            return
+        
+        # Push to personal branch
+        rc, out = run_cmd(["git", "push", "origin", teammate_id], timeout=60)
+        if rc != 0:
+            logger.warning("git push to %s failed (rc=%d): %s", teammate_id, rc, out.strip()[:200])
+        else:
+            logger.info("Promoted changes pushed to origin/%s (cycle %d)", teammate_id, cycle_num)
+    except Exception as exc:
+        logger.warning("Exception during git commit/push: %s", exc)
+
+
 class LiveRunnerManager:
     """Manages the single-connection live `bot.runner` subprocess."""
 
@@ -448,19 +496,23 @@ class LiveRunnerManager:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="5-hour autonomous Gemini + backtest-gated trading loop")
+    parser = argparse.ArgumentParser(description="5-hour autonomous LLM + backtest-gated trading loop")
     parser.add_argument("--hours", type=float, default=5.0, help="Total runtime in hours (default 5.0)")
     parser.add_argument("--cycle-min", type=float, default=20.0, help="Minutes per optimization cycle (default 20)")
-    parser.add_argument("--model", type=str, default=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"), help="Gemini model")
     parser.add_argument("--mock", action="store_true", help="Run against MockExchange for dry-run testing")
     parser.add_argument("--no-push", action="store_true", help="Skip ./scripts/brain-push.sh")
     parser.add_argument("--rollback-loss", type=float, default=-150.0, help="Auto-rollback if promoted live delta PnL <= this")
     args = parser.parse_args()
 
     load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    
+    # Load LLM gateway config from .env
+    base_url = os.getenv("LLM_GATEWAY_BASE_URL", "https://llm.orange.sixt.com/v1").strip()
+    api_key = os.getenv("LLM_GATEWAY_API_KEY", "").strip()
+    model = os.getenv("LLM_GATEWAY_MODEL", "azure/gpt-6.2-astra").strip()
+    
     if not api_key and not args.mock:
-        logger.error("GEMINI_API_KEY is missing in environment / .env")
+        logger.error("LLM_GATEWAY_API_KEY is missing in environment / .env")
         sys.exit(1)
 
     run_root = os.path.join(_ROOT, "data", "autoloop_" + datetime.now().strftime("%d_%H%M%S"))
@@ -523,15 +575,15 @@ def main() -> None:
             logger.info("Baseline backtest: %s", f"pnl={baseline.pnl:+.1f}" if baseline else "N/A")
 
             if not api_key:
-                logger.info("No GEMINI_API_KEY in --mock dry-run; skipping Gemini API call")
+                logger.info("No LLM_GATEWAY_API_KEY in --mock dry-run; skipping LLM API call")
                 continue
 
             history_tail = read_text_safe(".brain/autoloop_log.md", 3000)[-2000:]
             prompt = build_agent_prompt(cycle_num, telem, muster_out, baseline, history_tail)
             try:
-                proposal = call_gemini(prompt, api_key=api_key, model=args.model)
+                proposal = call_gemini(prompt, api_key=api_key, base_url=base_url, model=model)
             except Exception as exc:
-                logger.warning("Gemini API call failed in cycle %d: %s", cycle_num, exc)
+                logger.warning("LLM API call failed in cycle %d: %s", cycle_num, exc)
                 continue
 
             diagnosis = str(proposal.get("diagnosis", "")).strip()
@@ -570,6 +622,8 @@ def main() -> None:
                 last_promoted_backup = (bkp_dir, modified)
                 runner.stop_gracefully()
                 runner.start()
+                # Commit promoted changes to personal branch
+                commit_and_push_promoted(cycle_num, modified, summary)
                 sync_second_brain(cycle_num, diagnosis, insights, f"PROMOTED ({reason})", summary, push=not args.no_push)
             else:
                 logger.info("REJECTED candidate: %s", reason)

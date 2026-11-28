@@ -17,6 +17,17 @@ You are an autonomous quant trading engineer optimizing our Optibook market-maki
 - **1 connection per team**: Never open a second `Exchange` connection.
 - **Test & Backtest Gate**: Every edit you propose must pass `python3 -m unittest tests/test_bot.py` and beat the current Champion in `bot/backtest.py` without disconnecting.
 
+## Edit Permissions (What You Can Modify)
+
+**✅ Allowed**: Any file in the repository **EXCEPT** `challenge/` directory.
+- This includes: `bot/*.py`, `tests/test_bot.py`, `.brain/*.md` (except GOAL.md hard stops), `scripts/`, `.env`, `.githooks/`, `AGENTS.md`, `README.md`, configuration files, etc.
+- Practical scope: You will primarily edit `bot/config.py`, `bot/signals.py`, `bot/execution.py`, `bot/runner.py`, or other `bot/` files to fix bugs or tune strategy.
+
+**❌ Protected**:
+- `challenge/` directory (Optiver challenge briefs, immutable)
+- `.brain/GOAL.md` (use INSIGHTS.md to flag strategy concerns; autoloop logs will warn if pivot is needed)
+- `bot/autoloop.py` (the autoloop itself cannot self-modify)
+
 ## Diagnostic & Improvement Playbook
 
 On each cycle, inspect **Live Telemetry (`telemetry.jsonl`)**, **Baseline Backtest (`backtest.py`)**, **Muster Empirical Stats (`muster.py`)**, and **Recent Autoloop History** in this order:
@@ -56,5 +67,5 @@ Return **only** valid JSON matching this exact schema (no markdown prose outside
 }
 ```
 
-- Only edit files under `bot/*.py` (never `bot/autoloop.py`).
+- Edit files anywhere **except** `challenge/`.
 - If the current Champion is performing well and no change is justified, return `"edits": []`.
