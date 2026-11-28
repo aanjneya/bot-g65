@@ -87,9 +87,9 @@ class ApexOmnibusChampion(SmartOptibookEngine):
         self.alpha_c: Dict[str, float] = {}
         self.obs: Dict[str, int] = {}
         self.last_rls_t: Dict[str, float] = {}
-        self.mid_hist: Dict[str, deque] = {s: deque(maxlen=40) for s in self.insts}
-        self.fhm_hist: Dict[str, deque] = {s: deque(maxlen=40) for s in FOLLOWERS}
-        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=70) for s in LEADERS}
+        self.mid_hist: Dict[str, deque] = {s: deque(maxlen=400) for s in self.insts}
+        self.fhm_hist: Dict[str, deque] = {s: deque(maxlen=400) for s in FOLLOWERS}
+        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=700) for s in LEADERS}
         self.lead_ema: Dict[str, Dict[float, float]] = {s: {} for s in LEADERS}
         self.t_start: Optional[float] = None
         self.session_sec = float(os.environ.get("SESSION_DURATION_SEC", "0") or 0.0)
@@ -200,7 +200,7 @@ class ApexOmnibusChampion(SmartOptibookEngine):
             elif n <= 20:
                 self.alpha_c[s] = ((n - 1) * self.alpha_c[s] + raw_ac) / n
             else:
-                r = self.ALPHA_RATE
+                r = 1.0 - (1.0 - self.ALPHA_RATE) ** (dt / 0.20)
                 self.alpha_c[s] = (1.0 - r) * self.alpha_c[s] + r * raw_ac
 
             u_ou = (self.alpha_c[s] + beta * (lag_ema - est.x0)) - cur_m

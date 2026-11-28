@@ -121,7 +121,7 @@ def run_one_round(
     duration_sec: float,
     out_dir: str,
     mock_mode: bool,
-    poll_sec: float = 0.20,
+    poll_sec: float = 0.02,
 ) -> Dict[str, Any]:
     os.makedirs(out_dir, exist_ok=True)
     cls = _load_strategy_cls(spec)
@@ -156,7 +156,12 @@ def run_one_round(
                 break
             if mock_mode and hasattr(ex, "step_market"):
                 ex.step_market()
-            strat.step()
+            try:
+                strat.step()
+            except Exception as exc:
+                disconnected = True
+                logger.error("Exchange/strategy error in %s: %s", spec, exc)
+                break
             ticks += 1
 
             elapsed = time.monotonic() - t0
@@ -278,6 +283,7 @@ def main():
     ap.add_argument("--minutes", type=float, default=12.0, help="Minutes per strategy (default 12.0)")
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
+    ap.add_argument("--poll-sec", type=float, default=0.02, help="Poll interval in seconds (default 0.02 = 50Hz)")
     ap.add_argument("--strategies", nargs="*", default=DEFAULT_STRATEGIES, help="List of module:Class specs")
     ap.add_argument("--out-dir", type=str, default=None, help="Output folder (default data/round_robin_<ts>)")
     args = ap.parse_args()
@@ -289,7 +295,7 @@ def main():
     results = []
     for idx, spec in enumerate(args.strategies, 1):
         sub_dir = os.path.join(out_root, f"r{idx:02d}_{spec.split(':')[-1]}")
-        res = run_one_round(spec, dur_sec, sub_dir, mock_mode=args.mock)
+        res = run_one_round(spec, dur_sec, sub_dir, mock_mode=args.mock, poll_sec=max(0.01, args.poll_sec))
         results.append(res)
         md_path = write_round_robin_report(results, out_root)
         if idx < len(args.strategies):

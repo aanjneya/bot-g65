@@ -74,8 +74,8 @@ class StudentBookMicroPennyBot(SmartOptibookEngine):
         self.prev_bbo: Dict[str, Tuple[float, int, float, int]] = {}
         self.ofi_ema: Dict[str, float] = {s: 0.0 for s in self.insts}
         self.flow_ema: Dict[str, float] = {s: 0.0 for s in self.insts}
-        self.mid_hist: Dict[str, deque] = {s: deque(maxlen=35) for s in self.insts}
-        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=65) for s in LEADERS}
+        self.mid_hist: Dict[str, deque] = {s: deque(maxlen=350) for s in self.insts}
+        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=650) for s in LEADERS}
         self.lead_ema: Dict[str, Dict[float, float]] = {s: {} for s in LEADERS}
         self.last_t: Optional[float] = None
 
@@ -157,7 +157,7 @@ class StudentBookMicroPennyBot(SmartOptibookEngine):
             elif n <= 20:
                 self.alpha[s] = ((n - 1) * self.alpha[s] + raw_a) / n
             else:
-                r = self.ALPHA_RATE
+                r = 1.0 - (1.0 - self.ALPHA_RATE) ** (dt / 0.20)
                 self.alpha[s] = (1.0 - r) * self.alpha[s] + r * raw_a
 
             u_ou = (self.alpha[s] + beta * lag_ema) - cur_m
