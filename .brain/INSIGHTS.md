@@ -25,9 +25,11 @@
 
 ## 3. Autoloop Insights
 
-- [ ] **[Autoloop C1]** (02:23): Test a passive exit one tick inside a wide spread, capped at the inventory remaining. This gives the bot a chance to exit before a stop without turning a one-lot exit into a four-lot position in the opposite direction.
-- [ ] **[Autoloop C1]** (02:23): Compare tail-stop count and volume, drawdown, and 5s markouts against the Champion on an untouched chunk. Muster found no signal that covered the spread, so leave aggressive entries unchanged for this test.
 - [ ] **[Autoloop C1]** (02:47): AMD and AVGO generated 64% of the replay loss on 13% of fills, with adverse markouts already present at 1s. Entry selection deserves a separate test from the previous passive-exit change.
 - [ ] **[Autoloop C1]** (02:47): The active strategy uses two-sided walls to shift fair value, not to qualify entry size. The logs describe wall-backed quoting, but the execution path permits full-size passive entries with no same-side wall.
 - [ ] **[Autoloop C2]** (03:02): NVDA and AVGO accounted for 71% of the net replay loss on 13% of fills, both ending flat. The existing wall check qualifies geometry, not the expected return on a five-lot fill.
 - [ ] **[Autoloop C2]** (03:02): CRWV made +1.5 with negative 5s replay markout, while AVGO lost 13.8 with positive 5s replay markout. Use markout to screen entry risk, but use size-weighted executions and completed inventory cycles to judge profit.
+- [ ] **[Autoloop C3]** (03:17): NBIS and CRWV produced +6.6 on 92.1% of replay fills; AVGO, MU and NVDA gave back 5.8 on 3.8%. Retained profitable round trips matter more than a higher average markout achieved by barely trading.
+- [ ] **[Autoloop C3]** (03:17): Every logged tail-stop submission was a buy to cover a one-lot short. The actionable question is whether seller-initiated flow was available at a viable passive cover price before entry; total trade count and ask-wall size do not answer it.
+- [ ] **[Autoloop C4]** (03:32): MU and NVDA erased 19.6 on 3.4% of replay fills. The loss was already present at 1s, and this cycle's stop submissions cover both long and short inventory. Track realized loss per matched lot, not just stop count or final position.
+- [ ] **[Autoloop C4]** (03:32): NBIS earned +9.4 on 472 fills in the narrowest observed trade range (2.20); NVDA lost 12.7 in the widest (8.90). For passive sizing, repeated profitable exits at reachable prices are better evidence than the size of the swing.
