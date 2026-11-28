@@ -51,6 +51,51 @@ DEFAULT_STRATEGIES = [
 ]
 
 
+def flatten_all_positions(ex: Any, insts: List[str], max_wait_sec: float = 15.0) -> Dict[str, int]:
+    """Cancel all resting orders and flatten every non-zero position via rate-safe IOC orders."""
+    if not ex.is_connected():
+        return {}
+    for s in insts:
+        try:
+            ex.delete_orders(s)
+        except Exception:
+            pass
+    time.sleep(0.25)
+
+    deadline = time.monotonic() + max_wait_sec
+    while time.monotonic() < deadline and ex.is_connected():
+        pos = ex.get_positions()
+        rem = {s: int(pos.get(s, 0)) for s in insts if int(pos.get(s, 0)) != 0}
+        if not rem:
+            logger.info("All positions flattened to 0.")
+            return {}
+        for s, q in rem.items():
+            b = ex.get_last_price_book(s)
+            if not b:
+                continue
+            if q > 0 and b.bids:
+                px = round(max(0.1, float(b.bids[0].price) - 0.5), 1)
+                side = "ask"
+                vol = abs(q)
+            elif q < 0 and b.asks:
+                px = round(float(b.asks[0].price) + 0.5, 1)
+                side = "bid"
+                vol = abs(q)
+            else:
+                continue
+            try:
+                ex.insert_order(s, price=px, volume=int(vol), side=side, order_type="ioc")
+            except Exception as exc:
+                logger.warning("Flatten IOC failed on %s: %s", s, exc)
+            time.sleep(0.08)
+        time.sleep(0.25)
+
+    final_pos = {s: int(ex.get_positions().get(s, 0)) for s in insts if int(ex.get_positions().get(s, 0)) != 0}
+    if final_pos:
+        logger.warning("Residual unflattened positions after %.1fs: %s", max_wait_sec, final_pos)
+    return final_pos
+
+
 def _load_strategy_cls(spec: str):
     mod_name, cls_name = spec.split(":")
     mod = __import__(mod_name)
@@ -121,7 +166,7 @@ def run_one_round(
     duration_sec: float,
     out_dir: str,
     mock_mode: bool,
-    poll_sec: float = 0.02,
+    poll_sec: float = 0.20,
 ) -> Dict[str, Any]:
     os.makedirs(out_dir, exist_ok=True)
     cls = _load_strategy_cls(spec)
@@ -187,11 +232,19 @@ def run_one_round(
     except KeyboardInterrupt:
         logger.info("Interrupted round %s early", spec)
     finally:
-        for s in insts:
-            try:
-                ex.delete_orders(s)
-            except Exception:
-                pass
+        # Cancel all open orders & flatten all positions to 0 so the next round starts completely flat!
+        if ex.is_connected():
+            flatten_all_positions(ex, insts, max_wait_sec=2.0 if mock_mode else 15.0)
+            vals = _mid_valuations(ex, insts)
+            flat_pnl = float(ex.get_pnl(valuations=vals) if vals else ex.get_pnl()) - init_pnl
+            flat_gross = sum(abs(int(v)) for v in ex.get_positions().values())
+            pnl_rows.append((time.monotonic() - t0, flat_pnl, flat_gross))
+        else:
+            for s in insts:
+                try:
+                    ex.delete_orders(s)
+                except Exception:
+                    pass
         mlog.close()
         try:
             ex.disconnect()
@@ -280,10 +333,10 @@ def write_round_robin_report(results: List[Dict[str, Any]], out_root: str) -> st
 
 def main():
     ap = argparse.ArgumentParser(description="Sequential Live Optibook Round-Robin Tournament")
-    ap.add_argument("--minutes", type=float, default=12.0, help="Minutes per strategy (default 12.0)")
+    ap.add_argument("--minutes", type=float, default=3.5, help="Minutes per strategy (default 3.5)")
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
-    ap.add_argument("--poll-sec", type=float, default=0.02, help="Poll interval in seconds (default 0.02 = 50Hz)")
+    ap.add_argument("--poll-sec", type=float, default=0.20, help="Poll interval in seconds (default 0.20 = exact backtest STEP)")
     ap.add_argument("--strategies", nargs="*", default=DEFAULT_STRATEGIES, help="List of module:Class specs")
     ap.add_argument("--out-dir", type=str, default=None, help="Output folder (default data/round_robin_<ts>)")
     args = ap.parse_args()
