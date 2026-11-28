@@ -333,7 +333,7 @@ def write_round_robin_report(results: List[Dict[str, Any]], out_root: str) -> st
 
 def main():
     ap = argparse.ArgumentParser(description="Sequential Live Optibook Round-Robin Tournament")
-    ap.add_argument("--minutes", type=float, default=3.5, help="Minutes per strategy (default 3.5)")
+    ap.add_argument("--minutes", type=float, default=3.0, help="Minutes per strategy (default 3.0)")
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
     ap.add_argument("--poll-sec", type=float, default=0.05, help="Poll interval in seconds (default 0.05 = 20Hz)")
