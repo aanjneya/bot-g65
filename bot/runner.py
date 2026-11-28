@@ -19,6 +19,7 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from bot.config import BotConfig
+from bot.cycle_budget import CycleBudget
 from bot.execution import RiskAndExecution, mid_price, strip_own_orders
 from bot.mock_exchange import MockExchange
 from bot.signals import ABMMSAlphaEngine
@@ -154,6 +155,7 @@ class ABMMSBot:
     ) -> None:
         self.exchange = exchange
         self.cfg = cfg
+        self.cycle_budget = CycleBudget()
         self.executor = RiskAndExecution(
             exchange,
             max_position_lots=cfg.max_position_lots,
@@ -326,6 +328,9 @@ class ABMMSBot:
             own_trades=own_trades,
         )
 
+        self.cycle_budget.observe(now_ts, self.instruments, positions, own_trades, trade_ticks, self.cfg.username)
+        self.cycle_budget.apply(now_ts, snap, self.instruments, books, positions)
+
         # 2b. Portfolio max-drawdown circuit breaker (normal 2-day continuous safety rail)
         if self.cfg.max_session_drawdown > 0 and self.exchange.is_connected():
             cur_pnl = self.exchange.get_pnl()
@@ -372,6 +377,10 @@ class ABMMSBot:
                     min_edge_ticks=self.cfg.edge_ioc_min_ticks,
                 )
                 orders_sent += len(edge_sniped)
+
+            # Exclude possible aggressive additions from the passive-entry ledger. A scratch that
+            # only closes inventory still belongs to the entry cycle and must count at its fill price.
+            self.cycle_budget.flag_opening_iocs(now_ts, news_sniped | edge_sniped)
 
             # 7. Priority 5 — Pure ABMM-S passive GLFT quoting around reservation price r_t = F_hat - gamma*Sigma*q
             if self.cfg.enable_passive_quoting and snap.quote_plans and self.exchange.is_connected():
