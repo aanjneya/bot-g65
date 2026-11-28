@@ -1,0 +1,17 @@
+[
+  {
+    "pnl": 100.1,
+    "max_dd": -238.75,
+    "calmar": 0.42,
+    "sharpe": 0.3,
+    "sortino": 0.43,
+    "peak_gross": 396,
+    "strategy": "strat_top2_delay_deconv:DelayDeconvWaveBot",
+    "folder": "/home/workspace/data/round_robin_28_134350/r01_DelayDeconvWaveBot",
+    "minutes": 12.0,
+    "pnl_per_min": 8.34,
+    "ticks": 34313,
+    "disconnected": false,
+    "composite_score": 100.0
+  }
+]
