@@ -91,9 +91,9 @@ class BlindGraphKalmanBot(SmartOptibookEngine):
         self.fol_wsp_ema: Dict[str, float] = {}
         self.lead_wsp_ema: Dict[str, float] = {}
         self.lead_ema: Dict[str, Dict[float, float]] = {s: {} for s in self.insts}
-        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=80) for s in self.insts}
-        self.fol_hist: Dict[str, deque] = {s: deque(maxlen=40) for s in self.insts}
-        self.fol_hm_hist: Dict[str, deque] = {s: deque(maxlen=40) for s in self.insts}
+        self.lead_hist: Dict[str, deque] = {s: deque(maxlen=800) for s in self.insts}
+        self.fol_hist: Dict[str, deque] = {s: deque(maxlen=400) for s in self.insts}
+        self.fol_hm_hist: Dict[str, deque] = {s: deque(maxlen=400) for s in self.insts}
         self.last_obs_step: Dict[str, float] = {}
 
         self.edges: Dict[str, Dict[Tuple[str, float, float], CenteredJumpRLS]] = {}
@@ -221,7 +221,7 @@ class BlindGraphKalmanBot(SmartOptibookEngine):
                     elif n <= 20:
                         self.alpha_c[akey] = ((n - 1) * self.alpha_c[akey] + raw_ac) / n
                     else:
-                        r = self.ALPHA_RATE
+                        r = 1.0 - (1.0 - self.ALPHA_RATE) ** (dt / 0.20)
                         self.alpha_c[akey] = (1.0 - r) * self.alpha_c[akey] + r * raw_ac
 
                     if mod.r2 > best_r2:

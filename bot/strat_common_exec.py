@@ -116,8 +116,31 @@ class SmartOptibookEngine:
 
     def _init_core(self, ex):
         self.ex = ex
-        self.insts = list(getattr(ex, "instruments", [])) or sorted(ex.get_tradable_instruments().keys())
+        inst_map = ex.get_tradable_instruments() if hasattr(ex, "get_tradable_instruments") else {}
+        self.insts = list(getattr(ex, "instruments", [])) or sorted(inst_map.keys())
         self.req_ts: deque = deque()
+        self._last_ref_px: Dict[str, float] = {}
+        self._pcl_abs: Dict[str, float] = {}
+        for s, meta in (inst_map or {}).items():
+            pcl = getattr(meta, "price_change_limit", None)
+            if pcl is not None:
+                ac = getattr(pcl, "absolute_change", None)
+                if ac is not None and float(ac) > 0:
+                    self._pcl_abs[s] = float(ac)
+
+    def _safe_price(self, inst: str, px: float, bids: List[Tuple[float, int]], asks: List[Tuple[float, int]], fv: float) -> float:
+        """Clamp order price safely inside Optibook's price_change_limit to prevent forced disconnects."""
+        ref = self._last_ref_px.get(inst)
+        if bids and asks and (asks[0][0] - bids[0][0]) <= 3.0:
+            ref = 0.5 * (bids[0][0] + asks[0][0])
+            self._last_ref_px[inst] = ref
+        elif ref is None:
+            ref = fv if fv > 0 else (bids[0][0] if bids else (asks[0][0] if asks else px))
+            self._last_ref_px[inst] = ref
+        max_dev = min(3.5, 0.70 * self._pcl_abs.get(inst, 8.0), max(1.5, 0.06 * abs(ref)))
+        lo = max(TICK, r1(ref - max_dev))
+        hi = r1(ref + max_dev)
+        return r1(max(lo, min(hi, px)))
 
     def now(self) -> float:
         clk = getattr(self.ex, "clock", None)
@@ -166,6 +189,12 @@ class SmartOptibookEngine:
     ):
         mine = self.ex.get_outstanding_orders(inst)
         pos = int(self.ex.get_positions().get(inst, 0))
+
+        # Clamp prices safely inside Optibook's last-traded price_change_limit (prevents disconnects on empty/wide books!)
+        if want_b is not None:
+            want_b = (self._safe_price(inst, want_b[0], bids, asks, unskewed_fv), want_b[1])
+        if want_a is not None:
+            want_a = (self._safe_price(inst, want_a[0], bids, asks, unskewed_fv), want_a[1])
 
         # Queue-preserving tick-boundary hysteresis on followers: never burn 2 requests canceling a front-of-queue
         # passive order at BBO when want_px flickered by 1 tick and resting order still has >= 3.2c standalone edge!

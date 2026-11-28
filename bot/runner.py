@@ -567,7 +567,7 @@ def _run_lab_strategy(spec: str, cfg: BotConfig, max_ticks: Optional[int] = None
             if ticks % 50 == 0:
                 logger.info("tick=%d pnl=%.2f pos=%s", ticks, exchange.get_pnl(), exchange.get_positions())
             if not cfg.mock_mode or max_ticks is None:
-                time.sleep(0.20)
+                time.sleep(0.02)
     except KeyboardInterrupt:
         logger.info("Interrupted — cancelling open orders and disconnecting")
     finally:
