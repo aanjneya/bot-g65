@@ -21,6 +21,7 @@ if _ROOT not in sys.path:
 from bot.config import BotConfig
 from bot.cycle_budget import CycleBudget
 from bot.execution import RiskAndExecution, mid_price, strip_own_orders
+from bot.lag_taker import LagTaker
 from bot.mock_exchange import MockExchange
 from bot.signals import ABMMSAlphaEngine
 
@@ -156,6 +157,8 @@ class ABMMSBot:
         self.exchange = exchange
         self.cfg = cfg
         self.cycle_budget = CycleBudget()
+        self.lag_taker = LagTaker(cfg.edge_ioc_lots)
+        self.lag_due: Dict[str, float] = {}
         self.executor = RiskAndExecution(
             exchange,
             max_position_lots=cfg.max_position_lots,
@@ -334,6 +337,17 @@ class ABMMSBot:
         self.cycle_budget.observe(now_ts, self.instruments, positions, own_trades, trade_ticks, self.cfg.username)
         self.cycle_budget.apply(now_ts, snap, self.instruments, books, positions)
 
+        lag_ready = self.lag_taker.observe(now_ts, books, self.cfg.tail_stop_ticks) if self.cfg.enable_edge_ioc else []
+        for u, due in list(self.lag_due.items()):
+            if not int(positions.get(u, 0)):
+                del self.lag_due[u]
+                continue
+            # Isolate the measured position. Risk exits always retain priority.
+            snap.paused.add(u)
+            snap.news_snipes.pop(u, None)
+            if now_ts >= due:
+                snap.scratches.setdefault(u, 'lag_horizon')
+
         # 2b. Portfolio max-drawdown circuit breaker (normal 2-day continuous safety rail)
         if self.cfg.max_session_drawdown > 0 and self.exchange.is_connected():
             cur_pnl = self.exchange.get_pnl()
@@ -368,17 +382,26 @@ class ABMMSBot:
             )
             orders_sent += len(news_sniped)
 
-            # 6. Priority 4 — Fair-Value Edge IOC Sniper (takes mispriced BBO >= max(3 ticks, 1.5*spread))
+            # 6. Take only a prospectively measured, still executable follower quote.
             edge_sniped: set[str] = set()
-            if self.cfg.enable_edge_ioc:
-                edge_sniped = self.executor.execute_fair_value_edge(
-                    snap.fair_values,
-                    books,
-                    self.instruments,
-                    paused_instruments=snap.paused | scratched | news_sniped,
-                    max_edge_lots=self.cfg.edge_ioc_lots,
-                    min_edge_ticks=self.cfg.edge_ioc_min_ticks,
-                )
+            if lag_ready and not news_sniped and snap.endgame.inv_inc_scale >= 1.0:
+                current = self.exchange.get_positions()
+                net = sum(int(current.get(u, 0)) for u in self.instruments)
+                room = {1: self.cfg.max_net_portfolio_lots - net, -1: self.cfg.max_net_portfolio_lots + net}
+                for _, u, sign, entry in lag_ready:
+                    plan = snap.quote_plans.get(u)
+                    if plan is None or u not in snap.fair_values or u in snap.paused or u in snap.scratches:
+                        continue
+                    if u in scratched or current.get(u, 0) or u in self.lag_due:
+                        continue
+                    approved = plan.bid_lots if sign == 1 else plan.ask_lots
+                    lots = self.lag_taker.lots
+                    if min(approved, room[sign]) < lots:
+                        continue
+                    if self.executor.open_lag_ioc(u, self.instruments[u], sign, entry, lots):
+                        room[sign] -= lots
+                        self.lag_due[u] = now_ts + self.lag_taker.horizon
+                        edge_sniped.add(u)
                 orders_sent += len(edge_sniped)
 
             # Exclude possible aggressive additions from the passive-entry ledger. A scratch that

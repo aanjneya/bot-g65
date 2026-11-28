@@ -358,6 +358,32 @@ class RiskAndExecution:
 
         return sniped
 
+    def open_lag_ioc(self, inst_id: str, inst: Any, sign: int, limit_ticks: int, lots: int) -> bool:
+        """Flat-only. Never cancel to chase a signal and never refresh to a worse price."""
+        if sign not in (-1, 1) or not 0 < lots <= min(100, self.max_position_lots, self.max_open_order_volume):
+            return False
+        if not self.exchange.is_connected() or self.exchange.get_outstanding_orders(inst_id):
+            return False
+        if int(self.exchange.get_positions().get(inst_id, 0)) != 0:
+            return False
+        side = 'bid' if sign == 1 else 'ask'
+        tick = float(getattr(inst, 'tick_size', 0.10) or 0.10)
+        if abs(tick - 0.10) > 1e-9:
+            return False
+        px = round_to_tick(limit_ticks / 10.0, tick, side)
+        bp, bv, ap, av = best_bid_ask(self.exchange.get_last_price_book(inst_id))
+        touch, depth = (ap, av) if sign == 1 else (bp, bv)
+        if touch is None or abs(touch - px) > 1e-8 or (depth or 0) < lots or clamp_price(px, inst) != px:
+            return False
+        if not self._can_send_request(reserve=4) or len(self._req_times) >= 20:
+            return False
+        self._record_request()
+        try:
+            return bool(self.exchange.insert_order(inst_id, price=px, volume=lots, side=side, order_type='ioc').success)
+        except Exception as exc:
+            logger.warning('Lag IOC exception on %s: %s', inst_id, exc)
+            return False
+
     def execute_fair_value_edge(
         self,
         fair_values: Dict[str, float],
