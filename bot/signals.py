@@ -726,30 +726,30 @@ class ABMMSSnapshot:
 
 class ABMMSAlphaEngine:
     """
-    Unified ABMM-S engine producing fair values, wall-protected entry quotes,
-    immediate profit-taking exit quotes, wall-break/hold-timeout IOC scratches,
-    own-fill 5s markout circuit breakers, GLFT cross-hedging, and endgame glidepath.
+    Pure ABMM-S (Adaptive Bayesian Multi-Asset Market Maker & Sniper) engine:
+      1. Unified 4-signal Fair Value F_hat = mid + Microprice/OFI + WallMidAnchor + CounterpartyImpulse + LeadLag
+      2. Multi-Asset GLFT reservation price: r_t = F_hat_t - gamma * Sigma_dP_eff @ q_t
+      3. Toxicity- & volatility-adapted passive half-spread around r_t (never wall-locked)
+      4. Portfolio net-delta cap, per-stock 5s own-fill markout breaker, tail stop-loss, and <1ms news guard
     """
 
     def __init__(
         self,
         universe: Sequence[str],
         *,
-        w_micro: float = 0.35,
-        w_ofi: float = 0.15,
-        w_wall: float = 0.30,
-        wall_min_volume: int = 400,
-        wall_max_dist_ticks: int = 3,
-        require_wall_for_entry: bool = False,
-        max_hold_sec: float = 15.0,
-        stop_loss_ticks: float = 4.0,
-        w_leadlag: float = 0.30,
-        glft_gamma: float = 10.0,
+        w_micro: float = 0.45,
+        w_ofi: float = 0.20,
+        w_wall: float = 0.35,
+        wall_min_volume: int = 250,
+        w_leadlag: float = 0.35,
+        glft_gamma: float = 6.0,
         base_edge_ticks: float = 1.0,
         vol_spread_mult: float = 1.0,
         quote_lots: int = 5,
         max_position_lots: int = 40,
-        news_cooldown_ticks: int = 20,
+        max_net_portfolio_lots: int = 120,
+        tail_stop_ticks: float = 10.0,
+        news_cooldown_ticks: int = 25,
         enable_news_sniper: bool = False,
         news_snipe_lots: int = 5,
         session_duration_sec: float = 0.0,
@@ -761,15 +761,13 @@ class ABMMSAlphaEngine:
         self.universe: List[str] = list(universe)
         self.w_wall = w_wall
         self.wall_min_volume = wall_min_volume
-        self.wall_max_dist_ticks = wall_max_dist_ticks
-        self.require_wall_for_entry = require_wall_for_entry
-        self.max_hold_sec = max_hold_sec
-        self.stop_loss_ticks = stop_loss_ticks
         self.glft_gamma = glft_gamma
         self.base_edge_ticks = base_edge_ticks
         self.vol_spread_mult = vol_spread_mult
         self.quote_lots = quote_lots
         self.max_position_lots = max_position_lots
+        self.max_net_portfolio_lots = max_net_portfolio_lots
+        self.tail_stop_ticks = tail_stop_ticks
         self.news_cooldown_ticks = news_cooldown_ticks
         self.enable_news_sniper = enable_news_sniper
         self.news_snipe_lots = news_snipe_lots
@@ -791,7 +789,7 @@ class ABMMSAlphaEngine:
         self.own_markout_stats: Dict[str, Tuple[int, float]] = {}  # inst -> (count, ewma_ticks)
         self.entry_breaker_until: Dict[str, float] = {}
 
-    def _update_own_fills_and_positions(
+    def _update_own_fills_and_risk(
         self,
         now: float,
         positions: Dict[str, int],
@@ -800,7 +798,7 @@ class ABMMSAlphaEngine:
         ticks: Dict[str, float],
         own_trades: Optional[Dict[str, List[Any]]],
     ) -> Dict[str, str]:
-        """Track position entries/walls, evaluate own 5s fill markouts, and flag mandatory IOC scratches."""
+        """Track own 5s fill markouts (45s entry breaker on toxic stocks) and extreme tail stop-loss."""
         for inst_id, trades in (own_trades or {}).items():
             tick = ticks.get(inst_id, 0.10) or 0.10
             last_px = None
@@ -824,7 +822,7 @@ class ABMMSAlphaEngine:
                 if cur != 0 and (st.last_pos == 0 or (st.last_pos > 0) != (cur > 0)):
                     st.entry_price = last_px
 
-        # Evaluate matured 5s own-fill markouts -> trip 45s entry breaker if losing > 0.6 ticks/fill
+        # Evaluate matured 5s own-fill markouts -> trip 45s entry breaker if losing > 0.60 ticks/fill
         while self._own_pending and self._own_pending[0].eval_time <= now:
             f = self._own_pending.popleft()
             mid = mids.get(f.inst_id)
@@ -835,7 +833,7 @@ class ABMMSAlphaEngine:
             n_new = n_prev + 1
             ewma_new = 0.75 * ewma_prev + 0.25 * mk_ticks if n_prev > 0 else mk_ticks
             self.own_markout_stats[f.inst_id] = (n_new, ewma_new)
-            if n_new >= 5 and ewma_new < -0.60 and now >= self.entry_breaker_until.get(f.inst_id, 0.0):
+            if n_new >= 6 and ewma_new < -0.60 and now >= self.entry_breaker_until.get(f.inst_id, 0.0):
                 self.entry_breaker_until[f.inst_id] = now + 45.0
 
         scratches: Dict[str, str] = {}
@@ -851,68 +849,21 @@ class ABMMSAlphaEngine:
                 st.since = now
                 if st.entry_price <= 0.0 or (st.last_pos != 0 and (st.last_pos > 0) != (pos > 0)):
                     st.entry_price = mid if mid is not None else 0.0
-                st.wall_price = (
-                    find_protecting_wall(
-                        book,
-                        "bid" if pos > 0 else "ask",
-                        tick,
-                        wall_min_volume=self.wall_min_volume,
-                        max_dist_ticks=self.wall_max_dist_ticks,
-                    )
-                    if book is not None
-                    else None
-                )
             elif pos == 0:
                 st.entry_price = 0.0
-                st.wall_price = None
-            elif st.wall_price is None and book is not None:
-                st.wall_price = find_protecting_wall(
-                    book,
-                    "bid" if pos > 0 else "ask",
-                    tick,
-                    wall_min_volume=self.wall_min_volume,
-                    max_dist_ticks=self.wall_max_dist_ticks,
-                )
             st.last_pos = pos
 
-            if pos == 0 or book is None:
+            if pos == 0 or book is None or self.tail_stop_ticks <= 0:
                 continue
             bids = getattr(book, "bids", None) or []
             asks = getattr(book, "asks", None) or []
             if not bids or not asks:
                 continue
             best_bid, best_ask = float(bids[0].price), float(asks[0].price)
-
-            if self.max_hold_sec > 0 and now - st.since > self.max_hold_sec:
-                scratches[inst_id] = "hold_timeout"
-                continue
-
-            if st.entry_price > 0 and self.stop_loss_ticks > 0:
+            if st.entry_price > 0:
                 adverse = (st.entry_price - best_bid) if pos > 0 else (best_ask - st.entry_price)
-                if adverse >= self.stop_loss_ticks * tick - 1e-9:
-                    scratches[inst_id] = "stop_loss"
-                    continue
-
-            if st.wall_price is not None:
-                if pos > 0:
-                    if best_bid < st.wall_price - 1e-9:
-                        scratches[inst_id] = "wall_broken"
-                    elif (
-                        volume_at_price(bids, st.wall_price, tick) < self.wall_min_volume * 0.5
-                        and best_bid <= (st.entry_price if st.entry_price > 0 else best_bid) + 1e-9
-                    ):
-                        scratches[inst_id] = "wall_pulled"
-                else:
-                    if best_ask > st.wall_price + 1e-9:
-                        scratches[inst_id] = "wall_broken"
-                    elif (
-                        volume_at_price(asks, st.wall_price, tick) < self.wall_min_volume * 0.5
-                        and best_ask >= (st.entry_price if st.entry_price > 0 else best_ask) - 1e-9
-                    ):
-                        scratches[inst_id] = "wall_pulled"
-            elif self.require_wall_for_entry:
-                # In strict wall-backed mode, if we got filled and no wall exists behind us, scratch immediately
-                scratches[inst_id] = "no_wall_shield"
+                if adverse >= self.tail_stop_ticks * tick - 1e-9:
+                    scratches[inst_id] = "tail_stop_loss"
 
         return scratches
 
@@ -953,13 +904,11 @@ class ABMMSAlphaEngine:
 
         paused = {inst for inst, until in self.news_cooldown_until.items() if tick_count < until}
 
-        # 2. Extract mids, volume-capped Microprice+OFI, wall anchors, and live spread EWMA
+        # 2. Extract mids, volume-capped Microprice+OFI, two-sided wall midpoint anchor, and live spread EWMA
         mids: Dict[str, float] = {}
         ticks: Dict[str, float] = {}
         micro_imp: Dict[str, float] = {}
         wall_imp: Dict[str, float] = {}
-        bid_walls: Dict[str, Optional[float]] = {}
-        ask_walls: Dict[str, Optional[float]] = {}
 
         for inst_id in self.universe:
             inst = instruments.get(inst_id)
@@ -977,12 +926,6 @@ class ABMMSAlphaEngine:
             wall_imp[inst_id] = self.w_wall * extract_wall_anchor(
                 book, mid, tick, wall_min_volume=self.wall_min_volume
             )
-            bid_walls[inst_id] = find_protecting_wall(
-                book, "bid", tick, wall_min_volume=self.wall_min_volume, max_dist_ticks=self.wall_max_dist_ticks
-            )
-            ask_walls[inst_id] = find_protecting_wall(
-                book, "ask", tick, wall_min_volume=self.wall_min_volume, max_dist_ticks=self.wall_max_dist_ticks
-            )
 
             bids = getattr(book, "bids", None) or []
             asks = getattr(book, "asks", None) or []
@@ -991,7 +934,7 @@ class ABMMSAlphaEngine:
                 prev_sp = self._ewma_spread.get(inst_id, sp)
                 self._ewma_spread[inst_id] = 0.90 * prev_sp + 0.10 * sp
 
-        # 3. Feed live TradeTicks into counterparty markout profiler
+        # 3. Feed live TradeTicks into Glosten-Milgrom counterparty markout profiler
         for inst_id, t_list in trade_ticks.items():
             tick = ticks.get(inst_id, 0.10)
             for t in t_list:
@@ -1007,21 +950,24 @@ class ABMMSAlphaEngine:
                 )
         self.counterparties.update_markouts(now, mids)
 
-        # 4. Update return-space covariance & 2s leader/trend windows
+        # 4. Update return-space covariance & cross-stock lead-lag
         self.lead_lag.update(mids, now=now)
         ll_imp = self.lead_lag.lead_lag_impulses(mids, ticks)
 
-        # 5. Track positions, own-fill markouts, and mandatory wall-break / timeout scratches
-        scratches = self._update_own_fills_and_positions(now, positions, books, mids, ticks, own_trades)
+        # 5. Update own-fill 5s markout circuit breaker & extreme tail stop-loss
+        scratches = self._update_own_fills_and_risk(now, positions, books, mids, ticks, own_trades)
 
-        # 6. Compute multi-asset GLFT skew r = F_hat - gamma(t) * Sigma_dP_eff * q
+        # 6. Compute Multi-Asset GLFT skew: skew = -gamma * (Sigma_dP_eff @ q)
         eff_gamma = self.glft_gamma * endgame.gamma_mult
-        max_skew_ticks = 3.0 if endgame.gamma_mult <= 1.5 else 10.0
+        max_skew_ticks = 4.0 if endgame.gamma_mult <= 1.5 else 10.0
         glft_skews = self.lead_lag.glft_skew(
             mids, positions, gamma=eff_gamma, ticks=ticks, max_skew_ticks=max_skew_ticks
         )
 
-        # 7. Assemble Fair Values & Wall-Protected / Profit-Exiting Quote Plans
+        # Portfolio-level net directional exposure across the 8 correlated AI stocks
+        net_port_pos = sum(int(positions.get(u, 0)) for u in self.universe)
+
+        # 7. Assemble Pure ABMM-S Fair Values & Reservation-Price Quote Plans
         fair_values: Dict[str, float] = {}
         quote_plans: Dict[str, QuotePlan] = {}
 
@@ -1029,98 +975,64 @@ class ABMMSAlphaEngine:
             if inst_id in scratches:
                 continue
             tick = ticks[inst_id]
-            book = books[inst_id]
-            best_bid = float(book.bids[0].price)
-            best_ask = float(book.asks[0].price)
             cp_imp, cp_spread_mult = self.counterparties.get_impulse_and_spread_mult(now, inst_id)
 
-            total_alpha = micro_imp.get(inst_id, 0.0) + wall_imp.get(inst_id, 0.0) + cp_imp + ll_imp.get(inst_id, 0.0)
-            max_fv_shift = 1.5 * tick
+            # Unified 4-signal Fair Value F_hat (capped to +-3.5 ticks around mid to prevent runaway outliers)
+            total_alpha = (
+                micro_imp.get(inst_id, 0.0)
+                + wall_imp.get(inst_id, 0.0)
+                + cp_imp
+                + ll_imp.get(inst_id, 0.0)
+            )
+            max_fv_shift = 3.5 * tick
             total_alpha = max(-max_fv_shift, min(max_fv_shift, total_alpha))
             fv = mid + total_alpha
             fair_values[inst_id] = fv
 
-            skew_px = glft_skews.get(inst_id, 0.0)
-            res_price = fv + skew_px
+            # Multi-Asset GLFT reservation price: r_t = F_hat_t - gamma * (Sigma_dP_eff @ q_t)
+            res_price = fv + glft_skews.get(inst_id, 0.0)
 
+            # Toxicity- & volatility-adapted half-spread
             vol_px = self.lead_lag.tick_volatility_price(inst_id, mid)
             regime_sp = self._ewma_spread.get(inst_id, 2.0 * tick)
             base_half = max(self.base_edge_ticks * tick, 0.45 * regime_sp)
             half_spread = (base_half + self.vol_spread_mult * vol_px) * cp_spread_mult
             half_spread = max(tick, min(half_spread, 0.65 * regime_sp + 4.0 * tick))
 
-            # Anti-adverse-selection entry filters (wand.py 4-signal check + counterparty toxicity + own markout breaker)
-            breaker_active = now < self.entry_breaker_until.get(inst_id, 0.0)
-            m_edge = self.micro_ofi.last_micro_edge.get(inst_id, 0.0)
-            ofi_2s = self.micro_ofi.last_ofi_win.get(inst_id, 0.0)
-            lead_2s = self.lead_lag.leader_move_over_window(inst_id)
-            trend_2s = self.lead_lag.move_over_window(inst_id)
-
-            bw = bid_walls.get(inst_id)
-            aw = ask_walls.get(inst_id)
-
-            filter_buy_ok = (
-                not breaker_active
-                and m_edge >= -0.02 * tick
-                and ofi_2s >= 0.0
-                and lead_2s > -0.5 * tick
-                and trend_2s >= -0.5 * tick
-                and cp_imp >= -0.5 * tick
-            )
-            filter_sell_ok = (
-                not breaker_active
-                and m_edge <= 0.02 * tick
-                and ofi_2s <= 0.0
-                and lead_2s < 0.5 * tick
-                and trend_2s <= 0.5 * tick
-                and cp_imp <= 0.5 * tick
-            )
-
-            allow_bid_entry = filter_buy_ok and (bw is not None if self.require_wall_for_entry else True)
-            allow_ask_entry = filter_sell_ok and (aw is not None if self.require_wall_for_entry else True)
-
-            # Base entry prices: 1 tick in front of protecting wall (shifted conservatively by cross-asset GLFT skew)
-            if bw is not None:
-                bid_px = bw + tick + min(0.0, skew_px)
-            else:
-                bid_px = res_price - half_spread
-
-            if aw is not None:
-                ask_px = aw - tick + max(0.0, skew_px)
-            else:
-                ask_px = res_price + half_spread
-
+            # Smooth inventory-tapered sizing + portfolio net-delta cap + own-markout breaker
             cur_pos = int(positions.get(inst_id, 0))
-            st = self._pos_track[inst_id]
-            entry_px = st.entry_price if st.entry_price > 0 else mid
-            held_sec = max(0.0, now - st.since) if cur_pos != 0 else 0.0
-            # Lock in at least +1 tick profit for first 8s (never skew exit down to break-even immediately!),
-            # then step down to entry_px scratch between 8s-15s before IOC timeout
-            min_profit_ticks = 0.0 if held_sec >= 8.0 else 1.0
+            breaker_active = now < self.entry_breaker_until.get(inst_id, 0.0)
+            pos_cap = max(1, self.max_position_lots)
 
-            if cur_pos > 0:
-                min_exit_ask = max(entry_px + min_profit_ticks * tick, best_bid + tick)
-                exit_ask = max(min_exit_ask, entry_px + tick + min(0.0, skew_px))
-                ask_px = min(ask_px, exit_ask) if allow_ask_entry else exit_ask
-                ask_lots = min(self.max_position_lots + cur_pos, cur_pos)
-                bid_lots = (
-                    int(round(self.quote_lots * endgame.inv_inc_scale))
-                    if (allow_bid_entry and cur_pos < self.quote_lots)
-                    else 0
-                )
-            elif cur_pos < 0:
-                max_exit_bid = min(entry_px - min_profit_ticks * tick, best_ask - tick)
-                exit_bid = min(max_exit_bid, entry_px - tick + max(0.0, skew_px))
-                bid_px = max(bid_px, exit_bid) if allow_bid_entry else exit_bid
-                bid_lots = min(self.max_position_lots - cur_pos, -cur_pos)
-                ask_lots = (
-                    int(round(self.quote_lots * endgame.inv_inc_scale))
-                    if (allow_ask_entry and -cur_pos < self.quote_lots)
-                    else 0
-                )
+            # Taper bid size linearly as cur_pos -> +max_position_lots; block adding if breaker or net cap hit
+            if cur_pos >= pos_cap or (cur_pos >= 0 and (breaker_active or net_port_pos >= self.max_net_portfolio_lots)):
+                base_bid = 0
+            elif cur_pos > 0:
+                taper = max(0.25, 1.0 - (cur_pos / pos_cap))
+                base_bid = max(1, int(round(self.quote_lots * taper)))
             else:
-                bid_lots = int(round(self.quote_lots * endgame.inv_inc_scale)) if allow_bid_entry else 0
-                ask_lots = int(round(self.quote_lots * endgame.inv_inc_scale)) if allow_ask_entry else 0
+                # Inventory-reducing buy when short: never blocked by breaker or net cap
+                base_bid = self.quote_lots
+
+            if cur_pos <= -pos_cap or (cur_pos <= 0 and (breaker_active or net_port_pos <= -self.max_net_portfolio_lots)):
+                base_ask = 0
+            elif cur_pos < 0:
+                taper = max(0.25, 1.0 - (abs(cur_pos) / pos_cap))
+                base_ask = max(1, int(round(self.quote_lots * taper)))
+            else:
+                # Inventory-reducing sell when long: never blocked by breaker or net cap
+                base_ask = self.quote_lots
+
+            # Apply endgame scale only if session_duration_sec > 0 (defaults to 1.0 in normal 2-day mode)
+            if cur_pos > 0:
+                bid_lots = int(round(base_bid * endgame.inv_inc_scale))
+                ask_lots = base_ask
+            elif cur_pos < 0:
+                bid_lots = base_bid
+                ask_lots = int(round(base_ask * endgame.inv_inc_scale))
+            else:
+                bid_lots = int(round(base_bid * endgame.inv_inc_scale))
+                ask_lots = int(round(base_ask * endgame.inv_inc_scale))
 
             quote_plans[inst_id] = QuotePlan(
                 fair_value=fv,
@@ -1129,8 +1041,8 @@ class ABMMSAlphaEngine:
                 bid_lots=max(0, bid_lots),
                 ask_lots=max(0, ask_lots),
                 spread_mult=cp_spread_mult,
-                bid_price=bid_px,
-                ask_price=ask_px,
+                bid_price=res_price - half_spread,
+                ask_price=res_price + half_spread,
             )
 
         return ABMMSSnapshot(

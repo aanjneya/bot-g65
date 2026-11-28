@@ -155,6 +155,8 @@ class ABMMSBot:
         self.alpha: Optional[ABMMSAlphaEngine] = None
         self.market_logger: Optional[MarketLogger] = None
         self.tick_count = 0
+        self._peak_pnl: Optional[float] = None
+        self._drawdown_halted: bool = False
         self._chunk_started_at: Optional[float] = None
         self._nacht_dir: Optional[str] = None
         self._nacht_procs: List[subprocess.Popen[Any]] = []
@@ -213,28 +215,20 @@ class ABMMSBot:
     def _ensure_alpha(self) -> ABMMSAlphaEngine:
         if self.alpha is None:
             universe = sorted(self.instruments.keys()) if self.instruments else list(self.cfg.universe)
-            # In MockExchange (no 400-lot house walls), allow quoting without walls unless explicitly overridden
-            req_wall = (
-                self.cfg.require_wall_for_entry
-                if (not isinstance(self.exchange, MockExchange) or "REQUIRE_WALL_FOR_ENTRY" in os.environ)
-                else False
-            )
             self.alpha = ABMMSAlphaEngine(
                 universe,
                 w_micro=self.cfg.w_micro,
                 w_ofi=self.cfg.w_ofi,
                 w_wall=self.cfg.w_wall,
                 wall_min_volume=self.cfg.wall_min_volume,
-                wall_max_dist_ticks=self.cfg.wall_max_dist_ticks,
-                require_wall_for_entry=req_wall,
-                max_hold_sec=self.cfg.max_hold_sec,
-                stop_loss_ticks=self.cfg.stop_loss_ticks,
                 w_leadlag=self.cfg.w_leadlag,
                 glft_gamma=self.cfg.glft_gamma,
                 base_edge_ticks=float(self.cfg.quote_edge_ticks),
                 vol_spread_mult=self.cfg.vol_spread_mult,
                 quote_lots=self.cfg.quote_lots,
                 max_position_lots=self.cfg.max_position_lots,
+                max_net_portfolio_lots=self.cfg.max_net_portfolio_lots,
+                tail_stop_ticks=self.cfg.tail_stop_ticks,
                 news_cooldown_ticks=self.cfg.news_cooldown_ticks,
                 enable_news_sniper=self.cfg.enable_news_sniper,
                 news_snipe_lots=self.cfg.news_snipe_lots,
@@ -320,13 +314,29 @@ class ABMMSBot:
             own_trades=own_trades,
         )
 
+        # 2b. Portfolio max-drawdown circuit breaker (normal 2-day continuous safety rail)
+        if self.cfg.max_session_drawdown > 0 and self.exchange.is_connected():
+            cur_pnl = self.exchange.get_pnl()
+            if cur_pnl is not None:
+                self._peak_pnl = cur_pnl if self._peak_pnl is None else max(self._peak_pnl, cur_pnl)
+                if self._peak_pnl - cur_pnl >= self.cfg.max_session_drawdown:
+                    if not self._drawdown_halted:
+                        logger.warning(
+                            "DRAWDOWN BREAKER triggered (peak=%.2f cur=%.2f dd=%.2f >= %.2f) — flattening",
+                            self._peak_pnl,
+                            cur_pnl,
+                            self._peak_pnl - cur_pnl,
+                            self.cfg.max_session_drawdown,
+                        )
+                        self._drawdown_halted = True
+
         orders_sent = 0
 
-        # 3. Priority 1 — Endgame flattener (final 45s of 30-min session)
-        if snap.endgame.should_flatten:
+        # 3. Priority 1 — Drawdown halt or optional endgame flattener
+        if self._drawdown_halted or snap.endgame.should_flatten:
             orders_sent += self.executor.flatten_positions(books, self.instruments)
         else:
-            # 4. Priority 2 — Mandatory wall-break / hold-timeout / stop-loss IOC scratches
+            # 4. Priority 2 — Extreme tail stop-loss IOC scratches (only >= 10 ticks adverse)
             scratched = self.executor.execute_scratches(snap.scratches, books, self.instruments)
             orders_sent += len(scratched)
 
@@ -338,7 +348,7 @@ class ABMMSBot:
             )
             orders_sent += len(news_sniped)
 
-            # 6. Priority 4 — Edge-only aggressive IOC (disabled by default until muster.py validates edge)
+            # 6. Priority 4 — Fair-Value Edge IOC Sniper (takes mispriced BBO >= max(3 ticks, 1.5*spread))
             edge_sniped: set[str] = set()
             if self.cfg.enable_edge_ioc:
                 edge_sniped = self.executor.execute_fair_value_edge(
@@ -351,7 +361,7 @@ class ABMMSBot:
                 )
                 orders_sent += len(edge_sniped)
 
-            # 7. Priority 5 — Queue-preserving passive quoting (wall-protected entry + immediate profit exit)
+            # 7. Priority 5 — Pure ABMM-S passive GLFT quoting around reservation price r_t = F_hat - gamma*Sigma*q
             if self.cfg.enable_passive_quoting and snap.quote_plans and self.exchange.is_connected():
                 orders_sent += self.executor.quote_from_plans(
                     snap.quote_plans,
@@ -436,7 +446,7 @@ StatArbBot = ABMMSBot
 
 class BacktestBot:
     """
-    Adapter for bot/backtest.py:
+    Pure ABMM-S adapter for bot/backtest.py (normal continuous mode, no endgame timer):
         python bot/backtest.py <data_folder> --strategy runner:BacktestBot
     Uses SimClock automatically when backtest.py patches runner.time = clock.
     """
@@ -444,10 +454,10 @@ class BacktestBot:
     def __init__(self, ex: Any, folder: str) -> None:
         cfg = BotConfig(
             mock_mode=False,
-            require_wall_for_entry=True,
-            wall_min_volume=400,
-            quote_lots=10,
+            session_duration_sec=0.0,
+            quote_lots=5,
             max_position_lots=40,
+            max_net_portfolio_lots=120,
             max_requests_per_sec=18,
             log_every_ticks=10_000,
         )

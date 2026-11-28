@@ -383,8 +383,8 @@ class TestMockRunner(unittest.TestCase):
                     rows = list(csv.reader(f))
                 self.assertGreaterEqual(len(rows), 2, f"{fname} should have header + data rows")
 
-    def test_strip_own_orders_and_wall_protection_and_scratch_and_breaker(self) -> None:
-        # 1. strip_own_orders removes our own penny-jumped quotes so spread/mid never self-feedback
+    def test_pure_abmms_fair_value_quoting_glft_skew_and_breakers(self) -> None:
+        # 1. strip_own_orders removes our own resting quotes so spread/mid never self-feedback
         raw_book = SimpleNamespace(
             instrument_id="CRWV",
             timestamp=1.0,
@@ -398,89 +398,83 @@ class TestMockRunner(unittest.TestCase):
         clean = strip_own_orders(raw_book, own, tick_size=0.10)
         self.assertEqual([b.price for b in clean.bids], [100.0])
         self.assertEqual([a.price for a in clean.asks], [100.6])
-        self.assertEqual(find_protecting_wall(clean, "bid", 0.10, wall_min_volume=400), 100.0)
 
-        # 2. Strict wall-backed mode: blocks entry when leader MU crashes, quotes 1 tick ahead when healthy,
-        #    quotes immediate +1 tick exit on fill, and scratches via IOC when wall breaks!
+        # 2. Pure ABMM-S quotes around Fair Value on ALL liquid stocks (even without 400-lot walls),
+        #    and GLFT shifts reservation price down on BOTH held stock and correlated peer!
         universe = ["CRWV", "MU"]
         insts = {u: SimpleNamespace(tick_size=0.10, price_limit=None) for u in universe}
         eng = ABMMSAlphaEngine(
             universe,
-            require_wall_for_entry=True,
-            wall_min_volume=400,
+            wall_min_volume=250,
             quote_lots=5,
-            max_hold_sec=15.0,
+            max_position_lots=40,
+            max_net_portfolio_lots=50,
+            tail_stop_ticks=10.0,
+            glft_gamma=6.0,
         )
         books_ok = {
             "CRWV": SimpleNamespace(
-                bids=[SimpleNamespace(price=100.0, volume=500)],
-                asks=[SimpleNamespace(price=100.5, volume=50), SimpleNamespace(price=100.6, volume=500)],
+                bids=[SimpleNamespace(price=100.0, volume=50), SimpleNamespace(price=99.9, volume=300)],
+                asks=[SimpleNamespace(price=100.2, volume=50), SimpleNamespace(price=100.7, volume=300)],
             ),
             "MU": SimpleNamespace(
-                bids=[SimpleNamespace(price=80.0, volume=100)],
-                asks=[SimpleNamespace(price=80.2, volume=100)],
+                bids=[SimpleNamespace(price=80.0, volume=80)],
+                asks=[SimpleNamespace(price=80.2, volume=80)],
             ),
         }
-        snap1 = eng.update(
+        snap0 = eng.update(
             now=10.0, tick_count=1, books=books_ok, instruments=insts,
             positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
         )
-        # CRWV has 500-lot bid wall at 100.0 -> bids at 100.1; MU has NO 400-lot wall -> 0 entry lots!
-        self.assertEqual(snap1.quote_plans["CRWV"].bid_lots, 5)
-        self.assertAlmostEqual(snap1.quote_plans["CRWV"].bid_price, 100.1)
-        self.assertEqual(snap1.quote_plans["MU"].bid_lots, 0)
-        self.assertEqual(snap1.quote_plans["MU"].ask_lots, 0)
+        # Quotes both CRWV (wall-anchored upward FV) AND MU (no wall needed!)
+        self.assertEqual(snap0.quote_plans["CRWV"].bid_lots, 5)
+        self.assertEqual(snap0.quote_plans["MU"].bid_lots, 5)
+        self.assertGreater(snap0.fair_values["CRWV"], 100.1)  # Two-sided wall mid (100.3) pulls FV up
 
-        # Leader MU crashes -0.50 -> blocks CRWV buy entry even though CRWV wall is still there!
-        books_mu_crash = {
-            "CRWV": books_ok["CRWV"],
-            "MU": SimpleNamespace(
-                bids=[SimpleNamespace(price=79.5, volume=100)],
-                asks=[SimpleNamespace(price=79.7, volume=100)],
-            ),
-        }
-        snap2 = eng.update(
-            now=11.0, tick_count=2, books=books_mu_crash, instruments=insts,
-            positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
+        # Holding long +20 CRWV skews reservation price DOWN on both CRWV and correlated MU (passive cross-hedge)
+        snap_long = eng.update(
+            now=11.0, tick_count=2, books=books_ok, instruments=insts,
+            positions={"CRWV": 20, "MU": 0}, trade_ticks={}, social_feeds=[],
         )
-        self.assertEqual(snap2.quote_plans["CRWV"].bid_lots, 0)
+        self.assertLess(snap_long.quote_plans["CRWV"].reservation_price, snap_long.fair_values["CRWV"])
+        self.assertLess(snap_long.quote_plans["MU"].reservation_price, snap_long.fair_values["MU"])
+        # Linearly tapers bid lots while keeping full ask lots to unwind
+        self.assertLess(snap_long.quote_plans["CRWV"].bid_lots, 5)
+        self.assertEqual(snap_long.quote_plans["CRWV"].ask_lots, 5)
 
-        # Suppose we are filled +5 CRWV @ 100.1 -> immediate passive exit ask at 100.2, then wall breaks -> scratch!
+        # 3. Extreme tail stop-loss (>= 10 ticks adverse) triggers IOC scratch
         own_tr = {"CRWV": [SimpleNamespace(price=100.1, side="bid", volume=5)]}
-        snap3 = eng.update(
+        eng.update(
             now=12.0, tick_count=3, books=books_ok, instruments=insts,
             positions={"CRWV": 5, "MU": 0}, trade_ticks={}, social_feeds=[], own_trades=own_tr,
         )
-        self.assertEqual(snap3.quote_plans["CRWV"].ask_lots, 5)
-        self.assertAlmostEqual(snap3.quote_plans["CRWV"].ask_price, 100.2)
-
-        # Wall breaks (best bid drops to 99.8 < 100.0 wall) -> mandatory IOC scratch triggered!
-        books_wall_broken = {
+        books_crash = {
             "CRWV": SimpleNamespace(
-                bids=[SimpleNamespace(price=99.8, volume=50)],
-                asks=[SimpleNamespace(price=100.1, volume=50)],
+                bids=[SimpleNamespace(price=98.9, volume=50)],
+                asks=[SimpleNamespace(price=99.1, volume=50)],
             ),
             "MU": books_ok["MU"],
         }
-        snap4 = eng.update(
-            now=13.0, tick_count=4, books=books_wall_broken, instruments=insts,
+        snap_stop = eng.update(
+            now=13.0, tick_count=4, books=books_crash, instruments=insts,
             positions={"CRWV": 5, "MU": 0}, trade_ticks={}, social_feeds=[],
         )
-        self.assertEqual(snap4.scratches.get("CRWV"), "wall_broken")
+        self.assertEqual(snap_stop.scratches.get("CRWV"), "tail_stop_loss")
 
-        # 3. 5 consecutive toxic own-fills trip the 45s per-stock entry breaker
-        for k in range(5):
+        # 4. 6 consecutive toxic own-fills trip the 45s per-stock entry breaker (still allows exit!)
+        for k in range(6):
             eng.update(
                 now=20.0 + k, tick_count=10 + k, books=books_ok, instruments=insts,
                 positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
                 own_trades={"CRWV": [SimpleNamespace(price=100.5, side="bid", volume=5)]},
             )
         snap_br = eng.update(
-            now=31.0, tick_count=20, books=books_ok, instruments=insts,
+            now=32.0, tick_count=20, books=books_ok, instruments=insts,
             positions={"CRWV": 0, "MU": 0}, trade_ticks={}, social_feeds=[],
         )
-        self.assertGreater(eng.entry_breaker_until.get("CRWV", 0.0), 31.0)
+        self.assertGreater(eng.entry_breaker_until.get("CRWV", 0.0), 32.0)
         self.assertEqual(snap_br.quote_plans["CRWV"].bid_lots, 0)
+        self.assertEqual(snap_br.quote_plans["CRWV"].ask_lots, 0)
 
     def test_backtest_adapter_runs_cleanly_in_sim_exchange(self) -> None:
         import bot.backtest as bt
