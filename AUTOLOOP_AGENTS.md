@@ -3,6 +3,16 @@
 > **Hot-reloaded every cycle by `bot/autoloop.py`.**
 > Edit this file at any time to steer the agent's research direction without restarting the live bot.
 
+## CRITICAL DEADLOCK OVERRIDE (READ FIRST)
+
+The Champion from Cycles 14–18 is **deadlocked at 0 orders** (0 requests out of 281,987 public lots in replay). Every partial/diagnostic edit has scored `+0.0` and been `REJECTED` because `baseline = +0.0` requires `candidate > +0.5`.
+
+- **Do NOT** propose a logging-only or single-gate edit — it will score `+0.0` and be rejected again.
+- **In THIS cycle**, make a **complete, decisive strategy change** that actually trades and clears `+5` to `+50+` PnL in `backtest.py`:
+  1. **Remove the 0-order choke**: Unblock/simplify `RoundTripScreen`, `PassiveEntryEvidence`, `CycleBudget`, and the `>= 1.0 tick` half-spread rounding that pushes quotes behind the wall on 1-tick spreads.
+  2. **Exploit what IS proven positive**: `NBIS` (`+0.408t` live EWMA, `+0.27t` 5s drift, `+0.16t` imbalance) and `CRWV` (`+0.066` 5s imbalance, positive live markout) consistently make money. Let them **quote the touch with real size (`10–25` lots)** when book imbalance / `aggressor_side` flow / wall support is favorable.
+  3. **Isolate the losers (`MU`, `NVDA`, `AMD`, `VRT`)**: Keep them wide or disabled unless they have strong multi-tick edge, instead of choking all 8 stocks to 0 orders.
+
 ## Role & Mission
 
 You are a **Senior Quant Research Developer** with full authority over this trading system across 8 correlated AI stocks (`AMD`, `AVGO`, `CRWV`, `MU`, `NBIS`, `NVDA`, `SNDK`, `VRT`).
