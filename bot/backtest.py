@@ -6,6 +6,8 @@ Start:
     python bot/backtest.py data_27_213800                    # Strategie: simple (Vergleich)
     python bot/backtest.py data_27_213800 --strategy wall    # Wand-Bot mit Microprice-Filter
     python bot/backtest.py data_27_213800 --strategy wall_raw  # Wand-Bot ohne Filter
+    python bot/backtest.py data_27_213800 --strategy abmms     # Aanjneyas Bot (bot/runner.py)
+    python bot/backtest.py data_27_213800 --strategy spike     # Spike-Catcher (bot/spike.py)
     python bot/backtest.py data_hist_xyz --strategy wall      # historische Daten (hist_export.py)
 Schreibt <datenordner>/backtest_<strategie>.md und backtest_<strategie>_pnl.csv.
 
@@ -77,6 +79,7 @@ class SimExchange:
         self.connected = True
         self.errors = []
         self.max_req_sec = 0
+        self.ticks = {i: [] for i in instruments}            # oeffentliche Trades (fuer Bots)
 
     # ---------- Hilfen ----------
     def _request(self):
@@ -152,7 +155,8 @@ class SimExchange:
         return [f for f in self.fills if f.instrument_id == inst]
 
     def poll_new_trade_ticks(self, inst):
-        return []
+        out, self.ticks[inst] = self.ticks[inst], []
+        return out
 
     def poll_new_social_media_feeds(self):
         return []
@@ -253,6 +257,12 @@ class SimExchange:
     def on_trade(self, inst, price, vol):
         self.last_trade[inst] = price
         now = self.clock.time()
+        b, a = self.book[inst]
+        aggr = "bid" if a and price >= a[0][0] - EPS else ("ask" if b and price <= b[0][0] + EPS else "")
+        self.ticks[inst].append(NS(timestamp=now, instrument_id=inst, price=price, volume=vol,
+                                   aggressor_side=aggr, buyer="", seller="", trade_id=None))
+        if len(self.ticks[inst]) > 1000:
+            self.ticks[inst] = self.ticks[inst][-1000:]
         # Kaeufe der anderen treffen unsere Asks, Verkaeufe unsere Bids
         mine = [(k, o) for k, o in self.orders.items()
                 if o.instrument_id == inst and o.active_at <= now]
@@ -322,6 +332,26 @@ def make_strategy(name, ex, clock, folder):
         wall_maker.MICRO_FILTER = name == "wall"   # wall_raw = ohne Microprice-Filter
         wall_maker.INSTRUMENTS[:] = list(ex.instruments)
         return wall_maker.WallMaker(ex, folder)
+    if name == "spike":                       # Spike-Catcher (bot/spike.py)
+        import spike
+        spike.time = clock
+        return spike.SpikeCatcher(ex, folder)
+    if name == "abmms":                       # Aanjneyas Bot (bot/runner.py), unveraendert
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        import logging
+        logging.getLogger("abmms-optibook").setLevel(logging.WARNING)
+        import bot.runner as runner
+        import bot.execution as execution
+        from bot.config import BotConfig
+        runner.time = clock                   # seine Zeitfunktionen sehen die Simulationszeit
+        execution.time = clock
+        cfg = BotConfig()
+        cfg.mock_mode = False
+        cfg.enable_csv_logging = False
+        bot = runner.ABMMSBot(ex, cfg)
+        return NS(step=lambda: bot.step(now=clock.time()))
     if ":" in name:                           # eigene Strategie: modul:Klasse(ex, folder)
         mod, cls = name.split(":")
         m = __import__(mod)
@@ -461,7 +491,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("folder", help="Datenordner mit books.csv und trades.csv")
     ap.add_argument("--strategy", default="simple",
-                    help="simple | wall | wall_raw | modul:Klasse (Klasse(ex, ordner) mit .step())")
+                    help="simple | wall | wall_raw | abmms | spike | modul:Klasse (Klasse(ex, ordner) mit .step())")
     ap.add_argument("--start", type=float, default=0.0, help="Anteil 0..1, ab wann handeln")
     ap.add_argument("--end", type=float, default=1.0, help="Anteil 0..1, bis wann")
     args = ap.parse_args()
