@@ -378,6 +378,7 @@ class ABMMSBot:
                     self.instruments,
                     paused_instruments=snap.paused | scratched | news_sniped | edge_sniped,
                     open_orders_by_inst=open_orders_by_inst,
+                    wall_min_volume=self.cfg.wall_min_volume,
                 )
 
         if self.tick_count % self.cfg.log_every_ticks == 0 and self.exchange.is_connected():

@@ -9,6 +9,8 @@ from collections import deque
 from types import SimpleNamespace
 from typing import Any, Deque, Dict, Optional, Set, Tuple
 
+from bot.signals import find_protecting_wall
+
 logger = logging.getLogger(__name__)
 
 
@@ -657,6 +659,7 @@ class RiskAndExecution:
         instruments: Dict[str, Any],
         paused_instruments: Set[str],
         open_orders_by_inst: Optional[Dict[str, Dict[int, Any]]] = None,
+        wall_min_volume: int = 250,
     ) -> int:
         """
         Maintain passive GLFT / wall-backed limit quotes from ABMM-S QuotePlans.
@@ -716,6 +719,18 @@ class RiskAndExecution:
             cur_pos = int(positions.get(inst_id, 0))
             bid_vol = clamp_delta_for_limit(int(plan.bid_lots), cur_pos, 0, 0, self.max_position_lots)
             ask_vol = -clamp_delta_for_limit(-int(plan.ask_lots), cur_pos, 0, 0, self.max_position_lots)
+
+            # Size entries at the price we will actually rest, not at unrounded FV.
+            # Joining a wall does not leave its queue behind us if our order fills.
+            probe_cap = 1 if cur_pos == 0 else 0
+            if cur_pos >= 0 and bid_vol > 0:
+                bid_wall = find_protecting_wall(book, "bid", tick, wall_min_volume=wall_min_volume)
+                if bid_wall is None or abs(target_bid - bid_wall - tick) > 1e-8:
+                    bid_vol = min(bid_vol, probe_cap)
+            if cur_pos <= 0 and ask_vol > 0:
+                ask_wall = find_protecting_wall(book, "ask", tick, wall_min_volume=wall_min_volume)
+                if ask_wall is None or abs(ask_wall - target_ask - tick) > 1e-8:
+                    ask_vol = min(ask_vol, probe_cap)
 
             # Compete for a passive exit without crossing the external book or flipping inventory.
             if cur_pos > 0:
