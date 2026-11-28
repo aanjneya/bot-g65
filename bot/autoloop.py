@@ -39,9 +39,17 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
+_LOG_DIR = os.path.join(_ROOT, "data")
+os.makedirs(_LOG_DIR, exist_ok=True)
+_LOG_FILE = os.path.join(_LOG_DIR, "autoloop_orchestrator.log")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(_LOG_FILE, mode="a", encoding="utf-8"),
+    ],
 )
 logger = logging.getLogger("abmms-autoloop")
 
