@@ -1,0 +1,195 @@
+nohup: ignoring input
+2026-11-28 09:32:43,473 [INFO] Started live Champion runner --nacht (pid=97864, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_001_093243
+2026-11-28 09:44:43,473 [INFO] === Autoloop Cycle 1 ===
+2026-11-28 09:44:43,661 [INFO] Live telemetry summary: {'samples': 70, 'start_pnl': 0.0, 'end_pnl': -1.1, 'delta_pnl': -1.1, 'max_drawdown': -1.1, 'last_pos': {}, 'last_mk5s': {'CRWV': {'n': 28, 'avg_ticks': -1.012}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 09:44:46,686 [INFO] Baseline backtest: pnl=-1.1
+2026-11-28 09:46:28,837 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 09:46:32,888 [INFO] REJECTED candidate: candidate pnl -1.3 did not beat baseline -1.1 (+0.5)
+2026-11-28 09:46:38,339 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 09:58:38,339 [INFO] === Autoloop Cycle 2 ===
+2026-11-28 09:58:38,542 [INFO] Live telemetry summary: {'samples': 153, 'start_pnl': 0.0, 'end_pnl': -3.2, 'delta_pnl': -3.2, 'max_drawdown': -3.2, 'last_pos': {}, 'last_mk5s': {'CRWV': {'n': 30, 'avg_ticks': -0.538}, 'NVDA': {'n': 2, 'avg_ticks': 0.0}, 'SNDK': {'n': 10, 'avg_ticks': -4.042}, 'MU': {'n': 4, 'avg_ticks': 0.102}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 09:58:44,715 [INFO] Baseline backtest: pnl=-5.9
+2026-11-28 10:00:27,133 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 10:00:33,827 [INFO] REJECTED candidate: candidate pnl -5.9 did not beat baseline -5.9 (+0.5)
+2026-11-28 10:00:39,410 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 10:12:39,411 [INFO] === Autoloop Cycle 3 ===
+2026-11-28 10:12:39,641 [INFO] Live telemetry summary: {'samples': 237, 'start_pnl': 0.0, 'end_pnl': -3.2, 'delta_pnl': -3.2, 'max_drawdown': -3.2, 'last_pos': {'SNDK': 1}, 'last_mk5s': {'CRWV': {'n': 54, 'avg_ticks': -0.224}, 'NVDA': {'n': 6, 'avg_ticks': 0.24}, 'SNDK': {'n': 12, 'avg_ticks': -2.055}, 'MU': {'n': 4, 'avg_ticks': 0.102}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 10:12:48,861 [INFO] Baseline backtest: pnl=-5.3
+2026-11-28 10:15:14,096 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 10:15:23,512 [INFO] REJECTED candidate: candidate pnl -5.3 did not beat baseline -5.3 (+0.5)
+2026-11-28 10:15:28,804 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 10:27:28,804 [INFO] === Autoloop Cycle 4 ===
+2026-11-28 10:27:29,073 [INFO] Live telemetry summary: {'samples': 325, 'start_pnl': 0.0, 'end_pnl': -5.2, 'delta_pnl': -5.2, 'max_drawdown': -5.3, 'last_pos': {}, 'last_mk5s': {'CRWV': {'n': 66, 'avg_ticks': -0.187}, 'NVDA': {'n': 10, 'avg_ticks': -0.645}, 'SNDK': {'n': 16, 'avg_ticks': -3.941}, 'MU': {'n': 8, 'avg_ticks': 0.022}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 10:27:41,795 [INFO] Baseline backtest: pnl=-5.6
+2026-11-28 10:29:47,428 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 10:30:00,314 [INFO] REJECTED candidate: candidate pnl -5.6 did not beat baseline -5.6 (+0.5)
+2026-11-28 10:30:05,652 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 10:42:05,653 [INFO] === Autoloop Cycle 5 ===
+2026-11-28 10:42:05,824 [INFO] Live telemetry summary: {'samples': 56, 'start_pnl': -5.2, 'end_pnl': -5.4, 'delta_pnl': -0.2, 'max_drawdown': -0.7, 'last_pos': {'SNDK': -1}, 'last_mk5s': {'CRWV': {'n': 68, 'avg_ticks': -0.074}, 'NVDA': {'n': 34, 'avg_ticks': 0.345}, 'SNDK': {'n': 22, 'avg_ticks': -0.6}, 'MU': {'n': 22, 'avg_ticks': 0.052}, 'VRT': {'n': 6, 'avg_ticks': -0.607}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 10:42:08,341 [INFO] Baseline backtest: pnl=+0.0
+2026-11-28 10:43:48,958 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 10:43:52,245 [INFO] REJECTED candidate: candidate pnl +0.0 did not beat baseline +0.0 (+0.5)
+2026-11-28 10:43:57,856 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 10:55:57,857 [INFO] === Autoloop Cycle 6 ===
+2026-11-28 10:55:58,066 [INFO] Live telemetry summary: {'samples': 138, 'start_pnl': -5.2, 'end_pnl': -11.9, 'delta_pnl': -6.7, 'max_drawdown': -6.9, 'last_pos': {}, 'last_mk5s': {'CRWV': {'n': 102, 'avg_ticks': 0.132}, 'NVDA': {'n': 48, 'avg_ticks': -0.168}, 'SNDK': {'n': 26, 'avg_ticks': -0.661}, 'MU': {'n': 36, 'avg_ticks': -0.447}, 'VRT': {'n': 14, 'avg_ticks': -0.16}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 10:56:03,850 [INFO] Baseline backtest: pnl=-2.7
+2026-11-28 10:57:29,642 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 10:57:35,884 [INFO] PROMOTING candidate: candidate pnl +0.3 beat baseline -2.7 (dd=-0.5)
+2026-11-28 10:57:35,884 [INFO] Sending SIGINT to live runner (pid=97864) for clean order cancel...
+2026-11-28 10:57:36,515 [INFO] Started live Champion runner --nacht (pid=106415, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_002_105736
+2026-11-28 10:57:37,701 [WARNING] git push to main failed (rc=128): Missing or invalid credentials.
+Error: connect ECONNREFUSED /tmp/vscode-git-43d32316fd.sock
+    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1638:16) {
+  errno: -111,
+  code: 'ECONNREFUSE
+2026-11-28 10:57:42,835 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 11:09:42,835 [INFO] === Autoloop Cycle 7 ===
+2026-11-28 11:09:43,017 [INFO] Live telemetry summary: {'samples': 72, 'start_pnl': -12.1, 'end_pnl': -11.1, 'delta_pnl': 1.0, 'max_drawdown': -0.2, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 20, 'avg_ticks': 0.235}, 'CRWV': {'n': 24, 'avg_ticks': 0.036}, 'NVDA': {'n': 12, 'avg_ticks': -0.757}, 'VRT': {'n': 4, 'avg_ticks': 0.359}, 'MU': {'n': 2, 'avg_ticks': 1.0}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 11:09:46,230 [INFO] Baseline backtest: pnl=+0.4
+2026-11-28 11:11:03,628 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 11:11:07,486 [INFO] REJECTED candidate: candidate pnl +0.4 did not beat baseline +0.4 (+0.5)
+2026-11-28 11:11:12,788 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 11:23:12,789 [INFO] === Autoloop Cycle 8 ===
+2026-11-28 11:23:13,021 [INFO] Live telemetry summary: {'samples': 151, 'start_pnl': -12.1, 'end_pnl': -11.1, 'delta_pnl': 1.0, 'max_drawdown': -0.4, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 22, 'avg_ticks': 0.351}, 'CRWV': {'n': 28, 'avg_ticks': -0.268}, 'NVDA': {'n': 14, 'avg_ticks': -0.395}, 'VRT': {'n': 4, 'avg_ticks': 0.359}, 'MU': {'n': 2, 'avg_ticks': 1.0}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 11:23:19,357 [INFO] Baseline backtest: pnl=+0.4
+2026-11-28 11:24:37,497 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 11:24:44,273 [INFO] REJECTED candidate: candidate pnl +0.7 did not beat baseline +0.4 (+0.5)
+2026-11-28 11:24:49,525 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 11:36:49,525 [INFO] === Autoloop Cycle 9 ===
+2026-11-28 11:36:50,137 [INFO] Live telemetry summary: {'samples': 232, 'start_pnl': -12.1, 'end_pnl': -14.2, 'delta_pnl': -2.1, 'max_drawdown': -3.3, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 24, 'avg_ticks': 0.166}, 'CRWV': {'n': 28, 'avg_ticks': -0.268}, 'NVDA': {'n': 22, 'avg_ticks': 0.155}, 'VRT': {'n': 6, 'avg_ticks': -3.923}, 'MU': {'n': 2, 'avg_ticks': 1.0}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 11:36:59,718 [INFO] Baseline backtest: pnl=+0.4
+2026-11-28 11:38:40,356 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 11:38:49,743 [INFO] REJECTED candidate: candidate pnl +0.4 did not beat baseline +0.4 (+0.5)
+2026-11-28 11:38:56,017 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 11:50:56,017 [INFO] === Autoloop Cycle 10 ===
+2026-11-28 11:50:56,301 [INFO] Live telemetry summary: {'samples': 316, 'start_pnl': -12.1, 'end_pnl': -14.4, 'delta_pnl': -2.3, 'max_drawdown': -3.5, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 26, 'avg_ticks': 0.125}, 'CRWV': {'n': 46, 'avg_ticks': 0.05}, 'NVDA': {'n': 24, 'avg_ticks': 0.181}, 'VRT': {'n': 6, 'avg_ticks': -3.923}, 'MU': {'n': 2, 'avg_ticks': 1.0}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 11:51:09,099 [INFO] Baseline backtest: pnl=-0.2
+2026-11-28 11:53:35,967 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-28 11:53:48,810 [INFO] REJECTED candidate: candidate pnl -1.0 did not beat baseline -0.2 (+0.5)
+2026-11-28 11:53:58,634 [WARNING] brain-push.sh failed (rc=1): Fetching latest origin/main...
+Push race detected (attempt 1/3) — rebasing onto latest origin/main...
+Push race detected (attempt 2/3) — rebasing onto latest origin/main...
+Push race detected (attempt
+2026-11-28 12:05:58,634 [INFO] === Autoloop Cycle 11 ===
+2026-11-28 12:05:58,810 [INFO] Live telemetry summary: {'samples': 49, 'start_pnl': -14.7, 'end_pnl': -14.8, 'delta_pnl': -0.1, 'max_drawdown': -0.4, 'last_pos': {'SNDK': -1}, 'last_mk5s': {'SNDK': {'n': 29, 'avg_ticks': 0.201}, 'CRWV': {'n': 96, 'avg_ticks': -0.183}, 'NVDA': {'n': 28, 'avg_ticks': 0.387}, 'VRT': {'n': 8, 'avg_ticks': -3.488}, 'MU': {'n': 2, 'avg_ticks': 1.0}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 12:06:01,058 [INFO] Baseline backtest: pnl=-0.2
+2026-11-28 12:06:01,268 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:06:01,268 [INFO] Retrying request in 0.418635 seconds (retry 1 of 2)
+2026-11-28 12:06:01,788 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:06:01,788 [INFO] Retrying request in 0.786213 seconds (retry 2 of 2)
+2026-11-28 12:06:02,679 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:06:02,680 [WARNING] LLM API call failed in cycle 11: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 12:18:02,687 [INFO] === Autoloop Cycle 12 ===
+2026-11-28 12:18:02,922 [INFO] Live telemetry summary: {'samples': 121, 'start_pnl': -14.7, 'end_pnl': -15.1, 'delta_pnl': -0.4, 'max_drawdown': -0.5, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 32, 'avg_ticks': 0.374}, 'CRWV': {'n': 110, 'avg_ticks': -0.591}, 'NVDA': {'n': 28, 'avg_ticks': 0.387}, 'VRT': {'n': 8, 'avg_ticks': -3.488}, 'MU': {'n': 4, 'avg_ticks': 0.156}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 12:18:07,936 [INFO] Baseline backtest: pnl=-0.5
+2026-11-28 12:18:08,594 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:18:08,594 [INFO] Retrying request in 0.438384 seconds (retry 1 of 2)
+2026-11-28 12:18:09,156 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:18:09,157 [INFO] Retrying request in 0.907335 seconds (retry 2 of 2)
+2026-11-28 12:18:10,165 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:18:10,166 [WARNING] LLM API call failed in cycle 12: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 12:30:10,169 [INFO] === Autoloop Cycle 13 ===
+2026-11-28 12:30:10,428 [INFO] Live telemetry summary: {'samples': 193, 'start_pnl': -14.7, 'end_pnl': -9.3, 'delta_pnl': 5.4, 'max_drawdown': -1.3, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 104, 'avg_ticks': -0.599}, 'CRWV': {'n': 118, 'avg_ticks': 0.056}, 'NVDA': {'n': 40, 'avg_ticks': -0.321}, 'VRT': {'n': 14, 'avg_ticks': -0.306}, 'MU': {'n': 16, 'avg_ticks': 0.085}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 12:30:18,544 [INFO] Baseline backtest: pnl=+5.5
+2026-11-28 12:30:18,741 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:30:18,741 [INFO] Retrying request in 0.400073 seconds (retry 1 of 2)
+2026-11-28 12:30:19,204 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:30:19,204 [INFO] Retrying request in 0.890436 seconds (retry 2 of 2)
+2026-11-28 12:30:20,213 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:30:20,214 [WARNING] LLM API call failed in cycle 13: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 12:42:20,222 [INFO] === Autoloop Cycle 14 ===
+2026-11-28 12:42:20,502 [INFO] Live telemetry summary: {'samples': 265, 'start_pnl': -14.7, 'end_pnl': -9.2, 'delta_pnl': 5.5, 'max_drawdown': -1.4, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 110, 'avg_ticks': -0.251}, 'CRWV': {'n': 122, 'avg_ticks': -0.031}, 'NVDA': {'n': 42, 'avg_ticks': -0.212}, 'VRT': {'n': 18, 'avg_ticks': -0.333}, 'MU': {'n': 16, 'avg_ticks': 0.085}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 12:42:31,484 [INFO] Baseline backtest: pnl=+5.5
+2026-11-28 12:42:31,674 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:42:31,674 [INFO] Retrying request in 0.477574 seconds (retry 1 of 2)
+2026-11-28 12:42:32,246 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:42:32,246 [INFO] Retrying request in 0.914012 seconds (retry 2 of 2)
+2026-11-28 12:42:33,261 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:42:33,261 [WARNING] LLM API call failed in cycle 14: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 12:54:33,270 [INFO] === Autoloop Cycle 15 ===
+2026-11-28 12:54:33,589 [INFO] Live telemetry summary: {'samples': 339, 'start_pnl': -14.7, 'end_pnl': -9.2, 'delta_pnl': 5.5, 'max_drawdown': -1.4, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 112, 'avg_ticks': -0.11}, 'CRWV': {'n': 132, 'avg_ticks': -0.142}, 'NVDA': {'n': 46, 'avg_ticks': -0.116}, 'VRT': {'n': 20, 'avg_ticks': 0.031}, 'MU': {'n': 16, 'avg_ticks': 0.085}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 12:54:47,594 [INFO] Baseline backtest: pnl=+5.3
+2026-11-28 12:54:47,783 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:54:47,783 [INFO] Retrying request in 0.487417 seconds (retry 1 of 2)
+2026-11-28 12:54:48,368 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:54:48,369 [INFO] Retrying request in 0.907784 seconds (retry 2 of 2)
+2026-11-28 12:54:49,426 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 12:54:49,427 [WARNING] LLM API call failed in cycle 15: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 13:06:49,431 [INFO] === Autoloop Cycle 16 ===
+2026-11-28 13:06:49,625 [INFO] Live telemetry summary: {'samples': 54, 'start_pnl': -9.2, 'end_pnl': -9.2, 'delta_pnl': 0.0, 'max_drawdown': 0.0, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 112, 'avg_ticks': -0.11}, 'CRWV': {'n': 132, 'avg_ticks': -0.142}, 'NVDA': {'n': 46, 'avg_ticks': -0.116}, 'VRT': {'n': 20, 'avg_ticks': 0.031}, 'MU': {'n': 16, 'avg_ticks': 0.085}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 13:06:52,159 [INFO] Baseline backtest: pnl=-0.3
+2026-11-28 13:06:52,350 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:06:52,351 [INFO] Retrying request in 0.407221 seconds (retry 1 of 2)
+2026-11-28 13:06:52,850 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:06:52,851 [INFO] Retrying request in 0.996639 seconds (retry 2 of 2)
+2026-11-28 13:06:53,953 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:06:53,954 [WARNING] LLM API call failed in cycle 16: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 13:18:53,962 [INFO] === Autoloop Cycle 17 ===
+2026-11-28 13:18:54,181 [INFO] Live telemetry summary: {'samples': 126, 'start_pnl': -9.2, 'end_pnl': -9.3, 'delta_pnl': -0.1, 'max_drawdown': -0.4, 'last_pos': {}, 'last_mk5s': {'SNDK': {'n': 122, 'avg_ticks': -0.165}, 'CRWV': {'n': 146, 'avg_ticks': 0.04}, 'NVDA': {'n': 52, 'avg_ticks': -0.122}, 'VRT': {'n': 20, 'avg_ticks': 0.031}, 'MU': {'n': 16, 'avg_ticks': 0.085}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 13:18:59,744 [INFO] Baseline backtest: pnl=-0.6
+2026-11-28 13:18:59,942 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:18:59,943 [INFO] Retrying request in 0.382146 seconds (retry 1 of 2)
+2026-11-28 13:19:00,419 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:19:00,420 [INFO] Retrying request in 0.958696 seconds (retry 2 of 2)
+2026-11-28 13:19:01,494 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:19:01,495 [WARNING] LLM API call failed in cycle 17: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 13:27:41,508 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:27:51,521 [INFO] Started live Champion runner --nacht (pid=121569, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_003_132751
+2026-11-28 13:28:01,522 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:28:11,536 [INFO] Started live Champion runner --nacht (pid=121698, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_004_132811
+2026-11-28 13:28:21,536 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:28:31,550 [INFO] Started live Champion runner --nacht (pid=121828, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_005_132831
+2026-11-28 13:28:41,550 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:28:51,565 [INFO] Started live Champion runner --nacht (pid=121945, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_006_132851
+2026-11-28 13:29:01,565 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:29:11,579 [INFO] Started live Champion runner --nacht (pid=122072, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_007_132911
+2026-11-28 13:29:21,579 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:29:31,593 [INFO] Started live Champion runner --nacht (pid=122195, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_008_132931
+2026-11-28 13:29:41,594 [WARNING] Live runner exited (rc=1); restarting in 10s...
+2026-11-28 13:29:51,608 [INFO] Started live Champion runner --nacht (pid=122315, chunk=60.0m) -> /home/workspace/data/autoloop_28_093243/live_009_132951
+2026-11-28 13:31:01,499 [INFO] === Autoloop Cycle 18 ===
+2026-11-28 13:31:01,616 [INFO] Live telemetry summary: {'samples': 6, 'start_pnl': -42.4, 'end_pnl': -39.2, 'delta_pnl': 3.2, 'max_drawdown': -7.6, 'last_pos': {'CRWV': 10, 'SNDK': -34}, 'last_mk5s': {'MU': {'n': 3, 'avg_ticks': 0.187}, 'VRT': {'n': 3, 'avg_ticks': -0.875}, 'CRWV': {'n': 7, 'avg_ticks': -0.006}, 'SNDK': {'n': 4, 'avg_ticks': -0.195}, 'NVDA': {'n': 6, 'avg_ticks': 0.207}, 'NBIS': {'n': 2, 'avg_ticks': -2.25}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 13:31:02,302 [INFO] Baseline backtest: pnl=+0.0
+2026-11-28 13:31:02,760 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:31:02,760 [INFO] Retrying request in 0.435370 seconds (retry 1 of 2)
+2026-11-28 13:31:03,309 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:31:03,310 [INFO] Retrying request in 0.901896 seconds (retry 2 of 2)
+2026-11-28 13:31:04,333 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:31:04,334 [WARNING] LLM API call failed in cycle 18: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 13:32:43,458 [INFO] === Autoloop Cycle 19 ===
+2026-11-28 13:32:43,593 [INFO] Live telemetry summary: {'samples': 16, 'start_pnl': -42.4, 'end_pnl': -39.2, 'delta_pnl': 3.2, 'max_drawdown': -7.6, 'last_pos': {}, 'last_mk5s': {'MU': {'n': 5, 'avg_ticks': -0.113}, 'VRT': {'n': 3, 'avg_ticks': -0.875}, 'CRWV': {'n': 9, 'avg_ticks': -0.222}, 'SNDK': {'n': 9, 'avg_ticks': 0.335}, 'NVDA': {'n': 6, 'avg_ticks': 0.207}, 'NBIS': {'n': 2, 'avg_ticks': -2.25}}, 'last_paused': [], 'drawdown_halted': False}
+2026-11-28 13:32:44,637 [INFO] Baseline backtest: pnl=+0.0
+2026-11-28 13:32:44,835 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:32:44,836 [INFO] Retrying request in 0.448121 seconds (retry 1 of 2)
+2026-11-28 13:32:45,375 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:32:45,375 [INFO] Retrying request in 0.848799 seconds (retry 2 of 2)
+2026-11-28 13:32:46,335 [INFO] HTTP Request: POST https://llm.orange.sixt.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-11-28 13:32:46,335 [WARNING] LLM API call failed in cycle 19: OpenAI API call failed: Error code: 429 - Budget has been exceeded! Key=tum-hackathon-05 (sk-...UTtg) Current cost: 25.4864024, Max budget: 25.0
+2026-11-28 13:32:46,343 [INFO] Sending SIGINT to live runner (pid=122315) for clean order cancel...

@@ -1,0 +1,265 @@
+nohup: ignoring input
+2026-11-28 14:33:06,210 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:33:06,210 [INFO] Background thread started
+2026-11-28 14:33:06,245 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:33:06,245 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:33:06,251 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:33:06,480 [INFO] === ROUND START: _surge_55k:N1_Fix1LotStarve_CombineM1M3 (3.0 min, mock=False) ===
+2026-11-28 14:33:14,345 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=8s/180s pnl=-49.65 gross=163
+2026-11-28 14:33:22,069 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=16s/180s pnl=-50.80 gross=198
+2026-11-28 14:33:29,748 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=23s/180s pnl=-43.10 gross=202
+2026-11-28 14:33:37,403 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=31s/180s pnl=-49.20 gross=246
+2026-11-28 14:33:45,083 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=39s/180s pnl=-52.25 gross=231
+2026-11-28 14:33:52,747 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=46s/180s pnl=-56.95 gross=231
+2026-11-28 14:34:00,381 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=54s/180s pnl=-38.45 gross=229
+2026-11-28 14:34:08,111 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=62s/180s pnl=-44.80 gross=264
+2026-11-28 14:34:15,825 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=69s/180s pnl=-27.30 gross=152
+2026-11-28 14:34:23,483 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=77s/180s pnl=-28.05 gross=133
+2026-11-28 14:34:31,158 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=85s/180s pnl=-21.85 gross=150
+2026-11-28 14:34:38,888 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=92s/180s pnl=-15.95 gross=119
+2026-11-28 14:34:46,584 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=100s/180s pnl=-22.85 gross=209
+2026-11-28 14:34:54,266 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=108s/180s pnl=-23.40 gross=182
+2026-11-28 14:35:01,936 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=115s/180s pnl=-13.45 gross=115
+2026-11-28 14:35:09,620 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=123s/180s pnl=-6.50 gross=32
+2026-11-28 14:35:17,301 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=131s/180s pnl=-4.55 gross=63
+2026-11-28 14:35:25,038 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=139s/180s pnl=+94.10 gross=136
+2026-11-28 14:35:32,723 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=146s/180s pnl=+94.85 gross=170
+2026-11-28 14:35:40,442 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=154s/180s pnl=+92.75 gross=195
+2026-11-28 14:35:48,181 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=162s/180s pnl=+87.90 gross=174
+2026-11-28 14:35:55,869 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=169s/180s pnl=+104.05 gross=214
+2026-11-28 14:36:03,610 [INFO] [N1_Fix1LotStarve_CombineM1M3] t=177s/180s pnl=+85.70 gross=180
+2026-11-28 14:36:07,431 [INFO] All positions flattened to 0.
+2026-11-28 14:36:07,445 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:36:07,445 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:36:07,449 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:36:08,379 [INFO] Background thread exited
+2026-11-28 14:36:08,468 [INFO] === ROUND END: N1_Fix1LotStarve_CombineM1M3 | PnL=+81.70 | Sharpe=0.61 | MaxDD=-82.20 | Calmar=0.99 ===
+2026-11-28 14:36:10,499 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:36:10,499 [INFO] Background thread started
+2026-11-28 14:36:10,508 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:36:10,508 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:36:10,514 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:36:10,770 [INFO] === ROUND START: _push_55k:M3_TwoScale_OU_Upcoming (3.0 min, mock=False) ===
+2026-11-28 14:36:18,390 [INFO] [M3_TwoScale_OU_Upcoming] t=8s/180s pnl=+7.40 gross=162
+2026-11-28 14:36:26,121 [INFO] [M3_TwoScale_OU_Upcoming] t=15s/180s pnl=-14.50 gross=132
+2026-11-28 14:36:33,832 [INFO] [M3_TwoScale_OU_Upcoming] t=23s/180s pnl=-20.00 gross=126
+2026-11-28 14:36:41,525 [INFO] [M3_TwoScale_OU_Upcoming] t=31s/180s pnl=+3.65 gross=183
+2026-11-28 14:36:49,208 [INFO] [M3_TwoScale_OU_Upcoming] t=38s/180s pnl=-28.10 gross=158
+2026-11-28 14:36:56,872 [INFO] [M3_TwoScale_OU_Upcoming] t=46s/180s pnl=-29.65 gross=153
+2026-11-28 14:37:04,609 [INFO] [M3_TwoScale_OU_Upcoming] t=54s/180s pnl=-22.40 gross=178
+2026-11-28 14:37:12,204 [INFO] [M3_TwoScale_OU_Upcoming] t=61s/180s pnl=-32.70 gross=192
+2026-11-28 14:37:19,861 [INFO] [M3_TwoScale_OU_Upcoming] t=69s/180s pnl=-32.70 gross=192
+2026-11-28 14:37:27,532 [INFO] [M3_TwoScale_OU_Upcoming] t=77s/180s pnl=-32.65 gross=213
+2026-11-28 14:37:35,249 [INFO] [M3_TwoScale_OU_Upcoming] t=84s/180s pnl=-125.65 gross=203
+2026-11-28 14:37:42,934 [INFO] [M3_TwoScale_OU_Upcoming] t=92s/180s pnl=-126.20 gross=242
+2026-11-28 14:37:50,625 [INFO] [M3_TwoScale_OU_Upcoming] t=100s/180s pnl=-112.40 gross=194
+2026-11-28 14:37:58,361 [INFO] [M3_TwoScale_OU_Upcoming] t=108s/180s pnl=-102.75 gross=175
+2026-11-28 14:38:06,039 [INFO] [M3_TwoScale_OU_Upcoming] t=115s/180s pnl=-113.80 gross=182
+2026-11-28 14:38:13,680 [INFO] [M3_TwoScale_OU_Upcoming] t=123s/180s pnl=-109.20 gross=206
+2026-11-28 14:38:21,381 [INFO] [M3_TwoScale_OU_Upcoming] t=131s/180s pnl=-130.45 gross=137
+2026-11-28 14:38:29,092 [INFO] [M3_TwoScale_OU_Upcoming] t=138s/180s pnl=-116.65 gross=211
+2026-11-28 14:38:36,801 [INFO] [M3_TwoScale_OU_Upcoming] t=146s/180s pnl=-114.05 gross=153
+2026-11-28 14:38:44,457 [INFO] [M3_TwoScale_OU_Upcoming] t=154s/180s pnl=-118.40 gross=118
+2026-11-28 14:38:52,152 [INFO] [M3_TwoScale_OU_Upcoming] t=161s/180s pnl=-120.45 gross=77
+2026-11-28 14:38:59,848 [INFO] [M3_TwoScale_OU_Upcoming] t=169s/180s pnl=-114.65 gross=77
+2026-11-28 14:39:07,499 [INFO] [M3_TwoScale_OU_Upcoming] t=177s/180s pnl=-107.85 gross=133
+2026-11-28 14:39:11,565 [INFO] All positions flattened to 0.
+2026-11-28 14:39:11,580 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:39:11,581 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:39:11,585 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:39:11,645 [INFO] Background thread exited
+2026-11-28 14:39:11,716 [INFO] === ROUND END: M3_TwoScale_OU_Upcoming | PnL=-118.50 | Sharpe=-0.76 | MaxDD=-214.05 | Calmar=-0.55 ===
+2026-11-28 14:39:13,747 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:39:13,748 [INFO] Background thread started
+2026-11-28 14:39:13,754 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:39:13,755 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:39:13,761 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:39:14,019 [INFO] === ROUND START: _push_55k:M1_UnifiedClip_FixExit (3.0 min, mock=False) ===
+2026-11-28 14:39:21,636 [INFO] [M1_UnifiedClip_FixExit] t=8s/180s pnl=+6.05 gross=85
+2026-11-28 14:39:29,337 [INFO] [M1_UnifiedClip_FixExit] t=15s/180s pnl=+0.85 gross=145
+2026-11-28 14:39:37,025 [INFO] [M1_UnifiedClip_FixExit] t=23s/180s pnl=-2.45 gross=97
+2026-11-28 14:39:44,675 [INFO] [M1_UnifiedClip_FixExit] t=31s/180s pnl=+2.70 gross=80
+2026-11-28 14:39:49,758 [WARNING] order delete failed with reason: Could not find order id to delete
+2026-11-28 14:39:52,358 [INFO] [M1_UnifiedClip_FixExit] t=38s/180s pnl=+44.25 gross=273
+2026-11-28 14:40:00,000 [INFO] [M1_UnifiedClip_FixExit] t=46s/180s pnl=+62.65 gross=285
+2026-11-28 14:40:07,761 [INFO] [M1_UnifiedClip_FixExit] t=54s/180s pnl=+79.85 gross=255
+2026-11-28 14:40:15,440 [INFO] [M1_UnifiedClip_FixExit] t=61s/180s pnl=+82.90 gross=172
+2026-11-28 14:40:23,113 [INFO] [M1_UnifiedClip_FixExit] t=69s/180s pnl=+84.35 gross=145
+2026-11-28 14:40:30,881 [INFO] [M1_UnifiedClip_FixExit] t=77s/180s pnl=-25.55 gross=217
+2026-11-28 14:40:38,580 [INFO] [M1_UnifiedClip_FixExit] t=85s/180s pnl=+40.65 gross=133
+2026-11-28 14:40:46,236 [INFO] [M1_UnifiedClip_FixExit] t=92s/180s pnl=+33.60 gross=116
+2026-11-28 14:40:53,955 [INFO] [M1_UnifiedClip_FixExit] t=100s/180s pnl=+45.70 gross=146
+2026-11-28 14:41:01,687 [INFO] [M1_UnifiedClip_FixExit] t=108s/180s pnl=+56.60 gross=80
+2026-11-28 14:41:09,409 [INFO] [M1_UnifiedClip_FixExit] t=115s/180s pnl=+57.35 gross=23
+2026-11-28 14:41:17,133 [INFO] [M1_UnifiedClip_FixExit] t=123s/180s pnl=+66.65 gross=121
+2026-11-28 14:41:24,877 [INFO] [M1_UnifiedClip_FixExit] t=131s/180s pnl=+61.85 gross=201
+2026-11-28 14:41:32,605 [INFO] [M1_UnifiedClip_FixExit] t=139s/180s pnl=+68.65 gross=149
+2026-11-28 14:41:40,290 [INFO] [M1_UnifiedClip_FixExit] t=146s/180s pnl=+77.95 gross=281
+2026-11-28 14:41:47,979 [INFO] [M1_UnifiedClip_FixExit] t=154s/180s pnl=+80.90 gross=270
+2026-11-28 14:41:55,670 [INFO] [M1_UnifiedClip_FixExit] t=162s/180s pnl=+69.50 gross=293
+2026-11-28 14:42:03,350 [INFO] [M1_UnifiedClip_FixExit] t=169s/180s pnl=+98.85 gross=215
+2026-11-28 14:42:11,053 [INFO] [M1_UnifiedClip_FixExit] t=177s/180s pnl=+90.75 gross=224
+2026-11-28 14:42:15,032 [INFO] All positions flattened to 0.
+2026-11-28 14:42:15,047 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:42:15,047 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:42:15,051 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:42:15,890 [INFO] Background thread exited
+2026-11-28 14:42:15,973 [INFO] === ROUND END: M1_UnifiedClip_FixExit | PnL=+65.20 | Sharpe=0.45 | MaxDD=-129.95 | Calmar=0.50 ===
+2026-11-28 14:42:18,007 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:42:18,008 [INFO] Background thread started
+2026-11-28 14:42:18,018 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:42:18,019 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:42:18,025 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:42:18,279 [INFO] === ROUND START: _break_50k:K1_ClipPassive_NoFlip (3.0 min, mock=False) ===
+2026-11-28 14:42:26,086 [INFO] [K1_ClipPassive_NoFlip] t=8s/180s pnl=+4.75 gross=117
+2026-11-28 14:42:33,991 [INFO] [K1_ClipPassive_NoFlip] t=16s/180s pnl=+0.75 gross=141
+2026-11-28 14:42:41,858 [INFO] [K1_ClipPassive_NoFlip] t=24s/180s pnl=+15.75 gross=148
+2026-11-28 14:42:49,689 [INFO] [K1_ClipPassive_NoFlip] t=31s/180s pnl=+0.65 gross=173
+2026-11-28 14:42:57,609 [INFO] [K1_ClipPassive_NoFlip] t=39s/180s pnl=+5.10 gross=201
+2026-11-28 14:43:05,525 [INFO] [K1_ClipPassive_NoFlip] t=47s/180s pnl=+26.05 gross=207
+2026-11-28 14:43:12,042 [WARNING] order delete failed with reason: Could not find order id to delete
+2026-11-28 14:43:13,342 [INFO] [K1_ClipPassive_NoFlip] t=55s/180s pnl=+38.15 gross=151
+2026-11-28 14:43:21,109 [INFO] [K1_ClipPassive_NoFlip] t=63s/180s pnl=+38.50 gross=188
+2026-11-28 14:43:28,990 [INFO] [K1_ClipPassive_NoFlip] t=71s/180s pnl=+34.20 gross=214
+2026-11-28 14:43:36,780 [INFO] [K1_ClipPassive_NoFlip] t=79s/180s pnl=+21.25 gross=139
+2026-11-28 14:43:44,668 [INFO] [K1_ClipPassive_NoFlip] t=86s/180s pnl=+22.40 gross=152
+2026-11-28 14:43:52,503 [INFO] [K1_ClipPassive_NoFlip] t=94s/180s pnl=+19.65 gross=164
+2026-11-28 14:44:00,247 [INFO] [K1_ClipPassive_NoFlip] t=102s/180s pnl=+16.50 gross=129
+2026-11-28 14:44:07,959 [INFO] [K1_ClipPassive_NoFlip] t=110s/180s pnl=+15.00 gross=77
+2026-11-28 14:44:15,800 [INFO] [K1_ClipPassive_NoFlip] t=118s/180s pnl=+15.20 gross=122
+2026-11-28 14:44:23,624 [INFO] [K1_ClipPassive_NoFlip] t=125s/180s pnl=+16.30 gross=58
+2026-11-28 14:44:31,320 [INFO] [K1_ClipPassive_NoFlip] t=133s/180s pnl=+26.75 gross=95
+2026-11-28 14:44:39,046 [INFO] [K1_ClipPassive_NoFlip] t=141s/180s pnl=+29.30 gross=57
+2026-11-28 14:44:46,883 [INFO] [K1_ClipPassive_NoFlip] t=149s/180s pnl=+34.35 gross=82
+2026-11-28 14:44:54,644 [INFO] [K1_ClipPassive_NoFlip] t=156s/180s pnl=+37.95 gross=60
+2026-11-28 14:45:02,375 [INFO] [K1_ClipPassive_NoFlip] t=164s/180s pnl=+41.30 gross=27
+2026-11-28 14:45:10,048 [INFO] [K1_ClipPassive_NoFlip] t=172s/180s pnl=+43.35 gross=75
+2026-11-28 14:45:17,799 [INFO] [K1_ClipPassive_NoFlip] t=180s/180s pnl=+49.65 gross=117
+2026-11-28 14:45:19,154 [INFO] All positions flattened to 0.
+2026-11-28 14:45:19,170 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:45:19,170 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:45:19,174 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:45:20,132 [INFO] Background thread exited
+2026-11-28 14:45:20,195 [INFO] === ROUND END: K1_ClipPassive_NoFlip | PnL=+43.90 | Sharpe=1.26 | MaxDD=-43.90 | Calmar=1.00 ===
+2026-11-28 14:45:22,233 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:45:22,233 [INFO] Background thread started
+2026-11-28 14:45:22,246 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:45:22,264 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:45:22,266 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:45:22,506 [INFO] === ROUND START: _grad_climb:G1_Keep1_NoAMD (3.0 min, mock=False) ===
+2026-11-28 14:45:30,094 [INFO] [G1_Keep1_NoAMD] t=8s/180s pnl=+0.00 gross=0
+2026-11-28 14:45:37,777 [INFO] [G1_Keep1_NoAMD] t=15s/180s pnl=+7.05 gross=73
+2026-11-28 14:45:45,435 [INFO] [G1_Keep1_NoAMD] t=23s/180s pnl=+9.65 gross=75
+2026-11-28 14:45:53,206 [INFO] [G1_Keep1_NoAMD] t=31s/180s pnl=-56.60 gross=150
+2026-11-28 14:46:00,912 [INFO] [G1_Keep1_NoAMD] t=38s/180s pnl=-47.65 gross=129
+2026-11-28 14:46:08,603 [INFO] [G1_Keep1_NoAMD] t=46s/180s pnl=-37.15 gross=139
+2026-11-28 14:46:16,254 [INFO] [G1_Keep1_NoAMD] t=54s/180s pnl=-44.25 gross=144
+2026-11-28 14:46:23,917 [INFO] [G1_Keep1_NoAMD] t=61s/180s pnl=-54.40 gross=144
+2026-11-28 14:46:31,606 [INFO] [G1_Keep1_NoAMD] t=69s/180s pnl=-44.25 gross=143
+2026-11-28 14:46:39,291 [INFO] [G1_Keep1_NoAMD] t=77s/180s pnl=-54.75 gross=137
+2026-11-28 14:46:46,963 [INFO] [G1_Keep1_NoAMD] t=84s/180s pnl=-53.15 gross=135
+2026-11-28 14:46:54,643 [INFO] [G1_Keep1_NoAMD] t=92s/180s pnl=-50.75 gross=137
+2026-11-28 14:47:02,299 [INFO] [G1_Keep1_NoAMD] t=100s/180s pnl=-37.15 gross=185
+2026-11-28 14:47:09,955 [INFO] [G1_Keep1_NoAMD] t=107s/180s pnl=-40.00 gross=148
+2026-11-28 14:47:17,706 [INFO] [G1_Keep1_NoAMD] t=115s/180s pnl=-37.85 gross=255
+2026-11-28 14:47:25,406 [INFO] [G1_Keep1_NoAMD] t=123s/180s pnl=-43.90 gross=176
+2026-11-28 14:47:33,043 [INFO] [G1_Keep1_NoAMD] t=131s/180s pnl=-42.00 gross=214
+2026-11-28 14:47:40,670 [INFO] [G1_Keep1_NoAMD] t=138s/180s pnl=-24.45 gross=233
+2026-11-28 14:47:48,308 [INFO] [G1_Keep1_NoAMD] t=146s/180s pnl=-19.55 gross=196
+2026-11-28 14:47:55,969 [INFO] [G1_Keep1_NoAMD] t=153s/180s pnl=-17.95 gross=191
+2026-11-28 14:48:03,657 [INFO] [G1_Keep1_NoAMD] t=161s/180s pnl=-15.60 gross=154
+2026-11-28 14:48:11,294 [INFO] [G1_Keep1_NoAMD] t=169s/180s pnl=-15.20 gross=157
+2026-11-28 14:48:18,935 [INFO] [G1_Keep1_NoAMD] t=176s/180s pnl=-4.20 gross=170
+2026-11-28 14:48:23,373 [INFO] All positions flattened to 0.
+2026-11-28 14:48:23,387 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:48:23,387 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:48:23,391 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:48:23,394 [INFO] Background thread exited
+2026-11-28 14:48:23,409 [INFO] === ROUND END: G1_Keep1_NoAMD | PnL=-9.10 | Sharpe=-0.06 | MaxDD=-114.05 | Calmar=-0.08 ===
+2026-11-28 14:48:25,449 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:48:25,449 [INFO] Background thread started
+2026-11-28 14:48:25,460 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:48:25,460 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:48:25,467 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:48:25,720 [INFO] === ROUND START: _slide12_test:U2_Tighter (3.0 min, mock=False) ===
+2026-11-28 14:48:33,349 [INFO] [U2_Tighter] t=8s/180s pnl=+0.00 gross=0
+2026-11-28 14:48:40,978 [INFO] [U2_Tighter] t=15s/180s pnl=+0.50 gross=10
+2026-11-28 14:48:48,659 [INFO] [U2_Tighter] t=23s/180s pnl=+1.45 gross=49
+2026-11-28 14:48:56,285 [INFO] [U2_Tighter] t=31s/180s pnl=+9.90 gross=168
+2026-11-28 14:49:04,045 [INFO] [U2_Tighter] t=38s/180s pnl=+12.25 gross=175
+2026-11-28 14:49:11,788 [INFO] [U2_Tighter] t=46s/180s pnl=-0.85 gross=179
+2026-11-28 14:49:19,421 [INFO] [U2_Tighter] t=54s/180s pnl=-4.45 gross=271
+2026-11-28 14:49:27,029 [INFO] [U2_Tighter] t=61s/180s pnl=-2.70 gross=236
+2026-11-28 14:49:34,649 [INFO] [U2_Tighter] t=69s/180s pnl=-2.10 gross=234
+2026-11-28 14:49:42,297 [INFO] [U2_Tighter] t=77s/180s pnl=-9.15 gross=185
+2026-11-28 14:49:49,918 [INFO] [U2_Tighter] t=84s/180s pnl=-8.15 gross=165
+2026-11-28 14:49:57,585 [INFO] [U2_Tighter] t=92s/180s pnl=-18.05 gross=149
+2026-11-28 14:50:05,226 [INFO] [U2_Tighter] t=100s/180s pnl=-2.75 gross=211
+2026-11-28 14:50:12,865 [INFO] [U2_Tighter] t=107s/180s pnl=-1.20 gross=258
+2026-11-28 14:50:20,601 [INFO] [U2_Tighter] t=115s/180s pnl=-4.85 gross=259
+2026-11-28 14:50:28,453 [INFO] [U2_Tighter] t=123s/180s pnl=+10.65 gross=259
+2026-11-28 14:50:36,299 [INFO] [U2_Tighter] t=131s/180s pnl=+14.60 gross=176
+2026-11-28 14:50:44,168 [INFO] [U2_Tighter] t=138s/180s pnl=+24.60 gross=176
+2026-11-28 14:50:52,018 [INFO] [U2_Tighter] t=146s/180s pnl=+17.70 gross=192
+2026-11-28 14:50:59,918 [INFO] [U2_Tighter] t=154s/180s pnl=+207.00 gross=182
+2026-11-28 14:51:07,763 [INFO] [U2_Tighter] t=162s/180s pnl=+227.45 gross=133
+2026-11-28 14:51:15,652 [INFO] [U2_Tighter] t=170s/180s pnl=+239.85 gross=219
+2026-11-28 14:51:23,315 [INFO] [U2_Tighter] t=178s/180s pnl=+230.20 gross=232
+2026-11-28 14:51:26,511 [INFO] All positions flattened to 0.
+2026-11-28 14:51:26,528 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:51:26,528 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:51:26,533 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:51:26,601 [INFO] Background thread exited
+2026-11-28 14:51:26,652 [INFO] === ROUND END: U2_Tighter | PnL=+225.00 | Sharpe=1.94 | MaxDD=-64.70 | Calmar=3.48 ===
+2026-11-28 14:51:28,687 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 14:51:28,687 [INFO] Background thread started
+2026-11-28 14:51:28,698 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 14:51:28,698 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 14:51:28,703 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 14:51:28,959 [INFO] === ROUND START: strat_glft_8stock:MultiAssetGLFTPortfolioBot (3.0 min, mock=False) ===
+2026-11-28 14:51:36,525 [INFO] [MultiAssetGLFTPortfolioBot] t=8s/180s pnl=+0.00 gross=0
+2026-11-28 14:51:44,206 [INFO] [MultiAssetGLFTPortfolioBot] t=15s/180s pnl=-1.95 gross=39
+2026-11-28 14:51:51,872 [INFO] [MultiAssetGLFTPortfolioBot] t=23s/180s pnl=-8.85 gross=31
+2026-11-28 14:51:59,534 [INFO] [MultiAssetGLFTPortfolioBot] t=31s/180s pnl=-8.70 gross=56
+2026-11-28 14:52:07,211 [INFO] [MultiAssetGLFTPortfolioBot] t=38s/180s pnl=-5.70 gross=18
+2026-11-28 14:52:14,877 [INFO] [MultiAssetGLFTPortfolioBot] t=46s/180s pnl=-9.20 gross=94
+2026-11-28 14:52:22,673 [INFO] [MultiAssetGLFTPortfolioBot] t=54s/180s pnl=-9.20 gross=94
+2026-11-28 14:52:30,472 [INFO] [MultiAssetGLFTPortfolioBot] t=62s/180s pnl=-0.90 gross=94
+2026-11-28 14:52:38,150 [INFO] [MultiAssetGLFTPortfolioBot] t=69s/180s pnl=-9.20 gross=94
+2026-11-28 14:52:45,859 [INFO] [MultiAssetGLFTPortfolioBot] t=77s/180s pnl=+0.30 gross=102
+2026-11-28 14:52:53,709 [INFO] [MultiAssetGLFTPortfolioBot] t=85s/180s pnl=+11.15 gross=119
+2026-11-28 14:53:01,580 [INFO] [MultiAssetGLFTPortfolioBot] t=93s/180s pnl=+11.65 gross=125
+2026-11-28 14:53:09,445 [INFO] [MultiAssetGLFTPortfolioBot] t=100s/180s pnl=+27.40 gross=190
+2026-11-28 14:53:17,328 [INFO] [MultiAssetGLFTPortfolioBot] t=108s/180s pnl=+37.35 gross=131
+2026-11-28 14:53:25,197 [INFO] [MultiAssetGLFTPortfolioBot] t=116s/180s pnl=+32.00 gross=42
+2026-11-28 14:53:32,926 [INFO] [MultiAssetGLFTPortfolioBot] t=124s/180s pnl=+29.70 gross=18
+2026-11-28 14:53:40,592 [INFO] [MultiAssetGLFTPortfolioBot] t=132s/180s pnl=+29.50 gross=76
+2026-11-28 14:53:48,273 [INFO] [MultiAssetGLFTPortfolioBot] t=139s/180s pnl=+28.95 gross=27
+2026-11-28 14:53:55,888 [INFO] [MultiAssetGLFTPortfolioBot] t=147s/180s pnl=+30.25 gross=45
+2026-11-28 14:54:03,676 [INFO] [MultiAssetGLFTPortfolioBot] t=155s/180s pnl=+21.05 gross=137
+2026-11-28 14:54:11,541 [INFO] [MultiAssetGLFTPortfolioBot] t=163s/180s pnl=+25.05 gross=137
+2026-11-28 14:54:19,371 [INFO] [MultiAssetGLFTPortfolioBot] t=170s/180s pnl=+17.35 gross=173
+2026-11-28 14:54:27,193 [INFO] [MultiAssetGLFTPortfolioBot] t=178s/180s pnl=+15.00 gross=156
+2026-11-28 14:54:29,738 [INFO] All positions flattened to 0.
+2026-11-28 14:54:29,754 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 14:54:29,754 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 14:54:29,758 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 14:54:29,845 [INFO] Background thread exited
+2026-11-28 14:54:29,877 [INFO] === ROUND END: MultiAssetGLFTPortfolioBot | PnL=+7.20 | Sharpe=0.12 | MaxDD=-43.35 | Calmar=0.17 ===
+
+# Live Optibook Round-Robin Leaderboard (2026-11-28 14:54:29)
+
+Composite Score = `35% PnL + 30% Session Sharpe + 20% Calmar (PnL/|MaxDD|) + 15% MaxDD`.
+
+| Rank | Strategy | Score | PnL | PnL/min | Sharpe | Sortino | Max DD | Calmar | Peak Gross | Disc |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1** | `_slide12_test:U2_Tighter` | **95.7** | +225.00 | +74.67 | +1.94 | +7.14 | -64.70 | 3.48 | 272 | no |
+| **2** | `_break_50k:K1_ClipPassive_NoFlip` | **75.7** | +43.90 | +14.56 | +1.26 | +1.95 | -43.90 | 1.00 | 241 | no |
+| **3** | `_surge_55k:N1_Fix1LotStarve_CombineM1M3` | **74.3** | +81.70 | +27.09 | +0.61 | +1.23 | -82.20 | 0.99 | 286 | no |
+| **4** | `_push_55k:M1_UnifiedClip_FixExit` | **57.9** | +65.20 | +21.61 | +0.45 | +0.58 | -129.95 | 0.50 | 337 | no |
+| **5** | `strat_glft_8stock:MultiAssetGLFTPortfolioBot` | **51.4** | +7.20 | +2.39 | +0.12 | +0.17 | -43.35 | 0.17 | 232 | no |
+| **6** | `_grad_climb:G1_Keep1_NoAMD` | **30.7** | -9.10 | -3.02 | -0.06 | -0.08 | -114.05 | -0.08 | 255 | no |
+| **7** | `_push_55k:M3_TwoScale_OU_Upcoming` | **14.3** | -118.50 | -39.33 | -0.76 | -0.82 | -214.05 | -0.55 | 248 | no |
+
+## Winner: `_slide12_test:U2_Tighter` (Score `95.7`, PnL `+225.00`, Sharpe `+1.94`, MaxDD `-64.70`)
+
