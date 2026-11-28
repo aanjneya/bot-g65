@@ -19,7 +19,7 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from bot.config import BotConfig
-from bot.execution import RiskAndExecution, strip_own_orders
+from bot.execution import RiskAndExecution, mid_price, strip_own_orders
 from bot.mock_exchange import MockExchange
 from bot.signals import ABMMSAlphaEngine
 
@@ -308,6 +308,9 @@ class ABMMSBot:
             except Exception as exc:
                 logger.warning("CSV logger error: %s", exc)
 
+        self.executor.passive_evidence.observe(
+            now_ts, trade_ticks, {u: mid_price(b) for u, b in books.items()}, self.cfg.username
+        )
         positions = self.exchange.get_positions()
 
         # 2. Compute ABMM-S snapshot (wall-protected entry, profit exit, scratches, markout breaker, GLFT)

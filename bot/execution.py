@@ -9,6 +9,7 @@ from collections import deque
 from types import SimpleNamespace
 from typing import Any, Deque, Dict, Optional, Set, Tuple
 
+from bot.passive_evidence import PassiveEntryEvidence
 from bot.signals import find_protecting_wall
 
 logger = logging.getLogger(__name__)
@@ -134,6 +135,7 @@ class RiskAndExecution:
         self.max_open_order_volume = max_open_order_volume
         self.max_requests_per_sec = max_requests_per_sec
         self._req_times: Deque[float] = deque()
+        self.passive_evidence = PassiveEntryEvidence()
 
     def _can_send_request(self, reserve: int = 0) -> bool:
         now = time.monotonic()
@@ -751,6 +753,17 @@ class RiskAndExecution:
                 else:
                     bid_vol = 0
                     ask_vol = 0
+
+            # Evaluate the final passive price, after wall sizing and self-cross checks.
+            # A reducing side must never wait for evidence or be resized by this gate.
+            if cur_pos >= 0 and bid_vol > 0:
+                bid_vol = self.passive_evidence.entry_lots(
+                    inst_id, 'bid', target_bid, tick, bid_vol, cur_pos, book.bids
+                )
+            if cur_pos <= 0 and ask_vol > 0:
+                ask_vol = self.passive_evidence.entry_lots(
+                    inst_id, 'ask', target_ask, tick, ask_vol, -cur_pos, book.asks
+                )
 
             inst_open_vol = sum(int(o.volume) for o in open_orders.values())
 
