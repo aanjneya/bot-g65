@@ -1,0 +1,21 @@
+nohup: ignoring input
+data_27_213800 Basis:  PnL  -254.2   1.  -163.8 / -90.4   rate  24  
+data_27_213800 NurMarkout:  PnL  -328.1   1.  -222.2 / -105.8   rate  24  
+data_27_213800 NurSchutz:  PnL  -240.0   1.  -161.9 / -78.0   rate  24  
+data_27_213800 Voll:  PnL  -295.7   1.  -200.5 / -95.3   rate  24  
+data_27_230711 Basis:  PnL  -160.4   1.  -176.9 / +16.5   rate  24  
+data_27_230711 NurMarkout:  PnL  -134.3   1.  -116.1 / -18.2   rate  24  
+data_27_230711 NurSchutz:  PnL  -182.0   1.  -171.0 / -11.0   rate  24  
+data_27_230711 Voll:  PnL  -146.7   1.  -162.1 / +15.4   rate  24  
+live_28_053517_2 Basis:  PnL  -175.5   1.  +10.8 / -186.3   rate  24  
+live_28_053517_2 NurMarkout:  PnL  -82.7   1.  +44.5 / -127.2   rate  24  
+live_28_053517_2 NurSchutz:  PnL  -124.3   1.  +15.5 / -139.8   rate  24  
+live_28_053517_2 Voll:  PnL  -72.2   1.  +18.4 / -90.6   rate  24  
+live_28_001232_0 Basis:  PnL  -900.1   1.  -586.4 / -313.8   rate  24  
+live_28_001232_0 NurMarkout:  PnL  -876.3   1.  -652.6 / -223.7   rate  24  
+live_28_001232_0 NurSchutz:  PnL  -810.9   1.  -538.1 / -272.8   rate  24  
+live_28_001232_0 Voll:  PnL  -1023.1   1.  -551.9 / -471.1   rate  24  
+live_27_233710_8 Basis:  PnL  +296.9   1.  +160.6 / +136.4   rate  24  
+live_27_233710_8 NurMarkout:  PnL  -45.3   1.  -39.9 / -5.4   rate  24  
+live_27_233710_8 NurSchutz:  PnL  +344.9   1.  +189.0 / +155.9   rate  24  
+live_27_233710_8 Voll:  PnL  -47.7   1.  -147.0 / +99.3   rate  24  
