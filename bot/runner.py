@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import logging
 import os
 import subprocess
@@ -65,9 +66,10 @@ class MarketLogger:
         os.makedirs(folder, exist_ok=True)
         self._files = [
             open(os.path.join(folder, name), "w", newline="", encoding="utf-8")
-            for name in ("books.csv", "trades.csv", "news.csv")
+            for name in ("books.csv", "trades.csv", "news.csv", "telemetry.jsonl")
         ]
-        self._books_w, self._trades_w, self._news_w = (csv.writer(f) for f in self._files)
+        self._books_w, self._trades_w, self._news_w = (csv.writer(f) for f in self._files[:3])
+        self._telemetry_f = self._files[3]
         self._books_w.writerow(["time", "instrument", "bids", "asks"])
         self._trades_w.writerow(["time", "instrument", "price", "volume", "aggressor_side", "buyer", "seller"])
         self._news_w.writerow(["time", "post"])
@@ -113,6 +115,13 @@ class MarketLogger:
         for feed in social_feeds:
             self._news_w.writerow([now_iso, getattr(feed, "post", "")])
 
+        now_mono = time.monotonic()
+        if now_mono - self._last_flush >= self.flush_every_sec:
+            self.flush()
+            self._last_flush = now_mono
+
+    def record_telemetry(self, payload: Dict[str, Any]) -> None:
+        self._telemetry_f.write(json.dumps(payload, separators=(",", ":")) + "\n")
         now_mono = time.monotonic()
         if now_mono - self._last_flush >= self.flush_every_sec:
             self.flush()
@@ -386,6 +395,26 @@ class ABMMSBot:
                 pos,
                 mk,
             )
+            if self.market_logger is not None:
+                try:
+                    self.market_logger.record_telemetry(
+                        {
+                            "t": datetime.now().isoformat(),
+                            "tick": self.tick_count,
+                            "pnl": round(float(pnl), 2) if pnl is not None else 0.0,
+                            "pos": pos,
+                            "mk5s": {
+                                k: {"n": v[0], "avg_ticks": round(float(v[1]), 3)}
+                                for k, v in alpha.own_markout_stats.items()
+                                if v[0] > 0
+                            },
+                            "paused": sorted(snap.paused),
+                            "orders_sent": orders_sent,
+                            "drawdown_halted": self._drawdown_halted,
+                        }
+                    )
+                except Exception as exc:
+                    logger.warning("Telemetry logger error: %s", exc)
 
         return orders_sent
 

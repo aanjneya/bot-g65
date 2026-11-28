@@ -524,6 +524,53 @@ class TestMockRunner(unittest.TestCase):
             self.assertEqual(bot.market_logger.folder, second_dir)
             self.assertTrue(os.path.exists(os.path.join(first_dir, "books.csv")))
 
+    def test_telemetry_jsonl_and_autoloop_gates(self) -> None:
+        import json
+        from bot.autoloop import (
+            parse_backtest_report,
+            should_promote,
+            summarize_telemetry,
+        )
+        from bot.runner import MarketLogger
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ex = MockExchange(seed=13)
+            cfg = BotConfig(mock_mode=True, log_every_ticks=2, enable_csv_logging=True)
+            bot = ABMMSBot(ex, cfg)
+            bot.market_logger = MarketLogger(tmpdir)
+            try:
+                bot.step(now=100.0)
+                bot.step(now=101.0)
+            finally:
+                bot.market_logger.close()
+
+            telem_path = os.path.join(tmpdir, "telemetry.jsonl")
+            self.assertTrue(os.path.exists(telem_path))
+            summary = summarize_telemetry(telem_path)
+            self.assertEqual(summary["samples"], 1)
+            with open(telem_path, encoding="utf-8") as f:
+                row = json.loads(f.readline())
+            self.assertIn("pnl", row)
+            self.assertIn("pos", row)
+
+        base_txt = (
+            "| Kennzahl | Wert |\n|---|---|\n"
+            "| PnL gesamt | -12.5 |\n"
+            "| 1. Haelfte / 2. Haelfte | -5.0 / -7.5 |\n"
+            "| Groesster Rueckgang | -20.0 |\n"
+            "| Fills (passiv / aggressiv) | 10 / 2 |\n"
+            "| Max. Anfragen pro Sekunde | 12 |\n"
+        )
+        cand_good_txt = base_txt.replace("-12.5", "+18.0").replace("-20.0", "-8.0")
+        cand_stop_txt = cand_good_txt + "\n**ABBRUCH wie auf Optibook: Self-Trade**\n"
+
+        base = parse_backtest_report(base_txt)
+        cand_good = parse_backtest_report(cand_good_txt)
+        cand_stop = parse_backtest_report(cand_stop_txt)
+        self.assertIsNotNone(base)
+        self.assertTrue(should_promote(base, cand_good)[0])
+        self.assertFalse(should_promote(base, cand_stop)[0])
+
 
 if __name__ == "__main__":
     unittest.main()
