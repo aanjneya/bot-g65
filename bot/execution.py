@@ -691,6 +691,7 @@ class RiskAndExecution:
         open_orders_by_inst: Optional[Dict[str, Dict[int, Any]]] = None,
         wall_min_volume: int = 250,
         probe_touches: Optional[Set[str]] = None,
+        pulled_entries: Optional[Set[Tuple[str, str]]] = None,
     ) -> int:
         """
         Maintain passive GLFT / wall-backed limit quotes from ABMM-S QuotePlans.
@@ -818,6 +819,14 @@ class RiskAndExecution:
                 ask_vol = self.passive_evidence.entry_lots(
                     inst_id, 'ask', target_ask, tick, ask_vol, -cur_pos, book.asks
                 )
+
+            # Zero target volume uses the normal cancellation path for an existing
+            # quote. Never pull a cover bid or a liquidation ask on this signal.
+            if pulled_entries:
+                if cur_pos >= 0 and (inst_id, 'bid') in pulled_entries:
+                    bid_vol = 0
+                if cur_pos <= 0 and (inst_id, 'ask') in pulled_entries:
+                    ask_vol = 0
 
             inst_open_vol = sum(int(o.volume) for o in open_orders.values())
 
