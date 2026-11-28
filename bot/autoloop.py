@@ -17,6 +17,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import logging
 import os
@@ -236,11 +237,30 @@ def run_cmd(args: List[str], timeout: int = 300) -> Tuple[int, str]:
         return 124, f"TIMEOUT after {timeout}s: {' '.join(args)}"
 
 
-def call_gemini(prompt: str, api_key: str, base_url: str, model: str = "azure/gpt-6.2-astra") -> Dict[str, Any]:
-    """Call OpenAI-compatible LLM gateway (SDK if installed, else stdlib urllib) and return JSON."""
+def _auth_header(api_key: str, username: str = "", password: str = "") -> str:
+    if api_key:
+        return f"Bearer {api_key}"
+    token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+    return f"Basic {token}"
+
+
+def call_gemini(
+    prompt: str,
+    api_key: str,
+    base_url: str,
+    model: str = "azure/gpt-6.2-astra",
+    username: str = "",
+    password: str = "",
+) -> Dict[str, Any]:
+    """Call OpenAI-compatible LLM gateway (Bearer key or Basic auth) and return JSON."""
     raw_text = ""
+    auth_hdr = _auth_header(api_key, username, password)
     if OpenAI is not None:
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        client = OpenAI(
+            api_key=api_key or "basic-auth",
+            base_url=base_url,
+            default_headers={"Authorization": auth_hdr} if not api_key else None,
+        )
         try:
             response = client.chat.completions.create(
                 model=model,
@@ -265,7 +285,7 @@ def call_gemini(prompt: str, api_key: str, base_url: str, model: str = "azure/gp
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {api_key}",
+                "Authorization": auth_hdr,
             },
             method="POST",
         )
@@ -583,13 +603,16 @@ def main() -> None:
 
     load_dotenv()
     
-    # Load LLM gateway config from .env
+    # Load LLM gateway config from .env (supports Bearer API key OR username/password Basic auth)
     base_url = os.getenv("LLM_GATEWAY_BASE_URL", "https://llm.orange.sixt.com/v1").strip()
     api_key = os.getenv("LLM_GATEWAY_API_KEY", "").strip()
+    llm_user = os.getenv("LLM_GATEWAY_USERNAME", "").strip()
+    llm_pass = os.getenv("LLM_GATEWAY_PASSWORD", "").strip()
     model = os.getenv("LLM_GATEWAY_MODEL", "azure/gpt-6.2-astra").strip()
-    
-    if not api_key and not args.mock:
-        logger.error("LLM_GATEWAY_API_KEY is missing in environment / .env")
+
+    has_auth = bool(api_key or (llm_user and llm_pass))
+    if not has_auth and not args.mock:
+        logger.error("Set LLM_GATEWAY_API_KEY (or LLM_GATEWAY_USERNAME + LLM_GATEWAY_PASSWORD) in .env")
         sys.exit(1)
 
     run_root = os.path.join(_ROOT, "data", "autoloop_" + datetime.now().strftime("%d_%H%M%S"))
@@ -651,8 +674,8 @@ def main() -> None:
             baseline = parse_backtest_report(base_out)
             logger.info("Baseline backtest: %s", f"pnl={baseline.pnl:+.1f}" if baseline else "N/A")
 
-            if not api_key:
-                logger.info("No LLM_GATEWAY_API_KEY in --mock dry-run; skipping LLM API call")
+            if not has_auth:
+                logger.info("No LLM credentials in --mock dry-run; skipping LLM API call")
                 continue
 
             history_tail = read_text_safe(".brain/autoloop_log.md", 3000)[-2000:]
@@ -663,7 +686,14 @@ def main() -> None:
                     nacht_report = nf.read()
             prompt = build_agent_prompt(cycle_num, telem, muster_out, baseline, history_tail, nacht_report=nacht_report)
             try:
-                proposal = call_gemini(prompt, api_key=api_key, base_url=base_url, model=model)
+                proposal = call_gemini(
+                    prompt,
+                    api_key=api_key,
+                    base_url=base_url,
+                    model=model,
+                    username=llm_user,
+                    password=llm_pass,
+                )
             except Exception as exc:
                 logger.warning("LLM API call failed in cycle %d: %s", cycle_num, exc)
                 continue
