@@ -6,6 +6,7 @@
 
 ## Now (Active Sprint)
 
+- [~] `@slava` Discover & backtest 5+ strategies with >=50k cumulative Optibook PnL + log all strategies, 30k+ runners-up, insights & rejection reasons (`bot/`, `.brain/STRATEGY_LAB.md`, `.brain/INSIGHTS.md`)
 - [x] Drop Optiver HackaTUM 2026 challenge briefs & API docs into `challenge/`
 - [x] `@aanjneya` Approve `.brain/GOAL.md` update for Optiver HackaTUM 2026 ABMM-S strategy
 - [ ] Run `bot/collector.py` + `bot/muster.py` on live practice market (30–60m) to validate house-bot markouts, `V>250` walls, news feed, and lead-lag (`data_*/`)
