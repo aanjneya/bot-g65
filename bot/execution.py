@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from typing import Any, Deque, Dict, Optional, Set, Tuple
 
 from bot.passive_evidence import PassiveEntryEvidence
+from bot.roundtrip_screen import RoundTripScreen
 from bot.signals import find_protecting_wall
 
 logger = logging.getLogger(__name__)
@@ -136,6 +137,7 @@ class RiskAndExecution:
         self.max_requests_per_sec = max_requests_per_sec
         self._req_times: Deque[float] = deque()
         self.passive_evidence = PassiveEntryEvidence()
+        self.roundtrip_screen = RoundTripScreen()
 
     def _can_send_request(self, reserve: int = 0) -> bool:
         now = time.monotonic()
@@ -355,6 +357,32 @@ class RiskAndExecution:
                 logger.warning("News IOC exception on %s: %s", inst_id, exc)
 
         return sniped
+
+    def open_lag_ioc(self, inst_id: str, inst: Any, sign: int, limit_ticks: int, lots: int) -> bool:
+        """Flat-only. Never cancel to chase a signal and never refresh to a worse price."""
+        if sign not in (-1, 1) or not 0 < lots <= min(100, self.max_position_lots, self.max_open_order_volume):
+            return False
+        if not self.exchange.is_connected() or self.exchange.get_outstanding_orders(inst_id):
+            return False
+        if int(self.exchange.get_positions().get(inst_id, 0)) != 0:
+            return False
+        side = 'bid' if sign == 1 else 'ask'
+        tick = float(getattr(inst, 'tick_size', 0.10) or 0.10)
+        if abs(tick - 0.10) > 1e-9:
+            return False
+        px = round_to_tick(limit_ticks / 10.0, tick, side)
+        bp, bv, ap, av = best_bid_ask(self.exchange.get_last_price_book(inst_id))
+        touch, depth = (ap, av) if sign == 1 else (bp, bv)
+        if touch is None or abs(touch - px) > 1e-8 or (depth or 0) < lots or clamp_price(px, inst) != px:
+            return False
+        if not self._can_send_request(reserve=4) or len(self._req_times) >= 20:
+            return False
+        self._record_request()
+        try:
+            return bool(self.exchange.insert_order(inst_id, price=px, volume=lots, side=side, order_type='ioc').success)
+        except Exception as exc:
+            logger.warning('Lag IOC exception on %s: %s', inst_id, exc)
+            return False
 
     def execute_fair_value_edge(
         self,
@@ -753,6 +781,18 @@ class RiskAndExecution:
                 else:
                     bid_vol = 0
                     ask_vol = 0
+
+            # Learn on unfunded flat candidates, too: disabling a bad side must not
+            # require a paid fill to discover that its round trips have recovered.
+            # Never veto a reducing side or restore volume removed by any other gate.
+            if cur_pos >= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'bid', target_bid, tick, book.bids, cur_pos == 0 and target_bid < target_ask
+            ):
+                bid_vol = 0
+            if cur_pos <= 0 and not self.roundtrip_screen.permits(
+                inst_id, 'ask', target_ask, tick, book.asks, cur_pos == 0 and target_bid < target_ask
+            ):
+                ask_vol = 0
 
             # Evaluate the final passive price, after wall sizing and self-cross checks.
             # A reducing side must never wait for evidence or be resized by this gate.
