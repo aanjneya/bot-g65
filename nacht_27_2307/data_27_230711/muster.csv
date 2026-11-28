@@ -1,0 +1,13 @@
+urteil,muster,aktie,sekunden,reaktion,faelle,effekt_h1,effekt_h2,kosten,netto
+NUR FAIR VALUE,Orderbuch stark einseitig,MU,5,mit dem Signal,124,0.039,0.028,0.166,-0.138
+NUR FAIR VALUE,Orderbuch stark einseitig,MU,1,mit dem Signal,259,0.012,0.011,0.157,-0.145
+NUR FAIR VALUE,Orderbuch stark einseitig,ALLE,1,mit dem Signal,2428,0.012,0.005,0.162,-0.157
+NUR FAIR VALUE,Orderbuch stark einseitig,SNDK,1,mit dem Signal,313,0.007,0.01,0.172,-0.162
+NICHT STABIL,Orderbuch stark einseitig,VRT,5,mit dem Signal,131,0.032,0.034,0.145,-0.111
+NICHT STABIL,Orderbuch stark einseitig,VRT,1,mit dem Signal,292,0.006,0.003,0.137,-0.134
+NICHT STABIL,Orderbuch stark einseitig,NVDA,5,mit dem Signal,158,0.024,-0.0,0.154,-0.154
+NICHT STABIL,Orderbuch stark einseitig,CRWV,5,mit dem Signal,134,0.048,0.006,0.161,-0.155
+NICHT STABIL,Orderbuch stark einseitig,NVDA,1,mit dem Signal,381,0.011,0.001,0.159,-0.157
+NICHT STABIL,Orderbuch stark einseitig,CRWV,1,mit dem Signal,288,0.014,0.004,0.166,-0.161
+NICHT STABIL,Orderbuch stark einseitig,ALLE,5,mit dem Signal,1099,0.042,-0.001,0.161,-0.162
+NICHT STABIL,Orderbuch stark einseitig,NBIS,1,mit dem Signal,307,0.02,0.001,0.173,-0.172

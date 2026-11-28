@@ -1,0 +1,10 @@
+urteil,muster,aktie,sekunden,reaktion,faelle,effekt_h1,effekt_h2,kosten,netto
+NUR FAIR VALUE,Orderbuch stark einseitig,VRT,1,mit dem Signal,921,0.021,0.017,0.104,-0.087
+NUR FAIR VALUE,Orderbuch stark einseitig,CRWV,5,mit dem Signal,368,0.024,0.024,0.122,-0.098
+NUR FAIR VALUE,Mitte der grossen Orders weicht ab,ALLE,1,mit dem Signal,2599,0.007,0.006,0.115,-0.109
+NUR FAIR VALUE,Orderbuch stark einseitig,CRWV,1,mit dem Signal,960,0.008,0.009,0.122,-0.112
+NICHT STABIL,Grosser Trade (ab 20),SNDK,5,mit dem Signal,120,0.162,0.011,0.105,-0.095
+NICHT STABIL,Orderbuch stark einseitig,NBIS,1,mit dem Signal,1013,0.005,0.001,0.109,-0.108
+NICHT STABIL,Orderbuch stark einseitig,NBIS,5,mit dem Signal,378,0.04,-0.003,0.109,-0.113
+NICHT STABIL,Mitte der grossen Orders weicht ab,NBIS,15,mit dem Signal,111,0.108,-0.009,0.113,-0.122
+NICHT STABIL,Orderbuch stark einseitig,AMD,5,mit dem Signal,363,0.025,-0.025,0.106,-0.131

@@ -1,0 +1,50 @@
+{
+  "per_stock_analysis": {
+    "AMD": "Replay lost 6.8 on 18 fills. Its \u22120.389 price-unit 5s markout is \u22123.89 ticks, unlike the latest live EWMA of +0.183 ticks. The +1.76-tick continuation after large moves is worth monitoring, but it is not a return measured from an executable entry to an executable exit.",
+    "AVGO": "Largest replay loss: 12.4 on 18 fills. Markout was already \u22120.700 price units at 1s and was still \u22120.689 at 5s. The live EWMA of \u22125.402 ticks also points to costly fills; changing a 5s exit signal is unlikely to fix the initial loss.",
+    "CRWV": "94 replay fills lost 1.6. That is much less costly per fill than AVGO, but the latest live EWMA was \u22122.594 ticks. Preserve opportunities with demonstrable exit depth rather than increasing size on turnover alone.",
+    "MU": "Lost 4.3 on eight replay fills; live 5s EWMA was \u22125.018 ticks. The stable 5s imbalance effect was +0.025 per share, still \u22120.079 net of spread. It supports choosing a passive side, not crossing the book.",
+    "NBIS": "112 replay fills lost 1.6, and the latest live EWMA was slightly positive at +0.143 ticks. This is the strongest reason not to disable passive quoting wholesale. Neither statistic establishes profitable completed round trips.",
+    "NVDA": "Lost 9.1 on ten replay fills. The 1s and 5s markouts were \u22120.915 and \u22120.900 price units; live EWMA was \u22124.841 ticks. The public continuation estimate of +0.12 ticks offers little compensation for that fill selection.",
+    "SNDK": "Lost 3.5 on ten replay fills, with \u22120.350 price-unit 5s markout. The \u22120.30-tick public reversion estimate has only 15 events and does not justify paying the spread.",
+    "VRT": "Lost 6.7 on just six replay fills, with the worst replay 5s markout (\u22121.083 price units) and live EWMA (\u22126.203 ticks). The large inverse moves following MU or CRWV have only 15 and 19 observations respectively; do not use them to size an IOC."
+  },
+  "diagnosis": "The Champion is trading, but its expensive fills are concentrated. CRWV and NBIS produced 206 of 276 replay fills and lost 3.2 combined; the other 70 fills accounted for 42.8 of the 46.0 loss. Both replay halves lost money, every stock finished flat, and live PnL fell 31.8 with no final position or drawdown halt. In every stock the replay 1s markout was already negative. The tail-stop submissions show an attempt to close inventory after adverse moves, not that the stops caused those moves or that removing them would improve PnL. A specific entry decision is worth testing: when the rounded price is not one tick in front of a qualifying wall, the execution layer can still fund one flat probe without requiring any volume at the price where it would need to unwind for a one-tick loss. A passive buy can therefore fill in a sell sweep even when the next bid is absent or too small to survive that flow. The supplied aggregates do not identify which fills used this fallback, so this is a candidate explanation, not established loss attribution.",
+  "strategy_plan": "Change only the unprotected one-lot fallback. At the actual rounded entry price, require displayed same-side depth exactly one tick behind the order sufficient for one recent large aggressive batch plus our one-lot exit. Estimate a large batch as the 90th percentile of the last 32 nonempty poll totals consuming that side of that stock's book. This uses the observed poll cadence, learns even while quotes are unfunded, and makes no assumption that the prints just observed would fill a newly posted quote. This is a liquidity stress check, not a guaranteed exit or a positive-EV estimate. Leave wall-backed sizing, prices, evidence screens, inventory reductions, stops and IOC logic unchanged. The live runner and BacktestBot share this path. Candidate only: tests and replay have not been run here. Run python3 -m unittest tests/test_bot.py tests/test_probe_backstop.py, then compare runner:BacktestBot against \u221246.0 on cycle_002 with no disconnect. Check active fills, completed-cycle PnL, both halves, and peak requests/s. Reject an idle result; require positive net round-trip evidence on a fresh chunk before increasing size.",
+  "insights": [
+    "CRWV and NBIS supplied 74.6% of replay fills but only 7.0% of the loss. A useful entry filter should remove disproportionately costly fills; simply reporting fewer fills or fewer stops cannot demonstrate that.",
+    "For an unprotected passive bid, the relevant stress observation is sell-aggressor volume against bids and the relevant exit depth is at bid-entry minus one tick. For an ask the mapping reverses. Volume at the entry price itself may already be gone when the order fills."
+  ],
+  "edits": [
+    {
+      "path": "bot/execution.py",
+      "search": "from bot.signals import find_protecting_wall",
+      "replace": "from bot.signals import find_protecting_wall, volume_at_price"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "        self.roundtrip_screen = RoundTripScreen()\n\n    def _can_send_request",
+      "replace": "        self.roundtrip_screen = RoundTripScreen()\n        self._sweep_batches: Dict[Tuple[str, str], Deque[int]] = {}\n        self._sweep_p90: Dict[Tuple[str, str], int] = {}\n\n    def observe_probe_flow(self, trade_ticks: Dict[str, Any]) -> None:\n        # One observed poll batch, not one observation per print. Key by the\n        # resting side consumed; sell aggressors remove bid depth and vice versa.\n        for inst_id, prints in trade_ticks.items():\n            totals = {'bid': 0, 'ask': 0}\n            for tr in prints or ():\n                aggressor = str(getattr(tr, 'aggressor_side', '')).strip().lower()\n                if aggressor not in ('ask', 'bid'):\n                    continue\n                resting = 'bid' if aggressor == 'ask' else 'ask'\n                totals[resting] += max(0, int(getattr(tr, 'volume', 0) or 0))\n            for side, qty in totals.items():\n                if not qty:\n                    continue\n                key = (inst_id, side)\n                if key not in self._sweep_batches:\n                    self._sweep_batches[key] = deque(maxlen=32)\n                window = self._sweep_batches[key]\n                window.append(qty)\n                self._sweep_p90[key] = sorted(window)[math.ceil(0.90 * len(window)) - 1]\n\n    def _backed_probe(self, inst_id: str, side: str, entry: float, tick: float, levels: Any) -> int:\n        exit_px = entry - tick if side == 'bid' else entry + tick\n        depth = volume_at_price(levels, exit_px, tick)\n        # Even at cold start require room for external flow plus the exit lot.\n        stress = self._sweep_p90.get((inst_id, side), 1)\n        return int(depth >= stress + 1)\n\n    def _can_send_request"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "                    bid_vol = min(bid_vol, probe_cap)",
+      "replace": "                    bid_vol = min(bid_vol, self._backed_probe(inst_id, 'bid', target_bid, tick, book.bids)) if probe_cap else 0"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "                    ask_vol = min(ask_vol, probe_cap)",
+      "replace": "                    ask_vol = min(ask_vol, self._backed_probe(inst_id, 'ask', target_ask, tick, book.asks)) if probe_cap else 0"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "        self.executor.passive_evidence.observe(\n",
+      "replace": "        self.executor.observe_probe_flow(trade_ticks)\n        self.executor.passive_evidence.observe(\n"
+    },
+    {
+      "path": "tests/test_probe_backstop.py",
+      "content": "import unittest\nfrom types import SimpleNamespace as NS\n\nfrom bot.execution import RiskAndExecution\n\n\nclass ProbeBackstopTest(unittest.TestCase):\n    def test_batch_direction_price_and_residual_lot(self):\n        ex = RiskAndExecution(None)\n        ex.observe_probe_flow({'MU': [NS(aggressor_side='ask', volume=4), NS(aggressor_side='ask', volume=5), NS(aggressor_side='bid', volume=2)]})\n        entry = NS(price=70.0, volume=500)\n        self.assertEqual(ex._backed_probe('MU', 'bid', 70.0, 0.1, [entry]), 0)\n        self.assertEqual(ex._backed_probe('MU', 'bid', 70.0, 0.1, [entry, NS(price=69.9, volume=9)]), 0)\n        self.assertEqual(ex._backed_probe('MU', 'bid', 70.0, 0.1, [NS(price=69.9, volume=10)]), 1)\n        self.assertEqual(ex._backed_probe('MU', 'ask', 70.0, 0.1, [NS(price=70.1, volume=3)]), 1)\n\n    def test_stress_updates_without_orders_or_positions(self):\n        ex = RiskAndExecution(None)\n        levels = [NS(price=89.9, volume=3)]\n        ex.observe_probe_flow({'NBIS': [NS(aggressor_side='ask', volume=100)]})\n        self.assertEqual(ex._backed_probe('NBIS', 'bid', 90.0, 0.1, levels), 0)\n        for _ in range(32):\n            ex.observe_probe_flow({'NBIS': [NS(aggressor_side='ask', volume=2)]})\n        self.assertEqual(ex._backed_probe('NBIS', 'bid', 90.0, 0.1, levels), 1)\n"
+    }
+  ],
+  "summary": "Require exit depth for probes"
+}

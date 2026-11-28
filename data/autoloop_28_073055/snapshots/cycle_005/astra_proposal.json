@@ -1,0 +1,31 @@
+{
+  "per_stock_analysis": {
+    "AMD": "Lost 0.6 on two replay fills. The stable 1s imbalance effect was only +0.009 per share, net \u22120.101 after spread. Keep it as a fair-value input, not an IOC trigger.",
+    "AVGO": "Lost 8.7 on eight fills and ended flat. The replay markout was already \u221210.56 ticks at 1s and reached \u221211.38 ticks at 5s; the latest live 5s EWMA was also negative at \u22126.315 ticks. Test entry price discipline here first.",
+    "CRWV": "Supplied 28 of 50 replay fills for a loss of only 0.3. Replay 5s markout was zero versus a latest live EWMA of +0.288 ticks. Preserve this flow as a comparison; neither reading justifies increasing size.",
+    "MU": "No replay fills. Ten large-move observations averaged +0.80 ticks of continuation before execution costs; that is insufficient evidence to cross the spread.",
+    "NBIS": "Lost 2.5 on ten replay fills, with a \u22122.55-tick replay 5s markout and a logged tail stop. The latest live 5s EWMA was +1.82 ticks. Those are different samples and estimators; neither supports a blanket veto or a size increase.",
+    "NVDA": "No replay fills. Continuation averaged +2.60 ticks on only ten large moves, and the book-imbalance signal failed the split-sample check. Leave entries unchanged.",
+    "SNDK": "Two replay fills broke even. The stable 5s imbalance effect was +0.025 per share but net \u22120.075 after spread. It can inform passive prices, not an aggressive entry.",
+    "VRT": "No replay fills. AVGO shocks preceded a reported +3.09-tick signed VRT move over 56 observations, but that is not an executable round-trip return. Do not add an ungated taker."
+  },
+  "diagnosis": "Live PnL fell 9.9 and replay lost 12.1, including 11.4 in the second half. Replay ended flat in every stock, peaked at two gross lots and used at most 13 requests/s. The clearest problem is which fills the bot accepts, not insufficient request capacity. AVGO accounted for 72% of the replay loss on 16% of fills. Its average adverse markout was nearly as large at 1s as at 5s, so waiting for the six-observation, 5s breaker cannot protect the first bad fill. There is a specific pre-fill decision worth testing: when no wall qualifies at the planned entry price, the touch-probe branch can raise a bid or lower an ask by up to one tick beyond the unrounded price the risk model approved. A qualifying two-way touch shows activity; it does not establish that surrendering that tick is profitable. The one-tick concession cannot itself explain an eleven-tick markout. It can, however, admit a fill the model priced too cheaply to take. The supplied aggregates do not establish whether either stopped AVGO position opened through this branch.",
+  "strategy_plan": "Run one AVGO-only comparison: keep a wallless one-lot probe at the touch only if its actual resting price preserves the plan's half-spread from reservation value. Otherwise set funded volume to zero; do not post a deeper order in its place. Keep the touch price visible to the existing shadow round-trip screen, keep wall-backed entries and inventory-reducing exits unchanged, and leave the other seven names alone. AVGO is the pilot because its large moves showed continuation in both C4 (+1.64 ticks) and C5 (+2.70 ticks), not because the latest window proves every AVGO quote is bad. This is a candidate, not a verified promotion. Run `python3 -m unittest tests/test_bot.py`, then `python3 bot/backtest.py /home/workspace/data/autoloop_28_073055/snapshots/cycle_005 --strategy runner:BacktestBot` against the \u221212.1 Champion. Match changed opening orders to their completed round trips: count profitable trips forfeited as well as losses avoided. Reject a no-op, a disconnect, or an improvement attributable only to ending inventory. Check the two Nacht chunks and the next untouched chunk before generalizing or sizing up.",
+  "insights": [
+    "AVGO's replay markout worsened by only 0.82 ticks between 1s and 5s, versus 10.56 adverse ticks already present at 1s. For this name, inspect the opening quote before tuning the 5s breaker.",
+    "CRWV generated 56% of replay fills but only 0.3 of the 12.1 loss. A broad reduction in fill count is a poor success metric; compare PnL on the specific completed round trips a price rule changes."
+  ],
+  "edits": [
+    {
+      "path": "bot/execution.py",
+      "search": "                        target_bid = round_to_tick(bid_p, tick, 'bid')\n                        bid_vol = min(bid_vol, 1)",
+      "replace": "                        target_bid = round_to_tick(bid_p, tick, 'bid')\n                        bid_vol = min(bid_vol, 1)\n                        # AVGO probe: shadow the touch, but do not pay above the model bid.\n                        if inst_id == 'AVGO' and target_bid > raw_bid + 1e-9:\n                            bid_vol = 0"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "                        target_ask = round_to_tick(ask_p, tick, 'ask')\n                        ask_vol = min(ask_vol, 1)",
+      "replace": "                        target_ask = round_to_tick(ask_p, tick, 'ask')\n                        ask_vol = min(ask_vol, 1)\n                        # Symmetric probe rule; this branch never handles a long's exit ask.\n                        if inst_id == 'AVGO' and target_ask < raw_ask - 1e-9:\n                            ask_vol = 0"
+    }
+  ],
+  "summary": "Test AVGO probe price discipline"
+}

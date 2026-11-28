@@ -1,0 +1,59 @@
+{
+  "per_stock_analysis": {
+    "AMD": "Replay earned +0.5 on 10 fills, but the latest live 5s markout EWMA was \u22120.515 ticks. The 56 large moves reverted by 0.90 ticks on average. AMD is the key test of whether pulling a quote after a move sacrifices profitable fades.",
+    "AVGO": "Lost 3.1 on two replay fills and finished flat. The short tail-stop submission and 70 large moves followed by +1.64 ticks of continuation make resting offers during upward repricing worth investigating. The aggregate data do not establish that a warning preceded this fill.",
+    "CRWV": "Lost 1.5 on 12 fills, including a logged short scratch; replay 5s markout was \u22120.104 in price, or \u22121.04 ticks. The 10 large moves continued by 1.70 ticks on average, consistent with the AVGO hypothesis but a much smaller sample.",
+    "MU": "No replay fills. The latest live 5s EWMA was \u22122.189 ticks on 10 observations, and the stable 1s imbalance effect was just 0.07 ticks. Neither supports increasing size or crossing the spread.",
+    "NBIS": "Earned +0.1 on 18 fills and ended flat in replay; live ended long one lot. Only six large moves were observed. Preserve ordinary quoting and do not make a reducing order wait for a signal.",
+    "NVDA": "No replay fills, a near-zero live 5s EWMA, and only \u22120.13 ticks of follow-through across eight large moves. The stable imbalance effect of 0.19 ticks is a fair-value input, not demonstrated taker edge.",
+    "SNDK": "No replay fills despite 1,839 public trades. The +0.184-tick live EWMA is encouraging, but public turnover does not establish that our queue would fill profitably. Leave sizing unchanged.",
+    "VRT": "No replay fills. The live 5s EWMA was +0.256 ticks on 14 observations; only three large moves qualified for the reversion statistic. Neither sample justifies a stock-specific rule."
+  },
+  "diagnosis": "AVGO and CRWV lost 4.6 combined; AMD and NBIS earned 0.6. All replay positions finished flat, peak gross inventory was two lots, and requests peaked at 12/s. The immediate problem is the cost of a few completed trades, not insufficient request capacity. Replay went from +0.4 in the first half to \u22124.4 in the second. Live lost 3.6 without a drawdown halt, and the sole 42.1-minute Nacht window also lost money (\u221218.3). The current passive checks ask whether there is depth behind an entry and evidence for a round trip. Neither explicitly withdraws an inventory-increasing quote when both executable touches have already moved several ticks toward it. That distinction matters on AVGO: its mean continuation after a large move exceeded a one-tick spread, yet Muster found no stable spread-paying IOC signal. This supports testing when not to sell liquidity; it does not establish a profitable momentum taker. A quote filled by the initial jump cannot be saved by observing that jump afterward.",
+  "strategy_plan": "Test one change: after the external bid AND ask rise at least three ticks versus five seconds ago, withdraw only inventory-increasing offers for up to 15 seconds. Mirror the rule for falling books and bids. Release early if both touches retrace to their pre-move levels. Requiring both touches distinguishes repricing from a spread change; using the cleaned book rather than last trades avoids bid\u2013ask bounce. This is a prospective test of a book-based proxy for the reported trade-price pattern. Apply it at final passive sizing, so exits, shadow observations, IOC eligibility and existing risk limits are unchanged. Do not blacklist AVGO or increase lots. The edits are an unverified candidate: run python3 -m unittest tests/test_bot.py and python3 -m unittest discover -s tests -p test_maker_pull.py, then compare bot/backtest.py on cycle_004 using --strategy runner:BacktestBot against \u22124.0 with no disconnect. Inspect whether the veto was active BEFORE the losing entry, how much AMD/NBIS profit was forgone, and whether fills remain. Check the Nacht window and a fresh chunk before sizing up; avoiding one AVGO loss is not evidence of scalable positive EV.",
+  "insights": [
+    "AVGO and CRWV lost 4.6 on 14 replay fills; the other 28 fills earned 0.6. Evaluate a quote veto by the PnL of the round trips it changes, not by a reduction in fill count.",
+    "After large moves, AVGO continued +1.64 ticks over 70 observations while AMD reverted \u22120.90 ticks over 56. Timestamp the first actionable book warning against the opening fill: a signal first visible in the fill poll cannot justify claiming that loss was preventable."
+  ],
+  "edits": [
+    {
+      "path": "bot/maker_pull.py",
+      "content": "\"\"\"Short-lived passive entry veto from repricing of both external touches.\"\"\"\n\nfrom collections import deque\n\n\nclass MakerPull:\n    def __init__(self):\n        self.history = {}\n        # (instrument, entry side) -> (expiry, reference bid ticks, reference ask ticks)\n        self.active = {}\n\n    def observe(self, now, books):\n        for key, (until, _, _) in list(self.active.items()):\n            if now >= until:\n                del self.active[key]\n\n        for u, book in books.items():\n            bids = getattr(book, 'bids', None)\n            asks = getattr(book, 'asks', None)\n            if not bids or not asks:\n                self.history.pop(u, None)\n                continue\n            # Optibook's fixed 0.10 tick. Integer comparisons include exact 3-tick moves.\n            b = round(float(bids[0].price) * 10)\n            a = round(float(asks[0].price) * 10)\n            if not 0 < b < a:\n                self.history.pop(u, None)\n                continue\n\n            for side in ('ask', 'bid'):\n                key = (u, side)\n                state = self.active.get(key)\n                if state is not None:\n                    _, rb, ra = state\n                    retraced = (b <= rb and a <= ra) if side == 'ask' else (b >= rb and a >= ra)\n                    if retraced:\n                        del self.active[key]\n\n            q = self.history.setdefault(u, deque())\n            # Don't interpret a data outage as a five-second move.\n            if q and now - q[-1][0] > 1.5:\n                q.clear()\n            if q and q[-1][0] == now:\n                q.pop()\n            q.append((now, b, a))\n            cutoff = now - 5.0\n            while len(q) > 1 and q[1][0] <= cutoff:\n                q.popleft()\n            t, rb, ra = q[0]\n            if t > cutoff:\n                continue\n            if min(b - rb, a - ra) >= 3:\n                self.active.setdefault((u, 'ask'), (now + 15.0, rb, ra))\n            elif min(rb - b, ra - a) >= 3:\n                self.active.setdefault((u, 'bid'), (now + 15.0, rb, ra))\n\n        return set(self.active)\n"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "from bot.lag_taker import LagTaker",
+      "replace": "from bot.lag_taker import LagTaker\nfrom bot.maker_pull import MakerPull"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "        self.touch_flow = TouchFlow()",
+      "replace": "        self.touch_flow = TouchFlow()\n        self.maker_pull = MakerPull()"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "        probe_touches = self.touch_flow.observe(now_ts, books, trade_ticks, own_trades, self.cfg.username)",
+      "replace": "        pulled_entries = self.maker_pull.observe(now_ts, books)\n        probe_touches = self.touch_flow.observe(now_ts, books, trade_ticks, own_trades, self.cfg.username)"
+    },
+    {
+      "path": "bot/runner.py",
+      "search": "                    probe_touches=probe_touches,",
+      "replace": "                    probe_touches=probe_touches,\n                    pulled_entries=pulled_entries,"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "        probe_touches: Optional[Set[str]] = None,\n    ) -> int:",
+      "replace": "        probe_touches: Optional[Set[str]] = None,\n        pulled_entries: Optional[Set[Tuple[str, str]]] = None,\n    ) -> int:"
+    },
+    {
+      "path": "bot/execution.py",
+      "search": "            inst_open_vol = sum(int(o.volume) for o in open_orders.values())",
+      "replace": "            # Zero target volume uses the normal cancellation path for an existing\n            # quote. Never pull a cover bid or a liquidation ask on this signal.\n            if pulled_entries:\n                if cur_pos >= 0 and (inst_id, 'bid') in pulled_entries:\n                    bid_vol = 0\n                if cur_pos <= 0 and (inst_id, 'ask') in pulled_entries:\n                    ask_vol = 0\n\n            inst_open_vol = sum(int(o.volume) for o in open_orders.values())"
+    },
+    {
+      "path": "tests/test_maker_pull.py",
+      "content": "import unittest\nfrom types import SimpleNamespace as NS\n\nfrom bot.maker_pull import MakerPull\n\n\ndef book(b, a):\n    return {'X': NS(bids=[NS(price=b)], asks=[NS(price=a)])}\n\n\nclass MakerPullTests(unittest.TestCase):\n    def warm(self):\n        p = MakerPull()\n        for t in range(5):\n            self.assertFalse(p.observe(t, book(10, 10.1)))\n        return p\n\n    def test_rise_and_full_retrace(self):\n        p = self.warm()\n        self.assertEqual(p.observe(5, book(10.3, 10.4)), {('X', 'ask')})\n        self.assertEqual(p.observe(6, book(10.1, 10.2)), {('X', 'ask')})\n        self.assertFalse(p.observe(7, book(10, 10.1)))\n\n    def test_fall_expires_without_rearming_on_unchanged_book(self):\n        p = self.warm()\n        for t in range(5, 20):\n            self.assertEqual(p.observe(t, book(9.7, 9.8)), {('X', 'bid')})\n        self.assertFalse(p.observe(20, book(9.7, 9.8)))\n\n    def test_spread_widening_is_not_a_directional_shock(self):\n        p = self.warm()\n        self.assertFalse(p.observe(5, book(10, 10.8)))\n\n    def test_gap_is_not_a_five_second_observation(self):\n        p = self.warm()\n        self.assertFalse(p.observe(14, book(10.5, 10.6)))\n"
+    }
+  ],
+  "summary": "Pull passive entries after repricing"
+}

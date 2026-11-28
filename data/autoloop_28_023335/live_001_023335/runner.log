@@ -1,0 +1,98 @@
+2026-11-28 02:33:36,192 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 02:33:36,192 [INFO] Background thread started
+2026-11-28 02:33:36,207 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 02:33:36,227 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 02:33:36,230 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 02:33:36,464 [INFO] Embedded CSV logger active -> /home/workspace/data/autoloop_28_023335/live_001_023335
+2026-11-28 02:33:36,464 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=False, session=0s)
+2026-11-28 02:33:46,535 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=-1854.30 pos={} mk5s={'SNDK': '-1.50t(1)'}
+2026-11-28 02:33:56,817 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=-1853.70 pos={} mk5s={'SNDK': '-1.50t(1)', 'CRWV': '+0.38t(2)'}
+2026-11-28 02:34:07,100 [INFO] tick=120 paused=0 gamma_x=1.0 pnl=-1853.20 pos={} mk5s={'SNDK': '-1.50t(1)', 'CRWV': '+0.41t(3)'}
+2026-11-28 02:34:17,424 [INFO] tick=160 paused=0 gamma_x=1.0 pnl=-1853.00 pos={} mk5s={'SNDK': '-1.50t(1)', 'CRWV': '+0.41t(3)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:34:27,729 [INFO] tick=200 paused=0 gamma_x=1.0 pnl=-1853.00 pos={} mk5s={'SNDK': '-1.50t(1)', 'CRWV': '+0.63t(5)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:34:38,024 [INFO] tick=240 paused=0 gamma_x=1.0 pnl=-1853.00 pos={} mk5s={'SNDK': '-1.50t(1)', 'CRWV': '+0.63t(5)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:34:48,341 [INFO] tick=280 paused=0 gamma_x=1.0 pnl=-1852.60 pos={'SNDK': -2} mk5s={'SNDK': '-0.62t(3)', 'CRWV': '+0.63t(5)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:34:58,622 [INFO] tick=320 paused=0 gamma_x=1.0 pnl=-1852.40 pos={} mk5s={'SNDK': '+0.63t(7)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:35:08,939 [INFO] tick=360 paused=0 gamma_x=1.0 pnl=-1852.40 pos={'SNDK': 1} mk5s={'SNDK': '+0.63t(7)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:35:19,253 [INFO] tick=400 paused=0 gamma_x=1.0 pnl=-1852.30 pos={} mk5s={'SNDK': '+0.60t(8)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)'}
+2026-11-28 02:35:29,517 [INFO] tick=440 paused=0 gamma_x=1.0 pnl=-1853.30 pos={} mk5s={'SNDK': '+0.58t(9)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-2.50t(1)'}
+2026-11-28 02:35:39,817 [INFO] tick=480 paused=0 gamma_x=1.0 pnl=-1853.20 pos={} mk5s={'SNDK': '+0.58t(9)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+1.00t(2)'}
+2026-11-28 02:35:50,069 [INFO] tick=520 paused=0 gamma_x=1.0 pnl=-1853.20 pos={} mk5s={'SNDK': '+0.58t(9)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+1.00t(2)', 'AMD': '-0.50t(1)'}
+2026-11-28 02:36:00,426 [INFO] tick=560 paused=0 gamma_x=1.0 pnl=-1852.60 pos={'NBIS': 4} mk5s={'SNDK': '+0.81t(10)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+1.00t(2)', 'AMD': '-0.22t(3)'}
+2026-11-28 02:36:10,731 [INFO] tick=600 paused=0 gamma_x=1.0 pnl=-1852.60 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+1.00t(2)', 'AMD': '-0.22t(3)', 'NBIS': '+0.31t(4)'}
+2026-11-28 02:36:21,087 [INFO] tick=640 paused=0 gamma_x=1.0 pnl=-1852.60 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+1.00t(2)', 'AMD': '-0.22t(3)', 'NBIS': '+0.61t(6)'}
+2026-11-28 02:36:31,374 [INFO] tick=680 paused=0 gamma_x=1.0 pnl=-1852.10 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-0.22t(3)', 'NBIS': '+0.34t(8)'}
+2026-11-28 02:36:33,166 [INFO] Scratched AMD pos=5 (tail_stop_loss) via IOC ask@146.60
+2026-11-28 02:36:41,681 [INFO] tick=720 paused=0 gamma_x=1.0 pnl=-1867.10 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '-0.46t(10)'}
+2026-11-28 02:36:51,993 [INFO] tick=760 paused=0 gamma_x=1.0 pnl=-1866.10 pos={'NBIS': 5} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '-0.46t(10)'}
+2026-11-28 02:37:02,307 [INFO] tick=800 paused=0 gamma_x=1.0 pnl=-1866.60 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:37:12,543 [INFO] tick=840 paused=0 gamma_x=1.0 pnl=-1866.60 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:37:22,824 [INFO] tick=880 paused=0 gamma_x=1.0 pnl=-1866.60 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.51t(7)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:37:31,055 [INFO] Scratched AMD pos=-5 (tail_stop_loss) via IOC bid@154.70
+2026-11-28 02:37:33,132 [INFO] tick=920 paused=0 gamma_x=1.0 pnl=-1901.00 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.76t(8)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.75t(5)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:37:43,420 [INFO] tick=960 paused=0 gamma_x=1.0 pnl=-1901.00 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:37:53,690 [INFO] tick=1000 paused=0 gamma_x=1.0 pnl=-1901.00 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:03,932 [INFO] tick=1040 paused=0 gamma_x=1.0 pnl=-1901.00 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:14,124 [INFO] tick=1080 paused=0 gamma_x=1.0 pnl=-1901.00 pos={} mk5s={'SNDK': '+0.48t(11)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:24,398 [INFO] tick=1120 paused=0 gamma_x=1.0 pnl=-1900.70 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:34,693 [INFO] tick=1160 paused=0 gamma_x=1.0 pnl=-1900.70 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:44,985 [INFO] tick=1200 paused=0 gamma_x=1.0 pnl=-1900.70 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:38:55,302 [INFO] tick=1240 paused=0 gamma_x=1.0 pnl=-1900.70 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:05,590 [INFO] tick=1280 paused=0 gamma_x=1.0 pnl=-1900.70 pos={'AVGO': 5} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '+0.19t(3)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:15,880 [INFO] tick=1320 paused=0 gamma_x=1.0 pnl=-1903.70 pos={'AMD': 5} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-6.92t(7)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:26,169 [INFO] tick=1360 paused=0 gamma_x=1.0 pnl=-1902.70 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:36,445 [INFO] tick=1400 paused=0 gamma_x=1.0 pnl=-1902.60 pos={} mk5s={'SNDK': '+0.36t(13)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:46,734 [INFO] tick=1440 paused=0 gamma_x=1.0 pnl=-1902.60 pos={} mk5s={'SNDK': '+0.49t(15)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:39:56,947 [INFO] tick=1480 paused=0 gamma_x=1.0 pnl=-1902.60 pos={} mk5s={'SNDK': '+0.49t(15)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:40:07,208 [INFO] tick=1520 paused=0 gamma_x=1.0 pnl=-1902.60 pos={} mk5s={'SNDK': '+0.49t(15)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:40:17,409 [INFO] tick=1560 paused=0 gamma_x=1.0 pnl=-1902.40 pos={} mk5s={'SNDK': '+0.49t(15)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.30t(5)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:40:27,713 [INFO] tick=1600 paused=0 gamma_x=1.0 pnl=-1901.90 pos={} mk5s={'SNDK': '+0.49t(15)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.09t(13)'}
+2026-11-28 02:40:37,954 [INFO] tick=1640 paused=0 gamma_x=1.0 pnl=-1901.50 pos={'NBIS': -2} mk5s={'SNDK': '+0.43t(17)', 'CRWV': '+0.44t(9)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.27t(15)'}
+2026-11-28 02:40:48,210 [INFO] tick=1680 paused=0 gamma_x=1.0 pnl=-1901.40 pos={} mk5s={'SNDK': '+0.43t(17)', 'CRWV': '+0.71t(10)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:40:58,467 [INFO] tick=1720 paused=0 gamma_x=1.0 pnl=-1901.40 pos={} mk5s={'SNDK': '+0.43t(17)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:41:08,705 [INFO] tick=1760 paused=0 gamma_x=1.0 pnl=-1901.40 pos={} mk5s={'SNDK': '+0.43t(17)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:41:18,995 [INFO] tick=1800 paused=0 gamma_x=1.0 pnl=-1900.90 pos={'SNDK': 3} mk5s={'SNDK': '+0.45t(18)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:41:29,309 [INFO] tick=1840 paused=0 gamma_x=1.0 pnl=-1900.90 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.89t(10)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:41:39,611 [INFO] tick=1880 paused=0 gamma_x=1.0 pnl=-1900.40 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.54t(11)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:41:49,910 [INFO] tick=1920 paused=0 gamma_x=1.0 pnl=-1900.40 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.28t(12)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:42:00,211 [INFO] tick=1960 paused=0 gamma_x=1.0 pnl=-1899.90 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.41t(11)', 'AVGO': '-0.28t(12)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:42:10,528 [INFO] tick=2000 paused=0 gamma_x=1.0 pnl=-1899.90 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.38t(13)', 'AVGO': '-0.28t(12)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:42:18,249 [INFO] Scratched AVGO pos=5 (tail_stop_loss) via IOC ask@191.50
+2026-11-28 02:42:18,524 [INFO] Scratched NBIS pos=9 (tail_stop_loss) via IOC ask@89.40
+2026-11-28 02:42:20,852 [INFO] tick=2040 paused=0 gamma_x=1.0 pnl=-1964.00 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.38t(13)', 'AVGO': '-0.28t(12)', 'VRT': '-1.34t(4)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '+0.67t(19)'}
+2026-11-28 02:42:31,148 [INFO] tick=2080 paused=0 gamma_x=1.0 pnl=-1967.50 pos={} mk5s={'SNDK': '-0.17t(21)', 'CRWV': '+0.38t(13)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '+0.59t(4)', 'AMD': '-4.67t(9)', 'NBIS': '-1.53t(22)'}
+2026-11-28 02:42:32,165 [INFO] Scratched NVDA pos=-5 (tail_stop_loss) via IOC bid@133.70
+2026-11-28 02:42:41,391 [INFO] tick=2120 paused=0 gamma_x=1.0 pnl=-1984.50 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '+0.38t(13)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-4.67t(9)', 'NBIS': '-1.53t(22)'}
+2026-11-28 02:42:51,537 [INFO] tick=2160 paused=0 gamma_x=1.0 pnl=-1984.40 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '+0.37t(15)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-4.67t(9)', 'NBIS': '-1.53t(22)'}
+2026-11-28 02:43:01,630 [INFO] tick=2200 paused=0 gamma_x=1.0 pnl=-1984.40 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '+0.37t(15)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-4.67t(9)', 'NBIS': '-1.53t(22)'}
+2026-11-28 02:43:11,277 [INFO] Scratched AMD pos=-5 (tail_stop_loss) via IOC bid@157.00
+2026-11-28 02:43:11,804 [INFO] tick=2240 paused=0 gamma_x=1.0 pnl=-1991.70 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '+0.51t(18)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-4.67t(9)', 'NBIS': '-1.53t(22)'}
+2026-11-28 02:43:22,066 [INFO] tick=2280 paused=0 gamma_x=1.0 pnl=-1991.20 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '-0.06t(20)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-5.54t(11)', 'NBIS': '-0.64t(24)'}
+2026-11-28 02:43:32,277 [INFO] tick=2320 paused=0 gamma_x=1.0 pnl=-1991.20 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '-0.06t(20)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-5.54t(11)', 'NBIS': '-0.64t(24)'}
+2026-11-28 02:43:42,519 [INFO] tick=2360 paused=0 gamma_x=1.0 pnl=-1991.20 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '-0.06t(20)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-5.54t(11)', 'NBIS': '-0.64t(24)'}
+2026-11-28 02:43:52,774 [INFO] tick=2400 paused=0 gamma_x=1.0 pnl=-1991.20 pos={} mk5s={'SNDK': '-1.23t(25)', 'CRWV': '-0.06t(20)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-3.54t(6)', 'AMD': '-5.54t(11)', 'NBIS': '-0.64t(24)'}
+2026-11-28 02:43:55,096 [INFO] Scratched NVDA pos=-5 (tail_stop_loss) via IOC bid@136.20
+2026-11-28 02:44:03,093 [INFO] tick=2440 paused=0 gamma_x=1.0 pnl=-2000.00 pos={'AVGO': -3} mk5s={'SNDK': '-0.56t(29)', 'CRWV': '-0.06t(20)', 'AVGO': '-4.28t(14)', 'VRT': '-2.10t(6)', 'NVDA': '-4.74t(8)', 'AMD': '-5.54t(11)', 'NBIS': '-0.64t(24)'}
+2026-11-28 02:44:13,388 [INFO] tick=2480 paused=0 gamma_x=1.0 pnl=-2000.00 pos={'NBIS': -5} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.06t(20)', 'AVGO': '-2.13t(18)', 'VRT': '-2.10t(6)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.86t(25)'}
+2026-11-28 02:44:23,593 [INFO] tick=2520 paused=0 gamma_x=1.0 pnl=-2000.50 pos={} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.06t(20)', 'AVGO': '-2.13t(18)', 'VRT': '-2.10t(6)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.21t(28)'}
+2026-11-28 02:44:33,816 [INFO] tick=2560 paused=0 gamma_x=1.0 pnl=-2003.00 pos={'MU': 5, 'CRWV': 5} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.06t(20)', 'AVGO': '-2.13t(18)', 'VRT': '-2.10t(6)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.16t(29)'}
+2026-11-28 02:44:43,975 [INFO] tick=2600 paused=0 gamma_x=1.0 pnl=-2003.00 pos={} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-2.10t(6)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.16t(29)', 'MU': '-1.25t(2)'}
+2026-11-28 02:44:54,286 [INFO] tick=2640 paused=0 gamma_x=1.0 pnl=-2003.00 pos={} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-2.10t(6)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.16t(29)', 'MU': '-1.25t(2)'}
+2026-11-28 02:44:55,043 [INFO] Scratched VRT pos=-5 (tail_stop_loss) via IOC bid@75.10
+2026-11-28 02:45:04,575 [INFO] tick=2680 paused=0 gamma_x=1.0 pnl=-2014.50 pos={'SNDK': 5} mk5s={'SNDK': '-1.05t(30)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.16t(29)', 'MU': '-1.25t(2)'}
+2026-11-28 02:45:14,869 [INFO] tick=2720 paused=0 gamma_x=1.0 pnl=-2014.50 pos={} mk5s={'SNDK': '-0.47t(33)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.18t(32)', 'MU': '-1.25t(2)'}
+2026-11-28 02:45:25,129 [INFO] tick=2760 paused=0 gamma_x=1.0 pnl=-2014.40 pos={'NBIS': -1} mk5s={'SNDK': '-0.36t(35)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.32t(42)', 'MU': '-1.25t(2)'}
+2026-11-28 02:45:35,421 [INFO] tick=2800 paused=0 gamma_x=1.0 pnl=-2012.90 pos={'NBIS': -6} mk5s={'SNDK': '-0.36t(35)', 'CRWV': '-0.50t(22)', 'AVGO': '-2.13t(18)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.52t(47)', 'MU': '-1.25t(2)'}
+2026-11-28 02:45:45,685 [INFO] tick=2840 paused=0 gamma_x=1.0 pnl=-2013.90 pos={} mk5s={'SNDK': '-0.36t(35)', 'CRWV': '-0.50t(22)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.81t(52)', 'MU': '-1.25t(2)'}
+2026-11-28 02:45:55,986 [INFO] tick=2880 paused=0 gamma_x=1.0 pnl=-2013.80 pos={'SNDK': 4} mk5s={'SNDK': '-0.36t(35)', 'CRWV': '-0.50t(22)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.30t(60)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:06,243 [INFO] tick=2920 paused=0 gamma_x=1.0 pnl=-2013.70 pos={} mk5s={'SNDK': '-0.21t(40)', 'CRWV': '-0.50t(22)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '-0.03t(68)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:16,508 [INFO] tick=2960 paused=0 gamma_x=1.0 pnl=-2014.00 pos={} mk5s={'SNDK': '-0.21t(40)', 'CRWV': '-0.50t(22)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.67t(75)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:26,817 [INFO] tick=3000 paused=0 gamma_x=1.0 pnl=-2012.40 pos={} mk5s={'SNDK': '-0.21t(40)', 'CRWV': '-0.50t(22)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-3.01t(10)', 'AMD': '-5.54t(11)', 'NBIS': '+0.56t(80)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:37,111 [INFO] tick=3040 paused=0 gamma_x=1.0 pnl=-2011.90 pos={'CRWV': 3, 'NBIS': -1} mk5s={'SNDK': '-0.03t(42)', 'CRWV': '-0.13t(23)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-1.38t(12)', 'AMD': '-5.54t(11)', 'NBIS': '-0.01t(87)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:47,414 [INFO] tick=3080 paused=0 gamma_x=1.0 pnl=-2011.80 pos={} mk5s={'SNDK': '-0.03t(42)', 'CRWV': '+0.31t(26)', 'AVGO': '-0.83t(20)', 'VRT': '-5.06t(8)', 'NVDA': '-1.38t(12)', 'AMD': '-5.54t(11)', 'NBIS': '+0.10t(91)', 'MU': '-1.25t(2)'}
+2026-11-28 02:46:54,300 [INFO] Interrupted — cancelling open orders and disconnecting
+2026-11-28 02:46:54,334 [INFO] Background nacht analysis started for /home/workspace/data/autoloop_28_023335/live_001_023335 -> /home/workspace/data/autoloop_28_023335/nacht/nacht_bericht.md
+2026-11-28 02:46:54,350 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 02:46:54,350 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 02:46:54,350 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 02:46:54,829 [INFO] Background thread exited

@@ -1,0 +1,53 @@
+2026-11-28 07:24:11,601 [INFO] Connecting to Optibook Exchange (env/default config)
+2026-11-28 07:24:11,602 [INFO] Background thread started
+2026-11-28 07:24:11,633 [INFO] Connected to 2026-hackatum.optibook.net:8001
+2026-11-28 07:24:11,647 [INFO] Connected to 2026-hackatum.optibook.net:7001
+2026-11-28 07:24:11,649 [INFO] InfoClient subscribed to 2026-hackatum.optibook.net:7001
+2026-11-28 07:24:11,874 [INFO] Embedded CSV logger active -> /home/workspace/data/autoloop_28_072411/live_001_072411
+2026-11-28 07:24:11,874 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=False, session=0s)
+2026-11-28 07:24:21,662 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:24:31,703 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:24:41,744 [INFO] tick=120 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:24:51,785 [INFO] tick=160 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:01,827 [INFO] tick=200 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:11,867 [INFO] tick=240 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:21,907 [INFO] tick=280 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:31,947 [INFO] tick=320 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:41,987 [INFO] tick=360 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:25:52,029 [INFO] tick=400 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:02,069 [INFO] tick=440 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:12,110 [INFO] tick=480 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:22,150 [INFO] tick=520 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:32,190 [INFO] tick=560 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:42,230 [INFO] tick=600 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:26:52,271 [INFO] tick=640 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:02,312 [INFO] tick=680 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:12,352 [INFO] tick=720 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:22,392 [INFO] tick=760 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:32,433 [INFO] tick=800 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:42,473 [INFO] tick=840 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:27:52,514 [INFO] tick=880 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:02,555 [INFO] tick=920 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:12,595 [INFO] tick=960 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:22,636 [INFO] tick=1000 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:32,676 [INFO] tick=1040 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:42,716 [INFO] tick=1080 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:28:52,757 [INFO] tick=1120 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:02,799 [INFO] tick=1160 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:12,838 [INFO] tick=1200 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:22,879 [INFO] tick=1240 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:32,919 [INFO] tick=1280 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:42,960 [INFO] tick=1320 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:29:53,000 [INFO] tick=1360 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:03,041 [INFO] tick=1400 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:13,083 [INFO] tick=1440 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:23,123 [INFO] tick=1480 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:33,165 [INFO] tick=1520 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:43,206 [INFO] tick=1560 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:53,246 [INFO] tick=1600 paused=0 gamma_x=1.0 pnl=-2158.90 pos={} mk5s={}
+2026-11-28 07:30:55,431 [INFO] Interrupted — cancelling open orders and disconnecting
+2026-11-28 07:30:55,465 [INFO] Background nacht analysis started for /home/workspace/data/autoloop_28_072411/live_001_072411 -> /home/workspace/data/autoloop_28_072411/nacht/nacht_bericht.md
+2026-11-28 07:30:55,480 [WARNING] Disconnected from 2026-hackatum.optibook.net:7001 due to incomplete read - connection was likely closed
+2026-11-28 07:30:55,480 [INFO] Disconnected from 2026-hackatum.optibook.net:7001
+2026-11-28 07:30:55,480 [WARNING] Client disconnected from 2026-hackatum.optibook.net:8001
+2026-11-28 07:30:55,924 [INFO] Background thread exited

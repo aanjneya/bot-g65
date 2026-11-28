@@ -1,0 +1,9 @@
+27.11 23:07:11  Nacht-Betrieb startet in /home/workspace/nacht_27_2307. Neuer Datenordner alle 60 min. Strategien: ['simple', 'wall', 'wall_raw']
+27.11 23:07:12  Sammle in data_27_230711
+27.11 23:25:57  Verbindung verloren (anderer Bot im Team?). Werte aus, dann 60 s Pause.
+27.11 23:25:57  Werte data_27_230711 aus ...
+27.11 23:25:57    data_27_230711 simple: PnL -0.2
+27.11 23:25:59    data_27_230711 wall: PnL -87.7
+27.11 23:26:02    data_27_230711 wall_raw: PnL -224.1
+27.11 23:26:04  Bericht aktualisiert: nacht_bericht.md
+27.11 23:27:00  Nacht-Betrieb beendet.

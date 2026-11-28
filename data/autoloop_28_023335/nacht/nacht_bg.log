@@ -1,0 +1,48 @@
+28.11 02:46:54  Werte /home/workspace/data/autoloop_28_023335/live_001_023335 aus ...
+28.11 02:46:54    /home/workspace/data/autoloop_28_023335/live_001_023335 simple: PnL 0.2
+28.11 02:46:56    /home/workspace/data/autoloop_28_023335/live_001_023335 wall: PnL -164.8
+28.11 02:46:58    /home/workspace/data/autoloop_28_023335/live_001_023335 wall_raw: PnL -279.4
+28.11 02:47:01    /home/workspace/data/autoloop_28_023335/live_001_023335 runner:BacktestBot: PnL -40.2
+28.11 02:47:02  Bericht aktualisiert: nacht_bericht.md
+28.11 03:01:17  Werte /home/workspace/data/autoloop_28_023335/live_002_024654 aus ...
+28.11 03:01:18    /home/workspace/data/autoloop_28_023335/live_002_024654 simple: PnL 0.0
+28.11 03:01:20    /home/workspace/data/autoloop_28_023335/live_002_024654 wall: PnL -136.7
+28.11 03:01:21    /home/workspace/data/autoloop_28_023335/live_002_024654 wall_raw: PnL -443.1
+28.11 03:01:25    /home/workspace/data/autoloop_28_023335/live_002_024654 runner:BacktestBot: PnL -42.8
+28.11 03:01:27  Bericht aktualisiert: nacht_bericht.md
+28.11 03:47:48  Werte /home/workspace/data/autoloop_28_023335/live_003_030118 aus ...
+28.11 03:47:50    /home/workspace/data/autoloop_28_023335/live_003_030118 simple: PnL -0.7
+28.11 03:47:55    /home/workspace/data/autoloop_28_023335/live_003_030118 wall: PnL -257.0
+28.11 03:48:01    /home/workspace/data/autoloop_28_023335/live_003_030118 wall_raw: PnL -507.3
+28.11 03:48:12    /home/workspace/data/autoloop_28_023335/live_003_030118 runner:BacktestBot: PnL -19.9
+28.11 03:48:18  Bericht aktualisiert: nacht_bericht.md
+28.11 04:35:15  Werte /home/workspace/data/autoloop_28_023335/live_004_034749 aus ...
+28.11 04:35:17    /home/workspace/data/autoloop_28_023335/live_004_034749 simple: PnL -24.3
+28.11 04:35:22    /home/workspace/data/autoloop_28_023335/live_004_034749 wall: PnL -286.3
+28.11 04:35:28    /home/workspace/data/autoloop_28_023335/live_004_034749 wall_raw: PnL -916.2
+28.11 04:35:37    /home/workspace/data/autoloop_28_023335/live_004_034749 runner:BacktestBot: PnL -10.1
+28.11 04:35:43  Bericht aktualisiert: nacht_bericht.md
+28.11 05:35:17  Werte /home/workspace/data/autoloop_28_023335/live_005_043516 aus ...
+28.11 05:35:19    /home/workspace/data/autoloop_28_023335/live_005_043516 simple: PnL -3.2
+28.11 05:35:25    /home/workspace/data/autoloop_28_023335/live_005_043516 wall: PnL -749.4
+28.11 05:35:33    /home/workspace/data/autoloop_28_023335/live_005_043516 wall_raw: PnL -1453.3
+28.11 05:35:44    /home/workspace/data/autoloop_28_023335/live_005_043516 runner:BacktestBot: PnL -0.0
+28.11 05:35:53  Bericht aktualisiert: nacht_bericht.md
+28.11 06:05:17  Werte /home/workspace/data/live_28_053517_263889 aus ...
+28.11 06:05:18    /home/workspace/data/live_28_053517_263889 simple: PnL 0.2
+28.11 06:05:21    /home/workspace/data/live_28_053517_263889 wall: PnL -260.6
+28.11 06:05:25    /home/workspace/data/live_28_053517_263889 wall_raw: PnL -483.6
+28.11 06:05:31    /home/workspace/data/live_28_053517_263889 runner:BacktestBot: PnL 0.0
+28.11 06:05:35  Bericht aktualisiert: nacht_bericht.md
+28.11 07:05:19  Werte /home/workspace/data/autoloop_28_023335/live_006_060518 aus ...
+28.11 07:05:21    /home/workspace/data/autoloop_28_023335/live_006_060518 simple: PnL -68.5
+28.11 07:05:27    /home/workspace/data/autoloop_28_023335/live_006_060518 wall: PnL -4.9
+28.11 07:05:34    /home/workspace/data/autoloop_28_023335/live_006_060518 wall_raw: PnL -595.6
+28.11 07:05:46    /home/workspace/data/autoloop_28_023335/live_006_060518 runner:BacktestBot: PnL 0.0
+28.11 07:05:55  Bericht aktualisiert: nacht_bericht.md
+28.11 07:24:10  Werte /home/workspace/data/live_28_070519_248556 aus ...
+28.11 07:24:11    /home/workspace/data/live_28_070519_248556 simple: PnL -14.1
+28.11 07:24:13    /home/workspace/data/live_28_070519_248556 wall: PnL -259.1
+28.11 07:24:16    /home/workspace/data/live_28_070519_248556 wall_raw: PnL -427.6
+28.11 07:24:19    /home/workspace/data/live_28_070519_248556 runner:BacktestBot: PnL 0.0
+28.11 07:24:22  Bericht aktualisiert: nacht_bericht.md

@@ -1,0 +1,6 @@
+urteil,muster,aktie,sekunden,reaktion,faelle,effekt_h1,effekt_h2,kosten,netto
+NUR FAIR VALUE,Orderbuch stark einseitig,VRT,5,mit dem Signal,288,0.017,0.026,0.135,-0.109
+NUR FAIR VALUE,Orderbuch stark einseitig,CRWV,5,mit dem Signal,272,0.024,0.033,0.152,-0.119
+NUR FAIR VALUE,Orderbuch stark einseitig,VRT,1,mit dem Signal,674,0.008,0.008,0.13,-0.122
+NUR FAIR VALUE,Orderbuch stark einseitig,CRWV,1,mit dem Signal,611,0.008,0.011,0.153,-0.142
+NICHT STABIL,Grosser Trade (ab 20),ALLE,15,mit dem Signal,188,0.073,-0.153,0.157,-0.31
