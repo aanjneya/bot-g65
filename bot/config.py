@@ -83,9 +83,9 @@ class BotConfig:
     edge_ioc_lots: int = field(default_factory=lambda: int(os.getenv("EDGE_IOC_LOTS", "5")))
     edge_ioc_min_ticks: int = field(default_factory=lambda: int(os.getenv("EDGE_IOC_MIN_TICKS", "3")))
 
-    # News-feed jump guard, sniper & Optibook rate limit (<25 req/s)
+    # News-feed jump guard, sentiment sniper & Optibook rate limit (<25 req/s)
     news_cooldown_ticks: int = field(default_factory=lambda: int(os.getenv("NEWS_COOLDOWN_TICKS", "25")))
-    enable_news_sniper: bool = field(default_factory=lambda: _env_bool("ENABLE_NEWS_SNIPER", False))
+    enable_news_sniper: bool = field(default_factory=lambda: _env_bool("ENABLE_NEWS_SNIPER", True))
     news_snipe_lots: int = field(default_factory=lambda: int(os.getenv("NEWS_SNIPE_LOTS", "5")))
     max_requests_per_sec: int = field(default_factory=lambda: int(os.getenv("MAX_REQUESTS_PER_SEC", "20")))
 

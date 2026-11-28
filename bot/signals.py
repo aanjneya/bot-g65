@@ -545,6 +545,8 @@ class ReturnLeadLagCovariance:
 
 
 _COMPANY_ALIASES: Dict[str, str] = {
+    "ADVANCED MICRO DEVICES": "AMD",
+    "ADVANCED MICRO": "AMD",
     "NVIDIA": "NVDA",
     "BROADCOM": "AVGO",
     "MICRON": "MU",
