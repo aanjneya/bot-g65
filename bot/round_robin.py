@@ -60,6 +60,14 @@ OTHER_LAB_STRATEGIES = [
     "strat_glft_8stock:MultiAssetGLFTPortfolioBot",
 ]
 
+FINALISTS_5 = [
+    "strat_top7_allweather:ApexAllWeatherBot",
+    "strat_top3_pair_glft:BlockPairGLFTBot",
+    "strat_top1_blind_kalman:BlindGraphKalmanBot",
+    "strat_top4_micro_obi:StudentBookMicroPennyBot",
+    "_slide12_test:U2_Tighter",
+]
+
 
 def flatten_all_positions(ex: Any, insts: List[str], max_wait_sec: float = 15.0) -> Dict[str, int]:
     """Cancel all resting orders and flatten every non-zero position via rate-safe IOC orders."""
@@ -182,7 +190,7 @@ def run_one_round(
     cls = _load_strategy_cls(spec)
 
     cfg = BotConfig(mock_mode=mock_mode, max_position_lots=100)
-    if duration_sec >= 60.0 and "ApexOmnibusChampion" in spec:
+    if duration_sec >= 600.0 and ("ApexOmnibusChampion" in spec or "ApexAllWeatherBot" in spec):
         os.environ["SESSION_DURATION_SEC"] = str(duration_sec)
     else:
         os.environ["SESSION_DURATION_SEC"] = "0"
@@ -365,13 +373,15 @@ def main():
     ap.add_argument("--seconds", type=float, default=None, help="Override seconds per strategy (for quick tests)")
     ap.add_argument("--mock", action="store_true", help="Run against MockExchange instead of live Optibook")
     ap.add_argument("--poll-sec", type=float, default=0.05, help="Poll interval in seconds (default 0.05 = 20Hz)")
-    ap.add_argument("--batch", choices=["top7", "other7", "all14"], default="top7", help="Which preset strategy batch to run")
+    ap.add_argument("--batch", choices=["finalists", "top7", "other7", "all14"], default="finalists", help="Which preset strategy batch to run")
     ap.add_argument("--strategies", nargs="*", default=None, help="Explicit list of module:Class specs")
     ap.add_argument("--out-dir", type=str, default=None, help="Output folder (default data/round_robin_<ts>)")
     args = ap.parse_args()
 
     if args.strategies:
         strat_list = args.strategies
+    elif args.batch == "finalists":
+        strat_list = FINALISTS_5
     elif args.batch == "other7":
         strat_list = OTHER_LAB_STRATEGIES
     elif args.batch == "all14":

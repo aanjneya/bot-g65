@@ -18,6 +18,7 @@ from strat_top3_pair_glft import BlockPairGLFTBot  # noqa: E402
 from strat_top4_micro_obi import StudentBookMicroPennyBot  # noqa: E402
 from strat_top5_velocity_unpin import VelocityUnpinMakerSniper  # noqa: E402
 from strat_top6_omnibus import ApexOmnibusChampion  # noqa: E402
+from strat_top7_allweather import ApexAllWeatherBot  # noqa: E402
 
 
 ALL_SIX = [
@@ -27,6 +28,7 @@ ALL_SIX = [
     ("Top4_StudentMicroPenny", StudentBookMicroPennyBot),
     ("Top5_VelocityUnpin", VelocityUnpinMakerSniper),
     ("Top6_ApexOmnibus", ApexOmnibusChampion),
+    ("Top7_ApexAllWeather", ApexAllWeatherBot),
 ]
 
 

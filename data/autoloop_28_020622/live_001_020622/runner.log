@@ -1,0 +1,6 @@
+2026-11-28 02:06:22,590 [INFO] Starting in MOCK_MODE=true with synthetic correlated AI market
+2026-11-28 02:06:22,608 [INFO] Embedded CSV logger active -> /Users/aanjneya/Programming/Projects/bot-g65/data/autoloop_28_020622/live_001_020622
+2026-11-28 02:06:22,609 [INFO] ABMM-S live on ['AMD', 'AVGO', 'CRWV', 'MU', 'NBIS', 'NVDA', 'SNDK', 'VRT'] (mock=True, session=0s)
+2026-11-28 02:06:32,528 [INFO] tick=40 paused=0 gamma_x=1.0 pnl=0.00 pos={} mk5s={}
+2026-11-28 02:06:42,687 [INFO] tick=80 paused=0 gamma_x=1.0 pnl=0.00 pos={} mk5s={}
+2026-11-28 02:06:48,160 [INFO] Interrupted — cancelling open orders and disconnecting
