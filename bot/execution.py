@@ -828,9 +828,9 @@ class RiskAndExecution:
                 if cur_pos <= 0 and (inst_id, 'ask') in pulled_entries:
                     ask_vol = 0
 
-            # AVGO passive-entry ablation. Keep observing its book and shadow
-            # candidates; allow a funded passive order only to close inventory.
-            if inst_id == "AVGO":
+            # Exit-only passive quoting on these names. Keep book signals and
+            # shadow candidates active so entry eligibility can be reassessed.
+            if inst_id in ("AVGO", "AMD", "NBIS"):
                 bid_vol = min(bid_vol, max(0, -cur_pos))
                 ask_vol = min(ask_vol, max(0, cur_pos))
 
