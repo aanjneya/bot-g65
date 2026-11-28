@@ -952,7 +952,17 @@ def main() -> None:
                 logger.warning("LLM API call failed in cycle %d: %s", cycle_num, exc)
                 continue
 
+            # Save Astra's full reasoning & proposal JSON for inspection
+            try:
+                with open(os.path.join(snapshot_dir, "astra_proposal.json"), "w", encoding="utf-8") as pf:
+                    json.dump(proposal, pf, indent=2)
+            except Exception:
+                pass
+
             diagnosis = str(proposal.get("diagnosis", "")).strip()
+            strategy_plan = str(proposal.get("strategy_plan", "")).strip()
+            if strategy_plan:
+                diagnosis = f"{diagnosis} | Plan: {strategy_plan}" if diagnosis else strategy_plan
             insights = [str(x).strip() for x in (proposal.get("insights") or []) if str(x).strip()]
             edits = proposal.get("edits") or []
             summary = str(proposal.get("summary", "strategy update")).strip()

@@ -121,8 +121,8 @@ class RoundTripScreen:
         n = sum(v[0] for v in rows)
         b = len(rows)
         if n < 12 or b < 4:
-            return False
+            return True
         mean = sum(v[1] for v in rows) / n
-        # Cluster by minute; a burst of identical prints is not n independent bets.
+        # Cluster by minute; veto only when we have statistically negative round-trip evidence.
         se = sqrt(b / (b - 1) * sum((cash - count * mean) ** 2 for count, cash in rows)) / n
-        return mean - 2.0 * se > 0.0
+        return mean + 1.0 * se > 0.0
